@@ -85,6 +85,25 @@ html {
   scroll-behavior: smooth;
 }
 
+/* ── Font utilities for Stitch landing redesign ─────────────────────── */
+.font-serif {
+  font-family: var(--font-newsreader), Georgia, serif;
+}
+.font-script {
+  font-family: var(--font-caveat), cursive, serif;
+}
+
+/* Dot-grid texture used in hero & academician sections */
+.technical-grid {
+  background-size: 24px 24px;
+  background-image: radial-gradient(circle, #CBD5E1 1px, transparent 1px);
+}
+.dark-technical-grid {
+  background-size: 24px 24px;
+  background-image: radial-gradient(circle, #374151 1px, transparent 1px);
+}
+
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

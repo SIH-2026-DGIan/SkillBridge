@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Zap, Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles, GraduationCap, Building2, Layers, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import { setSession, type UserRole } from '@/lib/user-session';
@@ -74,18 +75,8 @@ export default function LoginPage() {
       <header className="border-b border-slate-200/80 bg-white/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center text-white font-black shadow-md shadow-indigo-500/20">
-              <Zap className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="font-black text-slate-900 text-lg tracking-tight">
-                Skill<span className="gradient-text-playful">Bridge</span>
-              </span>
-              <span className="text-[10px] block font-extrabold text-indigo-600 uppercase tracking-widest -mt-1">
-                Portal Sign In
-              </span>
-            </div>
-          </Link>
+              <Image src="/logo.png" alt="SkillBridge" width={130} height={34} className="h-8 w-auto object-contain" />
+            </Link>
 
           <Link
             href="/signup"
