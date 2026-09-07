@@ -20,51 +20,69 @@ import {
   Bell,
   Sparkles,
   ShieldCheck,
-  ChevronRight,
   Zap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getSession, type UserSession } from '@/lib/user-session';
 
+interface NavItem {
+  href: string;
+  label: string;
+  icon: React.ElementType;
+}
+
 interface NavGroup {
   group: string;
-  items: {
-    href: string;
-    label: string;
-    icon: React.ElementType;
-    badge?: string | null;
-  }[];
+  items: NavItem[];
 }
 
 const NAV_GROUPS: NavGroup[] = [
   {
-    group: 'HOME',
+    group: 'Home',
     items: [{ href: '/student/dashboard', label: 'Dashboard', icon: LayoutDashboard }],
   },
   {
-    group: 'MY CAREER',
+    group: 'My Career',
     items: [
       { href: '/student/skills', label: 'Skill Profile', icon: Target },
-      { href: '/student/assessment', label: 'Skill Assessment', icon: ClipboardCheck },
+      { href: '/student/assessment', label: 'Assessment', icon: ClipboardCheck },
       { href: '/student/skill-gaps', label: 'Skill Gaps & Goals', icon: TrendingUp },
       { href: '/student/learning', label: 'Learning Path', icon: BookOpen },
     ],
   },
   {
-    group: 'OPPORTUNITIES',
+    group: 'Opportunities',
     items: [
       { href: '/student/opportunities', label: 'Recommended', icon: Briefcase },
       { href: '/student/applications', label: 'Applications', icon: FileText },
     ],
   },
   {
-    group: 'MY PROFILE',
+    group: 'Profile',
     items: [
       { href: '/student/resume', label: 'Resume / CV', icon: FileText },
       { href: '/student/portfolio', label: 'Digital Portfolio', icon: FolderOpen },
     ],
   },
 ];
+
+/** Map each pathname prefix to a human-readable page title */
+const PAGE_TITLES: { prefix: string; title: string }[] = [
+  { prefix: '/student/dashboard', title: 'Dashboard' },
+  { prefix: '/student/skills', title: 'Skill Profile' },
+  { prefix: '/student/assessment', title: 'Assessment' },
+  { prefix: '/student/skill-gaps', title: 'Skill Gaps & Goals' },
+  { prefix: '/student/learning', title: 'Learning Path' },
+  { prefix: '/student/opportunities', title: 'Opportunities' },
+  { prefix: '/student/applications', title: 'Applications' },
+  { prefix: '/student/resume', title: 'Resume / CV' },
+  { prefix: '/student/portfolio', title: 'Digital Portfolio' },
+];
+
+function getPageTitle(pathname: string): string {
+  const match = PAGE_TITLES.find((p) => pathname.startsWith(p.prefix));
+  return match?.title ?? 'Student Hub';
+}
 
 function Sidebar({ user, onClose }: { user: UserSession; onClose?: () => void }) {
   const pathname = usePathname();
@@ -84,96 +102,87 @@ function Sidebar({ user, onClose }: { user: UserSession; onClose?: () => void })
     .toUpperCase();
 
   return (
-    <div className="flex flex-col h-full bg-white border-r border-slate-200/80">
-      {/* Brand Header */}
-      <div className="flex items-center justify-between p-5 border-b border-slate-100">
+    <div className="flex flex-col h-full bg-white border-r border-slate-100">
+      {/* Brand */}
+      <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
         <Link href="/" className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white font-black shadow-md shadow-indigo-500/20">
-            <Zap className="w-5 h-5" />
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 flex-shrink-0">
+            <Zap className="w-4 h-4" />
           </div>
-          <div>
-            <span className="font-black text-slate-900 text-lg tracking-tight">
-              Skill<span className="gradient-text-playful">Bridge</span>
-            </span>
-            <span className="text-[10px] block font-extrabold text-indigo-600 uppercase tracking-wider -mt-1">
-              Student Career Hub
-            </span>
-          </div>
+          <span className="font-black text-slate-900 text-base tracking-tight">
+            Skill<span className="gradient-text-playful">Bridge</span>
+          </span>
         </Link>
         {onClose && (
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-600 md:hidden rounded-xl bg-slate-100"
+            className="p-1.5 text-slate-400 hover:text-slate-600 md:hidden rounded-lg hover:bg-slate-100"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         )}
       </div>
 
-      {/* Student Profile Snapshot */}
-      <div className="p-4 border-b border-slate-100">
-        <div className="glass-card rounded-2xl p-3.5 border border-indigo-100/80 bg-gradient-to-br from-indigo-50/40 to-purple-50/30">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white font-black text-sm shadow-md ring-2 ring-white flex-shrink-0">
-              {initials}
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-slate-900 text-sm truncate">{user.name}</span>
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
-              </div>
-              <div className="text-[11px] font-bold text-indigo-700 truncate">
-                {user.targetRole || 'Target Role'}
-              </div>
-              <div className="text-[10px] font-semibold text-slate-400 truncate">
-                {user.college || 'Engineering College'}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Grouped Navigation */}
-      <nav className="flex-1 p-3 space-y-4 overflow-y-auto">
+      <nav className="flex-1 px-3 py-4 space-y-5 overflow-y-auto">
         {NAV_GROUPS.map((group) => (
-          <div key={group.group} className="space-y-1">
-            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-3 py-1">
+          <div key={group.group}>
+            <div className="text-[11px] font-semibold text-slate-400 px-3 mb-1">
               {group.group}
             </div>
-            {group.items.map((item) => {
-              const active = pathname === item.href || (item.href !== '/student/dashboard' && pathname.startsWith(item.href));
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={onClose}
-                  className={cn(
-                    'nav-pill group',
-                    active && 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/25'
-                  )}
-                >
-                  <item.icon
+            <div className="space-y-0.5">
+              {group.items.map((item) => {
+                const active =
+                  pathname === item.href ||
+                  (item.href !== '/student/dashboard' && pathname.startsWith(item.href));
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={onClose}
                     className={cn(
-                      'w-4 h-4 flex-shrink-0 transition-colors',
-                      active ? 'text-white' : 'text-slate-500 group-hover:text-indigo-600'
+                      'nav-pill group',
+                      active
+                        ? 'bg-indigo-50 text-indigo-700 font-bold'
+                        : 'text-slate-600 hover:text-slate-900'
                     )}
-                  />
-                  <span className="flex-1">{item.label}</span>
-                </Link>
-              );
-            })}
+                  >
+                    <item.icon
+                      className={cn(
+                        'w-4 h-4 flex-shrink-0',
+                        active ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-600'
+                      )}
+                    />
+                    <span>{item.label}</span>
+                    {active && (
+                      <span className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         ))}
       </nav>
 
-      {/* Account / Sign Out */}
-      <div className="p-3 border-t border-slate-100">
+      {/* User + Sign Out */}
+      <div className="px-3 py-4 border-t border-slate-100 space-y-2">
+        {/* Compact user row */}
+        <div className="flex items-center gap-2.5 px-3 py-2">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
+            {initials}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-semibold text-slate-800 truncate">{user.name}</div>
+            <div className="text-[11px] text-slate-400 truncate">{user.targetRole || 'Student'}</div>
+          </div>
+        </div>
         <button
           onClick={handleLogout}
-          className="nav-pill w-full text-slate-500 hover:text-rose-600 hover:bg-rose-50 font-bold"
+          className="nav-pill w-full text-slate-500 hover:text-rose-600 hover:bg-rose-50"
         >
-          <LogOut className="w-4 h-4 text-slate-400 group-hover:text-rose-600" />
-          <span>Switch Persona / Sign Out</span>
+          <LogOut className="w-4 h-4 text-slate-400" />
+          <span>Sign Out</span>
         </button>
       </div>
     </div>
@@ -183,69 +192,66 @@ function Sidebar({ user, onClose }: { user: UserSession; onClose?: () => void })
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState<UserSession>(getSession());
+  const pathname = usePathname();
 
   useEffect(() => {
-    const sync = () => {
-      setUser(getSession());
-    };
+    const sync = () => setUser(getSession());
     sync();
     window.addEventListener('sb_session_updated', sync);
     return () => window.removeEventListener('sb_session_updated', sync);
   }, []);
 
+  const pageTitle = getPageTitle(pathname);
+
   return (
     <div className="flex h-screen overflow-hidden bg-[#f8fafc]">
-      {/* Desktop Sidebar */}
-      <div className="hidden md:flex md:flex-col md:w-64 flex-shrink-0">
+      {/* Desktop Sidebar — narrower for more content room */}
+      <div className="hidden md:flex md:flex-col md:w-60 flex-shrink-0">
         <Sidebar user={user} />
       </div>
 
-      {/* Mobile Sidebar */}
+      {/* Mobile Sidebar Drawer */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
-          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
-          <div className="absolute left-0 top-0 bottom-0 w-64 z-50">
+          <div
+            className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm"
+            onClick={() => setSidebarOpen(false)}
+          />
+          <div className="absolute left-0 top-0 bottom-0 w-60 z-50 shadow-xl">
             <Sidebar user={user} onClose={() => setSidebarOpen(false)} />
           </div>
         </div>
       )}
 
-      {/* Main Container */}
+      {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Top Header */}
-        <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/80 px-4 md:px-8 py-3.5 flex items-center justify-between flex-shrink-0 z-10">
+        {/* Top Header — clean, minimal */}
+        <header className="bg-white border-b border-slate-100 px-5 md:px-8 h-14 flex items-center justify-between flex-shrink-0 z-10">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="p-2 text-slate-600 hover:text-slate-900 md:hidden rounded-xl bg-slate-100"
+              className="p-1.5 text-slate-500 hover:text-slate-900 md:hidden rounded-lg hover:bg-slate-100"
             >
               <Menu className="w-5 h-5" />
             </button>
-            <div className="flex items-center gap-2">
-              <span className="badge-pill badge-pill-purple">
-                <Sparkles className="w-3.5 h-3.5 text-indigo-600" /> {user.college || 'Engineering College'}
-              </span>
-              <span className="badge-pill badge-pill-emerald hidden sm:inline-flex">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Target: {user.targetRole || 'Software Engineer'}
-              </span>
-            </div>
+            <h1 className="text-base font-bold text-slate-800">{pageTitle}</h1>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <Link
               href="/student/portfolio"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-100 transition-colors"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg border border-indigo-100 transition-colors"
             >
-              Digital Portfolio ↗
+              Portfolio ↗
             </Link>
-            <button className="relative p-2 text-slate-500 hover:text-indigo-600 rounded-xl hover:bg-slate-100 transition-colors">
+            <button className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition-colors relative">
               <Bell className="w-5 h-5" />
             </button>
           </div>
         </header>
 
         {/* Page Body */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-mesh-playful">
+        <main className="flex-1 overflow-y-auto p-5 sm:p-7 lg:p-8 bg-[#f8fafc]">
           {children}
         </main>
       </div>
