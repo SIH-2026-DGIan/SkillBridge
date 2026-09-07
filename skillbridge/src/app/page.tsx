@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import {
   GraduationCap,
@@ -16,7 +15,10 @@ import {
   ArrowRight,
   Briefcase,
   ShieldCheck,
-  Award,
+  TrendingUp,
+  AlertTriangle,
+  BarChart2,
+  Map,
 } from 'lucide-react';
 
 const STAKEHOLDERS = [
@@ -24,15 +26,14 @@ const STAKEHOLDERS = [
     id: 'student',
     role: 'Student & Graduate',
     icon: GraduationCap,
-    tagline: 'Discover verified skill gaps & unlock AI-matched career opportunities',
     color: 'from-indigo-600 to-violet-600',
-    border: 'border-indigo-100',
+    tagline: 'Know exactly where you stand — and what to fix.',
     steps: [
-      'Adaptive Diagnostic Skill Assessment',
-      'Target Role Gap Benchmark Heatmap',
-      'Curated Modular Learning Roadmaps',
-      'Deterministic AI Opportunity Matching',
-      'Shareable Verified Digital Portfolio',
+      'Take a 10-min adaptive skill diagnostic',
+      'See your gap vs. your target job role',
+      'Follow a personalized learning roadmap',
+      'Get AI-matched to internships & jobs',
+      'Share a verified digital portfolio with recruiters',
     ],
     link: '/signup',
     cta: 'Start as Student',
@@ -41,32 +42,30 @@ const STAKEHOLDERS = [
     id: 'industry',
     role: 'Industry & Recruiter',
     icon: Building2,
-    tagline: 'Hire talent ranked by proven competency, not just inflated resumes',
     color: 'from-blue-600 to-indigo-600',
-    border: 'border-blue-100',
+    tagline: 'Hire by verified competency, not just a resume.',
     steps: [
-      'Post Internships, Jobs & Capstone RFPs',
-      'Deterministic Multi-Factor Compatibility Engine',
-      'Rank-Ordered Candidate Leaderboards',
-      '1-Click Shortlist to Interview Pipeline',
-      'Campus-Wide Placement Drive Coordination',
+      'Post internships, jobs & capstone projects',
+      'AI ranks candidates by proven skill fit',
+      'View rank-ordered shortlists instantly',
+      '1-click pipeline to interview scheduling',
+      'Run campus-wide placement drives',
     ],
     link: '/signup',
     cta: 'Hire as Industry',
   },
   {
     id: 'institution',
-    role: 'Institution & Dean / TPO',
+    role: 'Institution & TPO / Dean',
     icon: Layers,
-    tagline: 'Measure batch placement readiness & deploy curriculum interventions',
     color: 'from-cyan-600 to-blue-600',
-    border: 'border-cyan-100',
+    tagline: "See your entire batch's placement readiness at a glance.",
     steps: [
-      'Real-Time Campus Skill Penetration Heatmaps',
-      'Batch Placement Readiness Tier Segmentation',
-      'Curriculum Deficit & Remediation Analytics',
-      'Accreditation & NIRF Placement Insights',
-      'Strategic Corporate Partner Outreach',
+      'Real-time skill heatmaps across your campus',
+      'Batch segmentation by placement readiness tier',
+      'Identify curriculum gaps before exam season',
+      'NIRF & accreditation placement analytics',
+      'Coordinate corporate partner outreach',
     ],
     link: '/signup',
     cta: 'Monitor as Institution',
@@ -75,60 +74,56 @@ const STAKEHOLDERS = [
     id: 'academician',
     role: 'Academician & Faculty',
     icon: Users,
-    tagline: 'Connect with funded research grants, FDPs & corporate consultancies',
     color: 'from-violet-600 to-indigo-600',
-    border: 'border-violet-100',
+    tagline: 'Connect your research & expertise with industry.',
     steps: [
-      'AICTE & DST Sponsored Faculty Development (FDP)',
-      'Bilateral Industry Research Grants & Proposals',
-      'Corporate Technical Advisory & Retainers',
-      'Industry Sabbaticals & Student Mentorship',
-      'Guest Masterclasses & Capstone Reviews',
+      'Access AICTE & DST sponsored FDP programs',
+      'Apply for industry research grants',
+      'Offer corporate technical advisory',
+      'Mentor students on career roadmaps',
+      'Conduct guest masterclasses & capstone reviews',
     ],
     link: '/signup',
     cta: 'Collaborate as Faculty',
   },
 ];
 
+const STATS = [
+  { value: '51.25%', label: 'of Indian engineering graduates are employable', source: 'India Skills Report 2024' },
+  { value: '45%', label: 'of employers struggle to find job-ready candidates', source: 'NASSCOM' },
+  { value: '93 lakh+', label: 'engineering seats filled annually across India', source: 'AICTE' },
+  { value: '0', label: 'standardized platforms bridging this gap end-to-end', source: 'The gap we solve' },
+];
+
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 overflow-hidden font-sans">
-      {/* 1. Clean White Navbar */}
-      <header className="border-b border-slate-200/90 bg-white/95 backdrop-blur-md sticky top-0 z-50 transition-all">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-20">
-          <Link href="/" className="flex items-center gap-3.5 group">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#4F46E5] to-[#7C3AED] flex items-center justify-center shadow-lg shadow-indigo-500/25 group-hover:scale-105 transition-transform">
-              <Zap className="w-6 h-6 text-white" />
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-sans">
+
+      {/* ── Navbar ── */}
+      <header className="border-b border-slate-200/90 bg-white/95 backdrop-blur-md sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#4F46E5] to-[#7C3AED] flex items-center justify-center shadow-md shadow-indigo-500/25 group-hover:scale-105 transition-transform">
+              <Zap className="w-5 h-5 text-white" />
             </div>
-            <div>
-              <span className="font-black text-slate-900 text-2xl tracking-tight flex items-center gap-1">
-                Skill<span className="bg-gradient-to-r from-[#4F46E5] via-[#7C3AED] to-[#06B6D4] bg-clip-text text-transparent">Bridge</span>
-              </span>
-            </div>
+            <span className="font-black text-slate-900 text-xl tracking-tight">
+              Skill<span className="bg-gradient-to-r from-[#4F46E5] via-[#7C3AED] to-[#06B6D4] bg-clip-text text-transparent">Bridge</span>
+            </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8">
-            <a href="#how-it-works" className="text-sm font-extrabold text-slate-700 hover:text-[#4F46E5] transition-colors">
-              How It Works
-            </a>
-            <a href="#roles" className="text-sm font-extrabold text-slate-700 hover:text-[#4F46E5] transition-colors">
-              The 4 Stakeholders
-            </a>
-            <a href="#journey" className="text-sm font-extrabold text-slate-700 hover:text-[#4F46E5] transition-colors">
-              Student Journey
-            </a>
+          <nav className="hidden md:flex items-center gap-7">
+            <a href="#problem" className="text-sm font-semibold text-slate-600 hover:text-[#4F46E5] transition-colors">The Problem</a>
+            <a href="#how-it-works" className="text-sm font-semibold text-slate-600 hover:text-[#4F46E5] transition-colors">How It Works</a>
+            <a href="#roles" className="text-sm font-semibold text-slate-600 hover:text-[#4F46E5] transition-colors">Who It's For</a>
           </nav>
 
           <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="text-sm font-extrabold text-slate-700 hover:text-[#4F46E5] px-4 py-2.5 rounded-xl transition-colors"
-            >
+            <Link href="/login" className="text-sm font-semibold text-slate-700 hover:text-[#4F46E5] px-4 py-2 rounded-xl transition-colors">
               Sign In
             </Link>
             <Link
               href="/signup"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#4F46E5] to-[#7C3AED] hover:from-[#4338CA] hover:to-[#6D28D9] text-white text-sm font-black rounded-2xl shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 bouncy-hover transition-all"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#4F46E5] to-[#7C3AED] text-white text-sm font-bold rounded-xl shadow-md shadow-indigo-500/20 hover:shadow-indigo-500/35 bouncy-hover transition-all"
             >
               Get Started <ArrowRight className="w-4 h-4" />
             </Link>
@@ -136,81 +131,225 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* 2. Hero Section (#F8FAFC -> #EEF2FF with subtle blue-violet gradient) */}
-      <section className="relative pt-16 pb-20 lg:pt-24 lg:pb-28 overflow-hidden bg-gradient-to-b from-[#F8FAFC] via-[#EEF2FF] to-[#F8FAFC]">
-        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          {/* Main Heading: Connecting Talent (Solid Navy) + Academia & Industry (Indigo -> Violet -> Cyan) */}
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-[#0F172A] tracking-tight leading-[1.12]">
-            Connecting Talent, <br />
-            <span className="bg-gradient-to-r from-[#4F46E5] via-[#7C3AED] to-[#06B6D4] bg-clip-text text-transparent">
-              Academia &amp; Industry
+      {/* ── Hero ── */}
+      <section className="relative pt-20 pb-24 lg:pt-28 lg:pb-32 overflow-hidden bg-gradient-to-b from-[#F8FAFC] via-[#EEF2FF] to-[#F8FAFC]">
+        {/* Background blobs */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-200/30 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-purple-200/25 rounded-full blur-3xl" />
+        </div>
+
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          {/* Context badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 border border-indigo-200 rounded-full text-sm font-semibold text-indigo-700 mb-8">
+            <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+            Smart India Hackathon 2026 · AI-Powered Career Platform
+          </div>
+
+          {/* Main headline — crystal clear */}
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#0F172A] tracking-tight leading-[1.1] mb-6">
+            India's skill gap is real.{' '}
+            <span className="bg-gradient-to-r from-[#4F46E5] via-[#7C3AED] to-[#06B6D4] bg-clip-text text-transparent block sm:inline">
+              SkillBridge fixes it.
             </span>
           </h1>
 
-          {/* Subtitle */}
-          <p className="mt-8 text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto font-semibold leading-relaxed">
-            Assess verified competencies. Identify exact career gaps. Build industry capabilities. Connect candidates with the right opportunities dynamically.
+          {/* Clear value proposition — what does this actually do? */}
+          <p className="text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed mb-4">
+            An end-to-end AI platform that <strong className="text-slate-800">assesses student skill gaps</strong>,
+            builds <strong className="text-slate-800">personalized learning paths</strong>, and{' '}
+            <strong className="text-slate-800">matches candidates to verified industry opportunities</strong> — all in one place.
+          </p>
+          <p className="text-sm text-slate-500 mb-10">
+            For students, recruiters, institutions & faculty. Built for India's 93-lakh-seat engineering ecosystem.
           </p>
 
-          {/* Primary Action Buttons */}
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/signup"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-9 py-4.5 bg-gradient-to-r from-[#4F46E5] to-[#7C3AED] hover:from-[#4338CA] hover:to-[#6D28D9] text-white text-base font-black rounded-2xl shadow-xl shadow-indigo-500/30 hover:shadow-indigo-500/45 bouncy-hover transition-all"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-[#4F46E5] to-[#7C3AED] text-white text-base font-bold rounded-2xl shadow-xl shadow-indigo-500/30 hover:shadow-indigo-500/45 bouncy-hover transition-all"
             >
-              Get Started — Choose Your Role <ArrowRight className="w-5 h-5" />
+              Get Started Free <ArrowRight className="w-5 h-5" />
             </Link>
             <Link
-              href="/login"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-4.5 bg-white hover:bg-slate-50 text-slate-900 text-base font-extrabold rounded-2xl border border-slate-300 shadow-sm transition-all"
+              href="/demo"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-4 bg-white text-slate-800 text-base font-semibold rounded-2xl border border-slate-300 shadow-sm hover:bg-slate-50 transition-all"
             >
-              Sign In to Existing Account
+              View Live Demo →
             </Link>
           </div>
         </div>
       </section>
 
-      {/* 3. The 4 Stakeholders Section (Clean White Cards, Blue/Violet subtle borders) */}
-      <section id="roles" className="py-24 bg-white border-t border-slate-200/90">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-sm font-black uppercase tracking-widest text-[#4F46E5] block mb-2.5">
-              Role-Aware Architecture
-            </span>
-            <h2 className="text-4xl sm:text-5xl font-black text-[#0F172A] tracking-tight">
-              Built for Everyone in the Ecosystem
+      {/* ── Problem Section ── */}
+      <section id="problem" className="py-20 bg-white border-t border-slate-200/80">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-14">
+            <span className="text-xs font-bold uppercase tracking-widest text-rose-500 block mb-3">The Problem We Solve</span>
+            <h2 className="text-3xl sm:text-4xl font-black text-[#0F172A] tracking-tight">
+              India's Engineering Talent Pipeline is Broken
             </h2>
-            <p className="text-slate-600 text-base sm:text-lg font-medium mt-3">
-              SkillBridge dynamically adapts workflows, intelligence, and dashboards based on who you are.
+            <p className="text-slate-500 text-base mt-3 max-w-2xl mx-auto">
+              Millions of graduates. A fraction job-ready. No standardized system to close the gap.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Stats grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-14">
+            {STATS.map((stat) => (
+              <div key={stat.label} className="p-6 rounded-2xl bg-slate-50 border border-slate-200 text-center">
+                <div className="text-3xl font-black text-[#4F46E5] mb-2">{stat.value}</div>
+                <div className="text-sm font-semibold text-slate-700 leading-snug mb-1">{stat.label}</div>
+                <div className="text-xs text-slate-400 font-medium">{stat.source}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Problem → Solution bridge */}
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="p-7 rounded-2xl bg-rose-50 border border-rose-200">
+              <div className="flex items-center gap-2 mb-4">
+                <AlertTriangle className="w-5 h-5 text-rose-500" />
+                <span className="font-bold text-rose-700 text-sm uppercase tracking-wide">Without SkillBridge</span>
+              </div>
+              <ul className="space-y-3">
+                {[
+                  'Students guess which skills to improve with no data',
+                  'Recruiters filter 500 CVs manually with no skill verification',
+                  'TPOs have no real-time view of batch placement readiness',
+                  'Faculty remain disconnected from industry needs',
+                  'Everyone operates in silos — no shared intelligence',
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-sm text-rose-800 font-medium">
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1.5 flex-shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="p-7 rounded-2xl bg-emerald-50 border border-emerald-200">
+              <div className="flex items-center gap-2 mb-4">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                <span className="font-bold text-emerald-700 text-sm uppercase tracking-wide">With SkillBridge</span>
+              </div>
+              <ul className="space-y-3">
+                {[
+                  'Students get a precise gap heatmap vs. their target role',
+                  'Recruiters get AI-ranked candidates by verified competency scores',
+                  'TPOs see real-time skill penetration across their entire batch',
+                  'Faculty connect with industry FDPs, grants & mentorship programs',
+                  'One closed-loop platform — from assessment to placement',
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-sm text-emerald-800 font-medium">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── How It Works ── */}
+      <section id="how-it-works" className="py-20 bg-gradient-to-b from-[#F8FAFC] to-[#EEF2FF] border-t border-slate-200/80">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-14">
+            <span className="text-xs font-bold uppercase tracking-widest text-[#4F46E5] block mb-3">End-to-End Workflow</span>
+            <h2 className="text-3xl sm:text-4xl font-black text-[#0F172A] tracking-tight">
+              How SkillBridge Works
+            </h2>
+            <p className="text-slate-500 text-base mt-3 max-w-xl mx-auto">
+              A deterministic, closed-loop system — from first assessment to verified placement.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-4 gap-5">
+            {[
+              {
+                step: '01',
+                title: 'Skill Diagnostic',
+                desc: 'Student takes a 10-min adaptive test or uploads their CV. AI extracts a verified skill vector instantly.',
+                icon: Brain,
+                color: 'from-indigo-500 to-violet-600',
+              },
+              {
+                step: '02',
+                title: 'Gap Heatmap',
+                desc: 'Their scores are benchmarked against real industry job requirements to show exact skill deficits.',
+                icon: Target,
+                color: 'from-violet-500 to-purple-600',
+              },
+              {
+                step: '03',
+                title: 'Learning Roadmap',
+                desc: 'Personalized course tracks, videos, and mini-projects are curated to close those specific gaps.',
+                icon: BookOpen,
+                color: 'from-purple-500 to-pink-500',
+              },
+              {
+                step: '04',
+                title: 'AI Job Match',
+                desc: 'Candidates are ranked and matched to verified industry postings based on their competency profile.',
+                icon: Briefcase,
+                color: 'from-pink-500 to-rose-500',
+              },
+            ].map((item, idx) => (
+              <div key={idx} className="relative bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:border-indigo-200 hover:shadow-md transition-all">
+                {/* Connector line (not on last) */}
+                {idx < 3 && (
+                  <div className="hidden md:block absolute top-10 -right-2.5 w-5 h-0.5 bg-slate-200 z-10" />
+                )}
+                <div className={`w-11 h-11 rounded-xl bg-gradient-to-tr ${item.color} flex items-center justify-center text-white font-black text-sm mb-4 shadow-md`}>
+                  {item.step}
+                </div>
+                <h4 className="font-bold text-[#0F172A] text-base mb-2">{item.title}</h4>
+                <p className="text-sm text-slate-500 leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Who It's For ── */}
+      <section id="roles" className="py-20 bg-white border-t border-slate-200/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-14">
+            <span className="text-xs font-bold uppercase tracking-widest text-[#4F46E5] block mb-3">Role-Aware Platform</span>
+            <h2 className="text-3xl sm:text-4xl font-black text-[#0F172A] tracking-tight">
+              Built for the Entire Ecosystem
+            </h2>
+            <p className="text-slate-500 text-base mt-3 max-w-xl mx-auto">
+              SkillBridge serves four stakeholders — each with a dedicated, purpose-built experience.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
             {STAKEHOLDERS.map((s) => (
               <div
                 key={s.id}
-                className="bg-white rounded-3xl p-7 border border-slate-200 hover:border-indigo-300 shadow-sm hover:shadow-xl transition-all flex flex-col justify-between"
+                className="bg-white rounded-2xl p-6 border border-slate-200 hover:border-indigo-300 hover:shadow-lg transition-all flex flex-col"
               >
-                <div>
-                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-tr ${s.color} flex items-center justify-center text-white font-black shadow-md mb-5`}>
-                    <s.icon className="w-7 h-7" />
-                  </div>
-                  <h3 className="text-xl font-black text-[#0F172A]">{s.role}</h3>
-                  <p className="text-sm font-semibold text-slate-500 mt-1.5 leading-snug">{s.tagline}</p>
-
-                  <div className="mt-5 pt-5 border-t border-slate-100 space-y-2.5">
-                    {s.steps.map((step, idx) => (
-                      <div key={idx} className="flex items-start gap-2.5 text-sm font-bold text-slate-700">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                        <span>{step}</span>
-                      </div>
-                    ))}
-                  </div>
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-tr ${s.color} flex items-center justify-center text-white shadow-md mb-4`}>
+                  <s.icon className="w-6 h-6" />
                 </div>
+                <h3 className="text-lg font-bold text-[#0F172A] mb-1">{s.role}</h3>
+                <p className="text-sm text-slate-500 mb-4 leading-snug">{s.tagline}</p>
+
+                <ul className="space-y-2 flex-1">
+                  {s.steps?.map((step, idx) => (
+                    <li key={idx} className="flex items-start gap-2 text-sm text-slate-700">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
+                      <span>{step}</span>
+                    </li>
+                  ))}
+                </ul>
 
                 <Link
-                  href="/signup"
-                  className="mt-7 flex items-center justify-center gap-2 w-full py-3.5 bg-slate-900 hover:bg-[#4F46E5] text-white text-sm font-black rounded-xl transition-colors shadow-sm"
+                  href={s.link}
+                  className="mt-6 flex items-center justify-center gap-2 w-full py-3 bg-slate-900 hover:bg-[#4F46E5] text-white text-sm font-semibold rounded-xl transition-colors"
                 >
                   {s.cta} <ArrowRight className="w-4 h-4" />
                 </Link>
@@ -220,53 +359,50 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 4. How SkillBridge Works Section */}
-      <section id="how-it-works" className="py-24 bg-gradient-to-b from-[#F8FAFC] to-[#EEF2FF] border-t border-slate-200/90">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-sm font-black uppercase tracking-widest text-[#4F46E5] block mb-2.5">
-              End-to-End Problem Solution
-            </span>
-            <h2 className="text-4xl sm:text-5xl font-black text-[#0F172A] tracking-tight">
-              How SkillBridge Works
-            </h2>
-            <p className="text-slate-600 text-base sm:text-lg font-medium mt-3">
-              From diagnostic assessment to verified placement — a deterministic, closed-loop career workflow.
-            </p>
+      {/* ── Final CTA ── */}
+      <section className="py-20 bg-gradient-to-r from-[#1e1b4b] via-[#312e81] to-[#1e1b4b]">
+        <div className="max-w-3xl mx-auto px-4 text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/20 rounded-full text-sm font-semibold text-indigo-200 mb-6">
+            <Sparkles className="w-4 h-4 text-amber-400" />
+            Smart India Hackathon 2026 — Problem Statement SIH 1653
           </div>
-
-          <div className="bg-white rounded-3xl p-8 sm:p-10 border border-slate-200 shadow-md">
-            <div className="grid md:grid-cols-4 gap-6 text-center relative">
-              {[
-                { step: '01', title: 'Diagnostic Assessment', desc: 'Students take a 10-min adaptive skill test or upload their CV for instant AI skill vector extraction.', icon: Brain },
-                { step: '02', title: 'Target Gap Heatmap', desc: 'AI benchmarks student scores against real-time industry job thresholds to pinpoint exact deficits.', icon: Target },
-                { step: '03', title: 'Curated Pathways', desc: 'Personalized course modules, video tracks, and project recommendations close deficits rapidly.', icon: BookOpen },
-                { step: '04', title: 'Deterministic Match', desc: 'Recruiters and institutions access candidate vectors rank-ordered by verified competencies.', icon: Briefcase },
-              ].map((item, idx) => (
-                <div key={idx} className="p-5 rounded-2xl bg-slate-50 border border-slate-100 hover:border-indigo-200 transition-all flex flex-col items-center">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#4F46E5] to-[#7C3AED] text-white font-black text-sm flex items-center justify-center mb-4 shadow-md">
-                    {item.step}
-                  </div>
-                  <h4 className="font-black text-[#0F172A] text-base mb-1.5">{item.title}</h4>
-                  <p className="text-sm text-slate-600 leading-relaxed font-medium">{item.desc}</p>
-                </div>
-              ))}
-            </div>
+          <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-4">
+            Ready to close India's skill gap?
+          </h2>
+          <p className="text-indigo-300 text-lg mb-8">
+            Join students, recruiters, institutions, and faculty already using SkillBridge.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              href="/signup"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-indigo-800 text-base font-bold rounded-2xl shadow-xl hover:bg-indigo-50 bouncy-hover transition-all"
+            >
+              Get Started Free <ArrowRight className="w-5 h-5" />
+            </Link>
+            <Link
+              href="/login"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-4 bg-white/10 hover:bg-white/20 text-white text-base font-semibold rounded-2xl border border-white/20 transition-all"
+            >
+              Sign In to Dashboard
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* 5. Clean Footer */}
-      <footer className="border-t border-slate-200 py-10 bg-white text-center text-sm text-slate-500 font-semibold">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      {/* ── Footer ── */}
+      <footer className="border-t border-slate-200 py-8 bg-white">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#4F46E5] flex items-center justify-center text-white font-bold text-sm shadow-sm">
-              ⚡
+            <div className="w-7 h-7 rounded-lg bg-[#4F46E5] flex items-center justify-center text-white font-bold shadow-sm">
+              <Zap className="w-4 h-4" />
             </div>
-            <span className="font-black text-slate-900 text-base">SkillBridge</span>
+            <span className="font-black text-slate-900">SkillBridge</span>
             <span className="text-slate-400">· AI Skill Intelligence Platform</span>
           </div>
-          <div className="text-slate-600 font-bold">Connecting Talent, Academia &amp; Industry</div>
+          <div className="flex items-center gap-1 text-slate-500 font-medium">
+            <span className="text-orange-500">🇮🇳</span>
+            Built for India · Smart India Hackathon 2026
+          </div>
         </div>
       </footer>
     </div>
