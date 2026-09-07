@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import {
   BookOpen,
   Microscope,
@@ -11,7 +12,7 @@ import {
   Sparkles,
   Zap,
 } from 'lucide-react';
-import { getSession } from '@/lib/user-session';
+import { getSession, UserSession } from '@/lib/user-session';
 
 const ACADEMICIAN_JOURNEY = [
   { step: '1. Collaborate', active: false, done: true },
@@ -67,8 +68,21 @@ const FACULTY_OPPS = [
   },
 ];
 
+const PLACEHOLDER: UserSession = {
+  id: '',
+  name: 'Faculty',
+  email: '',
+  role: 'academician',
+  department: 'Computer Science',
+  institutionName: 'IIT Delhi',
+};
+
 export default function AcademicianDashboard() {
-  const user = getSession();
+  const [user, setUser] = useState<UserSession>(PLACEHOLDER);
+
+  useEffect(() => {
+    setUser(getSession());
+  }, []);
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
