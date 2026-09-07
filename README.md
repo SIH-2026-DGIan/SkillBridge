@@ -154,3 +154,9 @@ npm run dev
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 > 💡 **Demo Mode**: Navigate to `/demo` to instantly test all four roles (Student, Industry, Academician, Institution) without needing a database or login credentials!
+
+---
+
+## 🤝 Contributing & Team Guidelines
+
+Please read [`CONTRIBUTING.md`](./CONTRIBUTING.md) for our Git branching strategy, Conventional Commit guidelines, and code review standards before submitting pull requests.
