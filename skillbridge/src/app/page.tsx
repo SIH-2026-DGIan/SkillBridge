@@ -1,5 +1,7 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import Image from "next/image";
+import HeroVideo from "@/frontend/components/ui/HeroVideo";
+import LandingHeader from "@/frontend/components/ui/LandingHeader";
 
 export default function HomePage() {
   return (
@@ -7,146 +9,105 @@ export default function HomePage() {
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" />
       <div className="bg-[#FAFAF7] text-[#111827] antialiased">
         {/* NAVBAR */}
-        <header className="fixed top-0 left-0 right-0 z-50 bg-[#FAFAF7]/95 backdrop-blur-md border-b border-[#E5E7EB]">
-          <div className="h-20 max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-3">
-              <Image src="/logo.png" alt="SkillBridge" width={148} height={40} className="h-8 lg:h-9 w-auto object-contain" priority />
-            </Link>
-            <nav className="hidden lg:flex items-center gap-8 text-[15px] font-medium text-[#111827]">
-              <a href="#how-it-works" className="py-2 hover:text-[#2563EB] transition-colors">How It Works</a>
-              <a href="#stakeholders" className="py-2 hover:text-[#2563EB] transition-colors">For Students</a>
-              <a href="#industry" className="py-2 hover:text-[#2563EB] transition-colors">For Industry</a>
-              <a href="#institutions" className="py-2 hover:text-[#2563EB] transition-colors">For Institutions</a>
-              <a href="#academicians" className="py-2 hover:text-[#2563EB] transition-colors">For Academicians</a>
-            </nav>
-            <div className="flex items-center gap-6">
-              <Link href="/login" className="hidden sm:inline-block text-[15px] font-medium hover:text-[#2563EB] transition-colors">Sign In</Link>
-              <Link href="/signup" className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-white px-6 py-2.5 rounded-lg bg-[#2563EB] hover:bg-[#1d4ed8] transition-all">
-                Get Started <span className="material-symbols-outlined text-base leading-none">arrow_forward</span>
-              </Link>
-            </div>
-          </div>
-        </header>
+        <LandingHeader />
 
         <main className="w-full pt-20">
           {/* HERO */}
           <section className="w-full bg-[#FAFAF7] border-b border-[#E5E7EB] min-h-[84vh] flex items-center py-16 lg:py-24">
             <div className="max-w-7xl mx-auto px-6 lg:px-12 w-full">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center -mt-12 lg:-mt-16">
                 <div className="lg:col-span-6 flex flex-col items-start pr-0 lg:pr-4">
                   <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#EEF4FF] rounded-full mb-6 border border-[#E5E7EB]">
                     <span className="w-2 h-2 rounded-full bg-[#2563EB]"></span>
                     <span className="text-xs tracking-widest font-semibold uppercase text-[#2563EB]">SKILLS x OPPORTUNITIES x IMPACT</span>
                   </div>
-                  <h1 className="font-serif text-[46px] sm:text-[58px] lg:text-[66px] font-bold text-[#111827] tracking-tight leading-[1.08] mb-6">
+                  <h1 className="font-serif text-[46px] sm:text-[58px] lg:text-[66px] font-bold text-[#111827] tracking-tight leading-[1.08] mb-6 pr-0 lg:pr-10 xl:pr-16">
                     Bridging the Gap Between Learning and the <span className="text-[#2563EB]">Real World</span>
                   </h1>
                   <p className="text-[17px] text-[#4B5563] leading-relaxed max-w-xl mb-8">
                     SkillBridge connects students, industry and academia through verified skill telemetry, objective hiring pathways, and institutional outcome governance.
                   </p>
-                  <div className="flex flex-wrap items-center gap-4 mb-12">
-                    <Link href="/signup" className="inline-flex items-center gap-2.5 text-white text-[15px] font-medium px-7 py-3.5 rounded-lg bg-[#2563EB] hover:bg-[#1d4ed8] transition-all">
-                      Get Started <span className="material-symbols-outlined text-base">arrow_forward</span>
-                    </Link>
-                    <a href="#how-it-works" className="inline-flex items-center gap-2 bg-white text-[#111827] text-[15px] font-medium px-7 py-3.5 rounded-lg border border-[#111827] hover:bg-gray-50 transition-all shadow-sm">
-                      Explore Architecture
-                    </a>
+                  <div className="mb-12">
+                    <div className="flex flex-wrap items-center gap-4 mb-3">
+                      <Link href="/role" className="inline-flex items-center gap-2.5 text-white text-[15px] font-medium px-7 py-3.5 rounded-lg bg-[#2563EB] hover:bg-[#1d4ed8] transition-all">
+                        Get Started <span className="material-symbols-outlined text-base">arrow_forward</span>
+                      </Link>
+                      <a href="#how-it-works" className="inline-flex items-center gap-2 bg-white text-[#111827] text-[15px] font-medium px-7 py-3.5 rounded-lg border border-[#111827] hover:bg-gray-50 transition-all shadow-sm">
+                        See How It Works <span className="material-symbols-outlined text-base">arrow_forward</span>
+                      </a>
+                    </div>
+                    <p className="text-[13.5px] text-[#6B7280]">Built for every learner — mobile-first, low-bandwidth & multilingual.</p>
                   </div>
-                  <div className="w-full pt-8 grid grid-cols-3 divide-x divide-[#E5E7EB] border-t border-[#E5E7EB]">
-                    <div className="pr-5">
-                      <div className="font-serif text-[40px] font-bold text-[#111827] leading-none">10K<span className="text-[#2563EB]">+</span></div>
-                      <div className="text-[13px] text-[#6B7280] font-medium mt-2">Verified Profiles</div>
-                    </div>
-                    <div className="px-5">
-                      <div className="font-serif text-[40px] font-bold text-[#111827] leading-none">500<span className="text-[#2563EB]">+</span></div>
-                      <div className="text-[13px] text-[#6B7280] font-medium mt-2">Industry Partners</div>
-                    </div>
-                    <div className="pl-5">
-                      <div className="font-serif text-[40px] font-bold text-[#111827] leading-none">100<span className="text-[#2563EB]">+</span></div>
-                      <div className="text-[13px] text-[#6B7280] font-medium mt-2">Academic Deans</div>
-                    </div>
-                  </div>
+
                 </div>
-                <div className="lg:col-span-6 flex flex-col items-center">
-                  <div className="relative w-full rounded-2xl border border-[#E2E8F0] shadow-xl bg-white p-6 technical-grid overflow-hidden">
-                    <div className="bg-white/95 border border-[#E5E7EB] rounded-xl p-3 mb-5 shadow-sm">
-                      <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-[#6B7280] mb-2 px-1">
-                        <span>National Ecosystem Flow</span>
-                        <span className="text-[#2563EB] font-mono">LIVE TELEMETRY</span>
-                      </div>
-                      <div className="flex items-center justify-between gap-1 overflow-x-auto py-1 text-[12px] font-semibold">
-                        <div className="flex items-center gap-1 shrink-0 px-2.5 py-1.5 rounded-md bg-[#EEF4FF] border border-[#2563EB]/20 text-[#2563EB]"><span className="material-symbols-outlined text-[15px]">school</span> Student</div>
-                        <span className="material-symbols-outlined text-[#94A3B8] text-[14px]">arrow_forward</span>
-                        <div className="flex items-center gap-1 shrink-0 px-2.5 py-1.5 rounded-md bg-[#EEF4FF] border border-[#2563EB]/20 text-[#2563EB]"><span className="material-symbols-outlined text-[15px]">code_blocks</span> Skills</div>
-                        <span className="material-symbols-outlined text-[#94A3B8] text-[14px]">arrow_forward</span>
-                        <div className="flex items-center gap-1 shrink-0 px-2.5 py-1.5 rounded-md bg-[#111827] text-white"><span className="material-symbols-outlined text-[15px] text-[#F97360]">work</span> Career Role</div>
-                        <span className="material-symbols-outlined text-[#94A3B8] text-[14px]">arrow_forward</span>
-                        <div className="flex items-center gap-1 shrink-0 px-2.5 py-1.5 rounded-md bg-[#EEF4FF] border border-[#2563EB]/20 text-[#2563EB]"><span className="material-symbols-outlined text-[15px]">domain</span> Industry</div>
-                        <span className="material-symbols-outlined text-[#94A3B8] text-[14px]">arrow_forward</span>
-                        <div className="flex items-center gap-1 shrink-0 px-2.5 py-1.5 rounded-md bg-[#0F766E]/10 border border-[#0F766E]/20 text-[#0F766E]"><span className="material-symbols-outlined text-[15px]">check_circle</span> Opportunity</div>
-                      </div>
-                    </div>
-                    <div className="bg-white rounded-xl border border-[#E5E7EB] p-5 shadow-sm">
-                      <div className="flex items-start justify-between pb-4 border-b border-[#E5E7EB]">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-lg bg-[#2563EB] text-white flex items-center justify-center font-bold text-xs">SB</div>
-                          <div>
-                            <h3 className="text-[16px] font-bold text-[#111827]">Candidate Telemetry</h3>
-                            <p className="text-[12px] text-[#6B7280]">Target: <span className="font-semibold text-[#111827]">Data Analyst</span></p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">Skill Readiness</span>
-                          <div className="font-serif text-[28px] font-bold text-[#2563EB] leading-none">87%</div>
-                        </div>
-                      </div>
-                      <div className="py-3.5 border-b border-[#E5E7EB]">
-                        <div className="flex items-center gap-1 mb-2 text-[11px] font-bold uppercase tracking-wider text-[#0F766E]">
-                          <span className="material-symbols-outlined text-[14px]">verified</span> Verified Competencies (4 Passed)
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          {["Python & Pandas","SQL Query Optimization","Statistics & Hypothesis","Power BI Dashboards"].map((s) => (
-                            <span key={s} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#0F766E]/10 border border-[#0F766E]/30 text-[#0F766E] text-xs font-semibold">
-                              <span className="material-symbols-outlined text-[13px]">check_circle</span> {s}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="py-3.5 border-b border-[#E5E7EB]">
-                        <div className="flex items-center gap-1 mb-2 text-[11px] font-bold uppercase tracking-wider text-[#F97360]">
-                          <span className="material-symbols-outlined text-[14px]">warning</span> Identified Skill Gaps
-                        </div>
-                        <div className="space-y-2">
-                          {[{l:"Advanced SQL & CTE Analytics",d:62,b:38},{l:"Distributed Data Pipelines",d:45,b:55}].map((g) => (
-                            <div key={g.l}>
-                              <div className="flex justify-between text-[12px] font-medium mb-1">
-                                <span className="text-[#111827]">{g.l}</span>
-                                <span className="font-bold text-[#F97360]">{g.d}% Deficit</span>
-                              </div>
-                              <div className="w-full bg-[#F3F4F6] rounded-full h-1.5 overflow-hidden">
-                                <div className="bg-[#F97360] h-1.5 rounded-full" style={{width:`${g.b}%`}}></div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="mt-3.5 p-3 rounded-lg bg-[#FAFAF7] border border-[#E5E7EB] flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-2.5">
-                          <span className="w-6 h-6 rounded-full bg-[#2563EB]/10 text-[#2563EB] flex items-center justify-center shrink-0">
-                            <span className="material-symbols-outlined text-[15px]">flag</span>
-                          </span>
-                          <div>
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-[#2563EB] block">Prescribed Next Action</span>
-                            <span className="text-[12px] font-semibold text-[#111827]">Complete SQL Analytics Module & Apache Spark Pipeline</span>
-                          </div>
-                        </div>
-                        <span className="material-symbols-outlined text-[#2563EB] text-[18px]">arrow_circle_right</span>
-                      </div>
-                    </div>
-                    <div className="mt-3 text-right pr-2">
-                      <span className="font-script text-[20px] text-[#6B7280]">Precision telemetry. No subjective friction.</span>
-                    </div>
+                {/* RIGHT: SkillBridge Advertisement Video */}
+                <div className="lg:col-span-6 flex flex-col items-center justify-center w-full -mt-24 lg:-mt-48">
+                  <HeroVideo />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* KEY FEATURES */}
+          <section className="w-full bg-white py-28 border-b border-[#E5E7EB]" id="features">
+            <div className="max-w-7xl mx-auto px-6 lg:px-12">
+              <div className="text-center max-w-3xl mx-auto mb-20">
+                <span className="text-xs font-semibold uppercase tracking-widest text-[#2563EB] block mb-2">Comprehensive Platform</span>
+                <h2 className="font-serif text-[42px] font-bold text-[#111827] tracking-tight mb-3">Key Features of SkillBridge</h2>
+                <p className="text-[18px] text-[#4B5563]">A secure, scalable, and intelligent platform supporting the complete lifecycle of skill development, internships, and placements.</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Skill Development */}
+                <div className="bg-[#FAFAF7] p-8 rounded-2xl border border-[#E5E7EB] hover:shadow-lg transition-shadow">
+                  <div className="w-12 h-12 bg-[#EEF4FF] text-[#2563EB] rounded-xl flex items-center justify-center mb-6">
+                    <span className="material-symbols-outlined text-[24px]">psychology</span>
                   </div>
+                  <h3 className="text-[20px] font-bold text-[#111827] mb-4">Skill Development</h3>
+                  <ul className="space-y-3 text-[14px] text-[#4B5563]">
+                    <li className="flex items-start gap-2"><span className="material-symbols-outlined text-[18px] text-[#10B981] shrink-0 mt-0.5">check_circle</span>Skill assessment through questionnaires and aptitude tests.</li>
+                    <li className="flex items-start gap-2"><span className="material-symbols-outlined text-[18px] text-[#10B981] shrink-0 mt-0.5">check_circle</span>Skill profiling and identification of technical/soft skill gaps.</li>
+                    <li className="flex items-start gap-2"><span className="material-symbols-outlined text-[18px] text-[#10B981] shrink-0 mt-0.5">check_circle</span>Personalized learning recommendations and industry training.</li>
+                    <li className="flex items-start gap-2"><span className="material-symbols-outlined text-[18px] text-[#10B981] shrink-0 mt-0.5">check_circle</span>Student digital portfolios showcasing verified skills & projects.</li>
+                  </ul>
+                </div>
+                {/* Internships */}
+                <div className="bg-[#FAFAF7] p-8 rounded-2xl border border-[#E5E7EB] hover:shadow-lg transition-shadow">
+                  <div className="w-12 h-12 bg-[#EEF4FF] text-[#2563EB] rounded-xl flex items-center justify-center mb-6">
+                    <span className="material-symbols-outlined text-[24px]">work</span>
+                  </div>
+                  <h3 className="text-[20px] font-bold text-[#111827] mb-4">Internships</h3>
+                  <ul className="space-y-3 text-[14px] text-[#4B5563]">
+                    <li className="flex items-start gap-2"><span className="material-symbols-outlined text-[18px] text-[#10B981] shrink-0 mt-0.5">check_circle</span>Centralized portal for industries to post opportunities.</li>
+                    <li className="flex items-start gap-2"><span className="material-symbols-outlined text-[18px] text-[#10B981] shrink-0 mt-0.5">check_circle</span>Matching of students based on skill profiles & interests.</li>
+                    <li className="flex items-start gap-2"><span className="material-symbols-outlined text-[18px] text-[#10B981] shrink-0 mt-0.5">check_circle</span>Internships & industrial training for academicians (FDPs).</li>
+                    <li className="flex items-start gap-2"><span className="material-symbols-outlined text-[18px] text-[#10B981] shrink-0 mt-0.5">check_circle</span>Progress tracking and mentor feedback records.</li>
+                  </ul>
+                </div>
+                {/* Placement */}
+                <div className="bg-[#FAFAF7] p-8 rounded-2xl border border-[#E5E7EB] hover:shadow-lg transition-shadow">
+                  <div className="w-12 h-12 bg-[#EEF4FF] text-[#2563EB] rounded-xl flex items-center justify-center mb-6">
+                    <span className="material-symbols-outlined text-[24px]">cases</span>
+                  </div>
+                  <h3 className="text-[20px] font-bold text-[#111827] mb-4">Placement</h3>
+                  <ul className="space-y-3 text-[14px] text-[#4B5563]">
+                    <li className="flex items-start gap-2"><span className="material-symbols-outlined text-[18px] text-[#10B981] shrink-0 mt-0.5">check_circle</span>Industry portal for job postings with required skill sets.</li>
+                    <li className="flex items-start gap-2"><span className="material-symbols-outlined text-[18px] text-[#10B981] shrink-0 mt-0.5">check_circle</span>Recommendation engine for candidate shortlisting.</li>
+                    <li className="flex items-start gap-2"><span className="material-symbols-outlined text-[18px] text-[#10B981] shrink-0 mt-0.5">check_circle</span>Application tracking and recruitment management.</li>
+                    <li className="flex items-start gap-2"><span className="material-symbols-outlined text-[18px] text-[#10B981] shrink-0 mt-0.5">check_circle</span>Analytics dashboards to monitor placement readiness.</li>
+                  </ul>
+                </div>
+                {/* Overall Platform */}
+                <div className="bg-[#FAFAF7] p-8 rounded-2xl border border-[#E5E7EB] hover:shadow-lg transition-shadow">
+                  <div className="w-12 h-12 bg-[#EEF4FF] text-[#2563EB] rounded-xl flex items-center justify-center mb-6">
+                    <span className="material-symbols-outlined text-[24px]">hub</span>
+                  </div>
+                  <h3 className="text-[20px] font-bold text-[#111827] mb-4">Overall Platform Features</h3>
+                  <ul className="space-y-3 text-[14px] text-[#4B5563]">
+                    <li className="flex items-start gap-2"><span className="material-symbols-outlined text-[18px] text-[#10B981] shrink-0 mt-0.5">check_circle</span>Role-based access for all 4 primary stakeholders.</li>
+                    <li className="flex items-start gap-2"><span className="material-symbols-outlined text-[18px] text-[#10B981] shrink-0 mt-0.5">check_circle</span>Secure document management for resumes & records.</li>
+                    <li className="flex items-start gap-2"><span className="material-symbols-outlined text-[18px] text-[#10B981] shrink-0 mt-0.5">check_circle</span>Collaboration tools for mentorship and live projects.</li>
+                    <li className="flex items-start gap-2"><span className="material-symbols-outlined text-[18px] text-[#10B981] shrink-0 mt-0.5">check_circle</span>Integration with institutional databases & certification.</li>
+                  </ul>
                 </div>
               </div>
             </div>
@@ -157,18 +118,18 @@ export default function HomePage() {
             <div className="max-w-7xl mx-auto px-6 lg:px-12">
               <div className="text-center max-w-3xl mx-auto mb-20">
                 <span className="text-xs font-semibold uppercase tracking-widest text-[#2563EB] block mb-2">Connected Methodology</span>
-                <h2 className="font-serif text-[42px] font-bold text-[#111827] tracking-tight mb-3">From Skill Gap to Career Opportunity</h2>
-                <p className="text-[18px] text-[#4B5563]">Moving systematically from diagnostic baseline to verified industry deployment.</p>
+                <h2 className="font-serif text-[42px] font-bold text-[#111827] tracking-tight mb-3">The SkillBridge Lifecycle</h2>
+                <p className="text-[18px] text-[#4B5563]">Supporting the complete lifecycle of skill development, internships, and placements.</p>
               </div>
               <div className="relative w-full">
                 <div className="hidden lg:block absolute top-7 left-12 right-12 h-[2.5px] bg-gradient-to-r from-[#2563EB] via-[#2563EB] to-[#111827] z-0"></div>
                 <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8 relative z-10">
                   {[
-                    {n:"01",tag:"Baseline",title:"Assess",desc:"Diagnostic skill evaluation benchmarking individual candidates against live job frameworks.",dark:false},
-                    {n:"02",tag:"Diagnostics",title:"Identify",desc:"Algorithmic pinpointing of operational curriculum deficits, missing prerequisites, and skill mismatches.",dark:false},
-                    {n:"03",tag:"Roadmap",title:"Develop",desc:"Modular learning pathways with industry-vetted capstone projects and guided institutional faculty mentorship.",dark:false},
-                    {n:"04",tag:"Pipeline",title:"Connect",desc:"Direct match of verified candidate telemetry to active enterprise job openings and verified requisition queues.",dark:false},
-                    {n:"05",tag:"Outcomes",title:"Progress",desc:"Longitudinal career trajectory tracking and accredited institutional placement compliance records.",dark:true},
+                    {n:"01",tag:"Baseline",title:"Assess",desc:"Students complete industry-shared questionnaires to evaluate technical and soft skills.",dark:false},
+                    {n:"02",tag:"Diagnostics",title:"Map",desc:"System identifies strengths, pinpoints skill gaps, and maps to industry requirements.",dark:false},
+                    {n:"03",tag:"Roadmap",title:"Develop",desc:"Students undertake personalized learning, industry training, and certification programs.",dark:false},
+                    {n:"04",tag:"Pipeline",title:"Connect",desc:"Seamless matching of verified profiles to internships, apprenticeships, and jobs.",dark:false},
+                    {n:"05",tag:"Outcomes",title:"Progress",desc:"Institutions and industries monitor outcomes through comprehensive analytics dashboards.",dark:true},
                   ].map((s) => (
                     <div key={s.n} className="flex flex-col items-center lg:items-start text-center lg:text-left group">
                       <div className={`w-14 h-14 rounded-full flex items-center justify-center font-serif text-[24px] font-bold mb-6 shadow-sm transition-colors ${s.dark ? "bg-[#111827] border-[2.5px] border-[#111827] text-white" : "bg-white border-[2.5px] border-[#2563EB] text-[#2563EB] group-hover:bg-[#2563EB] group-hover:text-white"}`}>
@@ -184,8 +145,63 @@ export default function HomePage() {
             </div>
           </section>
 
+          {/* WHO IT'S FOR */}
+          <section className="w-full bg-[#111827] text-white py-28 border-b border-[#1F2937]" id="who-its-for">
+            <div className="max-w-7xl mx-auto px-6 lg:px-12">
+              <div className="text-center max-w-3xl mx-auto mb-20">
+                <span className="text-xs font-semibold uppercase tracking-widest text-[#0F766E] block mb-2">A Unified Ecosystem</span>
+                <h2 className="font-serif text-[42px] font-bold text-white tracking-tight mb-3">One Platform, Four Stakeholders</h2>
+                <p className="text-[18px] text-[#9CA3AF]">A centralized Academia-Industry Collaboration Portal serving the entire talent pipeline.</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Students */}
+                <div className="bg-[#1F2937] p-8 rounded-2xl border border-[#374151]" id="students">
+                  <div className="text-[#60A5FA] mb-4"><span className="material-symbols-outlined text-[32px]">school</span></div>
+                  <h3 className="text-[20px] font-bold text-white mb-3">Students & Graduates</h3>
+                  <p className="text-[15px] text-[#9CA3AF] leading-relaxed">Search, apply, and track internship and placement opportunities through a single platform. Maintain a digital portfolio containing verified skills, certifications, projects, internships, and achievements to improve employability.</p>
+                </div>
+                {/* Industry */}
+                <div className="bg-[#1F2937] p-8 rounded-2xl border border-[#374151]" id="industry">
+                  <div className="text-[#60A5FA] mb-4"><span className="material-symbols-outlined text-[32px]">domain</span></div>
+                  <h3 className="text-[20px] font-bold text-white mb-3">Industry & Recruiters</h3>
+                  <p className="text-[15px] text-[#9CA3AF] leading-relaxed">Post internships, projects, apprenticeships, and entry-level job openings. Publish training programs, certification courses, and mentorship initiatives to help students acquire in-demand skills before applying.</p>
+                </div>
+                {/* Academicians */}
+                <div className="bg-[#1F2937] p-8 rounded-2xl border border-[#374151]" id="academicians">
+                  <div className="text-[#60A5FA] mb-4"><span className="material-symbols-outlined text-[32px]">local_library</span></div>
+                  <h3 className="text-[20px] font-bold text-white mb-3">Academicians & Faculty</h3>
+                  <p className="text-[15px] text-[#9CA3AF] leading-relaxed">A dedicated portal to explore faculty internships, industrial training, Faculty Development Programs (FDPs), consultancy opportunities, and collaborative research projects.</p>
+                </div>
+                {/* Institutions */}
+                <div className="bg-[#1F2937] p-8 rounded-2xl border border-[#374151]" id="institutions">
+                  <div className="text-[#60A5FA] mb-4"><span className="material-symbols-outlined text-[32px]">account_balance</span></div>
+                  <h3 className="text-[20px] font-bold text-white mb-3">Institutions & TPOs</h3>
+                  <p className="text-[15px] text-[#9CA3AF] leading-relaxed">Monitor student skill development, internship participation, and placement progress through comprehensive dashboards and analytics to support data-driven decisions.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* OPPORTUNITIES */}
+          <section className="w-full bg-white py-28 border-b border-[#E5E7EB]" id="opportunities">
+            <div className="max-w-7xl mx-auto px-6 lg:px-12">
+              <div className="text-center max-w-3xl mx-auto mb-16">
+                <span className="text-xs font-semibold uppercase tracking-widest text-[#2563EB] block mb-2">Collaboration</span>
+                <h2 className="font-serif text-[42px] font-bold text-[#111827] tracking-tight mb-3">Endless Opportunities</h2>
+                <p className="text-[18px] text-[#4B5563]">Facilitating robust industry-academia collaboration across multiple avenues.</p>
+              </div>
+              <div className="flex flex-wrap justify-center gap-4 max-w-4xl mx-auto">
+                {["Internships & Apprenticeships", "Entry-Level Jobs", "Live Industry Projects", "Innovation Challenges", "Mentorship Programs", "Workshops & Guest Lectures", "Faculty Development Programs (FDPs)", "Industrial Training", "Collaborative Research", "Consultancy"].map(opp => (
+                  <div key={opp} className="px-6 py-3 bg-[#FAFAF7] border border-[#E5E7EB] rounded-full text-[15px] font-medium text-[#111827] shadow-sm hover:border-[#2563EB] hover:text-[#2563EB] transition-colors cursor-default">
+                    {opp}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
           {/* INDUSTRY DARK SECTION */}
-          <section className="w-full bg-[#111827] text-white py-28" id="industry">
+          <section className="w-full bg-[#111827] text-white py-28" id="telemetry">
             <div className="max-w-7xl mx-auto px-6 lg:px-12">
               <div className="max-w-3xl mb-14">
                 <span className="text-xs font-semibold uppercase tracking-widest text-[#0F766E] block mb-2">Corporate Recruiter Telemetry</span>
@@ -248,7 +264,7 @@ export default function HomePage() {
                 <h2 className="font-serif text-[40px] md:text-[50px] font-bold text-white tracking-tight mb-4 leading-tight">Build Skills That Create Real Opportunities.</h2>
                 <p className="text-[17px] text-[#9CA3AF] max-w-2xl mx-auto mb-10 leading-relaxed">Whether you are learning, hiring, teaching, or stewarding institutional governance, SkillBridge connects the national talent ecosystem with unyielding rigor.</p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                  <Link href="/signup" className="inline-flex items-center gap-2 text-white text-[15px] font-semibold px-8 py-3.5 rounded-lg bg-[#2563EB] hover:bg-[#1d4ed8] transition-all">
+                  <Link href="/role" className="inline-flex items-center gap-2 text-white text-[15px] font-semibold px-8 py-3.5 rounded-lg bg-[#2563EB] hover:bg-[#1d4ed8] transition-all">
                     Get Started Now <span className="material-symbols-outlined text-base">arrow_forward</span>
                   </Link>
                   <Link href="/demo" className="inline-flex items-center gap-2 bg-transparent text-white border border-[#4B5563] text-[15px] font-semibold hover:border-white transition-colors py-3.5 px-7 rounded-lg">
@@ -264,7 +280,7 @@ export default function HomePage() {
         <footer className="w-full bg-[#111827] text-white border-t border-[#1F2937] pt-16 pb-12">
           <div className="max-w-7xl mx-auto px-6 lg:px-12">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-[#9CA3AF] text-[14px] pb-8 border-b border-[#374151] mb-8">
-              <Image src="/logo.png" alt="SkillBridge" width={120} height={32} className="h-7 w-auto object-contain bg-white px-2 py-1 rounded-md"/>
+              <Image src="/image.png" alt="SkillBridge" width={120} height={32} className="h-7 w-auto object-contain bg-white px-2 py-1 rounded-md"/>
               <p className="text-[14px] text-[#9CA3AF] max-w-sm text-center leading-relaxed">A federated national education and career ecosystem connecting higher institutions and workforce mobility.</p>
             </div>
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-[#9CA3AF] text-[14px]">

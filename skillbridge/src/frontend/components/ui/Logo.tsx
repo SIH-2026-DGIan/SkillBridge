@@ -10,14 +10,14 @@ interface LogoProps {
 }
 
 /**
- * SkillBridge brand logo — uses the official logo.png from /public.
+ * SkillBridge brand logo — uses the official image.png from /public.
  * Drop this anywhere a brand mark is needed.
  */
 export function Logo({ subtitle, size = 36, className = '' }: LogoProps) {
   return (
     <span className={`flex items-center gap-2 ${className}`}>
       <Image
-        src="/logo.png"
+        src="/image.png"
         alt="SkillBridge"
         width={size * 3.2}   // logo is wider than tall (≈3.2:1 ratio)
         height={size}

@@ -39,7 +39,7 @@ function Sidebar({ userName, isDemo, onClose }: { userName: string; isDemo: bool
       {/* Brand */}
       <div className="flex items-center justify-between p-5 border-b border-slate-100">
         <Link href="/">
-          <Image src="/logo.png" alt="SkillBridge" width={130} height={34} className="h-8 w-auto object-contain" />
+          <Image src="/image.png" alt="SkillBridge" width={170} height={46} className="h-11 w-auto object-contain" />
         </Link>
         {onClose && (
           <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-600 md:hidden rounded-xl bg-slate-100">
