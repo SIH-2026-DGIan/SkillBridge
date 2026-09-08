@@ -19,8 +19,10 @@ export class MatchingService {
    */
   static findTopOpportunities(userSkills: Record<string, number>, targetRole?: string) {
     const userProfile: UserProfile = {
-      skills: userSkills,
-      targetRole: targetRole || 'Software Engineer',
+      skills: Object.entries(userSkills).map(([skillId, proficiency]) => ({ skillId, proficiency })),
+      targetRoles: [targetRole || 'Software Engineer'],
+      education: { degree: 'B.Tech', branch: 'Computer Science', graduationYear: 2027 },
+      projects: [],
     };
 
     const matches = DEMO_OPPORTUNITIES.map((opp) => {
@@ -28,13 +30,14 @@ export class MatchingService {
         id: opp.id,
         title: opp.title,
         company: opp.company,
+        type: (opp as any).type || 'internship',
         requiredSkills: opp.requiredSkills,
       };
 
       const match = calculateMatch(userProfile, oppProfile);
       return {
         ...opp,
-        matchScore: match.overallScore,
+        matchScore: match.score,
         matchDetails: match,
       };
     });
