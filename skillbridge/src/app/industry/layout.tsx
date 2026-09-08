@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, PlusCircle, Briefcase, Users, FileText, User, Zap, LogOut, Menu, X, Bell, Sparkles, Building2, ShieldCheck, ChevronRight,
@@ -37,18 +38,8 @@ function Sidebar({ userName, isDemo, onClose }: { userName: string; isDemo: bool
     <div className="flex flex-col h-full bg-white border-r border-slate-200/80">
       {/* Brand */}
       <div className="flex items-center justify-between p-5 border-b border-slate-100">
-        <Link href="/" className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#4F46E5] to-[#7C3AED] flex items-center justify-center text-white font-black shadow-md shadow-indigo-500/20">
-            <Building2 className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="font-black text-slate-900 text-lg tracking-tight">
-              Skill<span className="bg-gradient-to-r from-[#4F46E5] via-[#7C3AED] to-[#06B6D4] bg-clip-text text-transparent">Bridge</span>
-            </span>
-            <span className="text-[10px] block font-extrabold text-[#4F46E5] uppercase tracking-wider -mt-1">
-              Recruiter Hub
-            </span>
-          </div>
+        <Link href="/">
+          <Image src="/image.png" alt="SkillBridge" width={170} height={46} className="h-11 w-auto object-contain" />
         </Link>
         {onClose && (
           <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-600 md:hidden rounded-xl bg-slate-100">

@@ -63,10 +63,7 @@ const DEFAULT_SESSION: UserSession = {
   branch: 'Computer Science & Engineering',
   year: '3rd Year',
   graduationYear: 2026,
-  targetRole: 'Machine Learning Engineer',
-  onboardingStep: 5,
-  isAssessed: true,
-  assessmentScore: 78,
+  onboardingStep: 1,
 };
 
 export function getSession(): UserSession {
@@ -113,7 +110,7 @@ export function setSession(session: Partial<UserSession>): UserSession {
 }
 
 export function getStudentSkills(): Record<string, number> {
-  if (typeof window === 'undefined') return DEMO_STUDENT_SKILLS;
+  if (typeof window === 'undefined') return {};
 
   try {
     const raw = localStorage.getItem('sb_student_skills');
@@ -124,7 +121,7 @@ export function getStudentSkills(): Record<string, number> {
     console.warn('Failed to get student skills:', e);
   }
 
-  return DEMO_STUDENT_SKILLS;
+  return {};
 }
 
 export function setStudentSkills(skills: Record<string, number>): void {
