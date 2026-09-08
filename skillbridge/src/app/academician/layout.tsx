@@ -57,7 +57,7 @@ function Sidebar({ userName, isDemo, onClose }: { userName: string; isDemo: bool
                 <ShieldCheck className="w-3.5 h-3.5 text-[#4F46E5] flex-shrink-0" />
               </div>
               <div className="text-[11px] font-bold text-indigo-700">Professor of AI &amp; Data</div>
-              <div className="text-[10px] font-semibold text-slate-400">IIT Delhi</div>
+              <div className="text-[10px] font-semibold text-slate-400">Sample Institution</div>
             </div>
           </div>
         </div>
@@ -132,19 +132,13 @@ export default function AcademicianLayout({ children }: { children: React.ReactN
         </div>
       )}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {isDemo && (
-          <div className="demo-banner-playful flex-shrink-0 flex items-center justify-center gap-2 bg-gradient-to-r from-[#4F46E5] via-[#7C3AED] to-[#06B6D4]">
-            <Sparkles className="w-4 h-4 text-cyan-200 animate-pulse" />
-            <span>FACULTY &amp; ACADEMICIAN SANDBOX — Research Grants, FDP Workshops &amp; Industry Consultancies</span>
-          </div>
-        )}
         <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/80 px-4 md:px-8 py-3.5 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-3">
             <button onClick={() => setSidebarOpen(true)} className="p-2 text-slate-600 md:hidden rounded-xl bg-slate-100">
               <Menu className="w-5 h-5" />
             </button>
             <span className="badge-pill badge-pill-purple">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#4F46E5]" /> IIT Delhi Faculty
+              <ShieldCheck className="w-3.5 h-3.5 text-[#4F46E5]" /> Sample Institution Faculty
             </span>
           </div>
           <button className="p-2 text-slate-500 hover:text-[#4F46E5] rounded-xl hover:bg-slate-100 transition-colors">

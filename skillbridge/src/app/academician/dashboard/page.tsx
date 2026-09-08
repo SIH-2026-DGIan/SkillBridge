@@ -20,7 +20,7 @@ const PLACEHOLDER: UserSession = {
   email: '',
   role: 'academician',
   department: 'Computer Science',
-  institutionName: 'IIT Delhi',
+  institutionName: 'Sample Institution',
 };
 
 const MENTEES = [
@@ -113,11 +113,11 @@ export default function AcademicianDashboard() {
               Manage student mentorship, industry collaboration, research opportunities and professional development.
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <button className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-[#E2E8F0] text-[#111827] text-sm font-medium rounded-lg hover:bg-slate-50 transition-colors">
-              <Download className="w-4 h-4" /> Export / View Profile
+          <div className="flex items-center gap-4">
+            <button className="text-sm font-medium text-[#2563EB] hover:underline transition-colors px-1">
+              Export / View Profile
             </button>
-            <button className="inline-flex items-center gap-2 px-4 py-2 bg-[#2563EB] text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+            <button className="inline-flex items-center gap-2 px-4 py-2 bg-[#2563EB] text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
               <Plus className="w-4 h-4" /> Propose Research/Industry Project
             </button>
           </div>
@@ -203,6 +203,12 @@ export default function AcademicianDashboard() {
                     </div>
                   </div>
                 ))}
+              </div>
+              
+              <div className="mt-6 pt-2">
+                <button className="text-sm font-semibold text-[#2563EB] hover:underline flex items-center gap-1 transition-colors">
+                  View all 18 mentees <ArrowRight className="w-4 h-4" />
+                </button>
               </div>
             </div>
 
