@@ -103,7 +103,7 @@ export default function AcademicianDashboard() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-12">
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-[1320px] mx-auto space-y-6">
         
         {/* 1. Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 py-4">
@@ -125,22 +125,22 @@ export default function AcademicianDashboard() {
 
         {/* 2. KPI Overview */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white border border-[#E2E8F0] rounded-xl p-5">
+          <div className="bg-white border border-[#E2E8F0] rounded-xl px-5 py-4">
             <div className="text-sm font-medium text-slate-500 mb-1">Active Mentees</div>
             <div className="text-2xl font-bold text-[#111827]">18</div>
             <div className="text-xs text-slate-500 mt-1">Students currently under mentorship</div>
           </div>
-          <div className="bg-white border border-[#E2E8F0] rounded-xl p-5">
+          <div className="bg-white border border-[#E2E8F0] rounded-xl px-5 py-4">
             <div className="text-sm font-medium text-slate-500 mb-1">Avg. Mentorship Progress</div>
             <div className="text-2xl font-bold text-[#111827]">78.4%</div>
             <div className="text-xs text-slate-500 mt-1">Across active mentorships</div>
           </div>
-          <div className="bg-white border border-[#E2E8F0] rounded-xl p-5">
+          <div className="bg-white border border-[#E2E8F0] rounded-xl px-5 py-4">
             <div className="text-sm font-medium text-slate-500 mb-1">Active Grants</div>
             <div className="text-2xl font-bold text-[#111827]">₹42.5L</div>
             <div className="text-xs text-slate-500 mt-1">Sponsored research / industry grants</div>
           </div>
-          <div className="bg-white border border-[#E2E8F0] rounded-xl p-5">
+          <div className="bg-white border border-[#E2E8F0] rounded-xl px-5 py-4">
             <div className="text-sm font-medium text-slate-500 mb-1">FDP Programs</div>
             <div className="text-2xl font-bold text-[#111827]">5</div>
             <div className="text-xs text-slate-500 mt-1">Available/upcoming programs</div>

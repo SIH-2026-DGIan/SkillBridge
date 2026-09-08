@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, BookOpen, Microscope, Users, Zap, LogOut, Menu, X, Bell, Sparkles, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Microscope, Users, Zap, LogOut, Menu, X, Bell, Sparkles, ShieldCheck, Building2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
@@ -35,7 +35,7 @@ function Sidebar({ userName, isDemo, onClose }: { userName: string; isDemo: bool
       {/* Brand */}
       <div className="flex items-center justify-between p-5 border-b border-slate-100">
         <Link href="/">
-          <Image src="/image.png" alt="SkillBridge" width={170} height={46} className="h-11 w-auto object-contain" />
+          <Image src="/image.png" alt="SkillBridge" width={90} height={24} className="w-[90px] h-auto object-contain" />
         </Link>
         {onClose && (
           <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-600 md:hidden rounded-xl bg-slate-100">
@@ -48,15 +48,15 @@ function Sidebar({ userName, isDemo, onClose }: { userName: string; isDemo: bool
       <div className="p-4 border-b border-slate-100">
         <div className="glass-card rounded-2xl p-3.5 border border-indigo-100/80 bg-gradient-to-br from-indigo-50/50 to-purple-50/40">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#4F46E5] to-[#7C3AED] flex items-center justify-center text-white font-black text-sm shadow-md ring-2 ring-white flex-shrink-0">
+            <div className="w-11 h-11 rounded-2xl bg-[#2563EB] flex items-center justify-center text-white font-black text-sm shadow-md ring-2 ring-white flex-shrink-0">
               {initials || 'AG'}
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-slate-900 text-sm truncate">{userName}</span>
+                <span className="font-extrabold text-slate-900 text-sm leading-tight">{userName}</span>
                 <ShieldCheck className="w-3.5 h-3.5 text-[#4F46E5] flex-shrink-0" />
               </div>
-              <div className="text-[11px] font-bold text-indigo-700">Professor of AI &amp; Data</div>
+              <div className="text-[11px] font-bold text-[#2563EB] mt-0.5">Professor of AI &amp; Data</div>
               <div className="text-[10px] font-semibold text-slate-400">Sample Institution</div>
             </div>
           </div>
@@ -74,10 +74,10 @@ function Sidebar({ userName, isDemo, onClose }: { userName: string; isDemo: bool
               onClick={onClose}
               className={cn(
                 'nav-pill group',
-                active && 'bg-gradient-to-r from-[#4F46E5] to-[#7C3AED] text-white shadow-md shadow-indigo-500/25'
+                active && 'bg-[#EEF4FF] text-[#2563EB] shadow-sm'
               )}
             >
-              <item.icon className={cn('w-4 h-4 flex-shrink-0 transition-colors', active ? 'text-white' : 'text-slate-500 group-hover:text-[#4F46E5]')} />
+              <item.icon className={cn('w-4 h-4 flex-shrink-0 transition-colors', active ? 'text-[#2563EB]' : 'text-slate-500 group-hover:text-[#2563EB]')} />
               <span className="flex-1">{item.label}</span>
             </Link>
           );
@@ -97,7 +97,7 @@ function Sidebar({ userName, isDemo, onClose }: { userName: string; isDemo: bool
 
 export default function AcademicianLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [userName, setUserName] = useState('Prof. Amit Gupta');
+  const [userName, setUserName] = useState('Tanushri Bhardwaj');
   const [isDemo, setIsDemo] = useState(false);
 
   useEffect(() => {
@@ -110,7 +110,7 @@ export default function AcademicianLayout({ children }: { children: React.ReactN
     if (d) {
       try {
         const s = JSON.parse(decodeURIComponent(d));
-        setUserName(s.name ?? 'Prof. Amit Gupta');
+        setUserName(s.name ?? 'Tanushri Bhardwaj');
         setIsDemo(true);
       } catch {
         setIsDemo(true);
@@ -137,15 +137,15 @@ export default function AcademicianLayout({ children }: { children: React.ReactN
             <button onClick={() => setSidebarOpen(true)} className="p-2 text-slate-600 md:hidden rounded-xl bg-slate-100">
               <Menu className="w-5 h-5" />
             </button>
-            <span className="badge-pill badge-pill-purple">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#4F46E5]" /> Sample Institution Faculty
-            </span>
+            <span className="bg-white border border-slate-200 text-slate-700 shadow-sm px-3 py-1.5 flex items-center gap-1.5 text-xs font-semibold rounded-full">
+            <Building2 className="w-3.5 h-3.5 text-slate-400" /> Sample Institution · Faculty
+          </span>
           </div>
           <button className="p-2 text-slate-500 hover:text-[#4F46E5] rounded-xl hover:bg-slate-100 transition-colors">
             <Bell className="w-5 h-5" />
           </button>
         </header>
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-mesh-playful">{children}</main>
+        <main className="flex-1 overflow-y-auto p-4 sm:p-8 bg-mesh-playful w-full max-w-[1500px] mx-auto">{children}</main>
       </div>
     </div>
   );
