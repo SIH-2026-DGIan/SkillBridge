@@ -8,8 +8,8 @@ import { LayoutDashboard, TrendingUp, Users, BarChart2, Zap, LogOut, Menu, X, Be
 import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
-  { href: '/institution/dashboard', label: 'TPO Analytics', icon: LayoutDashboard },
-  { href: '/institution/analytics', label: 'Skill Heatmap', icon: BarChart2 },
+  { href: '/institution/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/institution/analytics', label: 'Skill Analytics', icon: BarChart2 },
   { href: '/institution/students', label: 'Batch Directory', icon: Users },
   { href: '/institution/placements', label: 'Placement Drives', icon: TrendingUp },
 ];
@@ -57,7 +57,7 @@ function Sidebar({ userName, isDemo, onClose }: { userName: string; isDemo: bool
                 <ShieldCheck className="w-3.5 h-3.5 text-[#4F46E5] flex-shrink-0" />
               </div>
               <div className="text-[11px] font-bold text-indigo-700">Head of Training &amp; Placement</div>
-              <div className="text-[10px] font-semibold text-slate-400">NIT Kozhikode · 1,200 Students</div>
+              <div className="text-[10px] font-semibold text-slate-400">Placement Cell</div>
             </div>
           </div>
         </div>
@@ -97,7 +97,7 @@ function Sidebar({ userName, isDemo, onClose }: { userName: string; isDemo: bool
 
 export default function InstitutionLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [userName, setUserName] = useState('Dr. Priya Nair');
+  const [userName, setUserName] = useState('Placement Officer');
   const [isDemo, setIsDemo] = useState(false);
 
   useEffect(() => {
@@ -110,7 +110,7 @@ export default function InstitutionLayout({ children }: { children: React.ReactN
     if (d) {
       try {
         const s = JSON.parse(decodeURIComponent(d));
-        setUserName(s.name ?? 'Dr. Priya Nair');
+        setUserName(s.name ?? 'Placement Officer');
         setIsDemo(true);
       } catch {
         setIsDemo(true);
@@ -135,7 +135,7 @@ export default function InstitutionLayout({ children }: { children: React.ReactN
         {isDemo && (
           <div className="demo-banner-playful flex-shrink-0 flex items-center justify-center gap-2 bg-gradient-to-r from-[#4F46E5] via-[#7C3AED] to-[#06B6D4]">
             <Sparkles className="w-4 h-4 text-cyan-200 animate-pulse" />
-            <span>INSTITUTION TPO SANDBOX — Campus Skill Heatmap, NAAC/NIRF Analytics &amp; Placement Readiness</span>
+            <span>Placement Cell Dashboard — Demo Mode</span>
           </div>
         )}
         <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/80 px-4 md:px-8 py-3.5 flex items-center justify-between flex-shrink-0">
@@ -144,7 +144,7 @@ export default function InstitutionLayout({ children }: { children: React.ReactN
               <Menu className="w-5 h-5" />
             </button>
             <span className="badge-pill badge-pill-purple">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#4F46E5]" /> NIT Kozhikode TPO Cell
+              <ShieldCheck className="w-3.5 h-3.5 text-[#4F46E5]" /> Placement Cell
             </span>
           </div>
           <button className="p-2 text-slate-500 hover:text-[#4F46E5] rounded-xl hover:bg-slate-100 transition-colors">
