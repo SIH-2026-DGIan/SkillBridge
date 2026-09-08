@@ -2,71 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import {
-  BookOpen,
-  Microscope,
-  Users,
-  Award,
+  Plus,
+  Download,
   ExternalLink,
-  MapPin,
+  MessageSquare,
+  Eye,
   Calendar,
-  Sparkles,
-  Zap,
+  ArrowRight
 } from 'lucide-react';
 import { getSession, UserSession } from '@/lib/user-session';
-
-const ACADEMICIAN_JOURNEY = [
-  { step: '1. Collaborate', active: false, done: true },
-  { step: '2. Train (FDP)', active: true, done: false },
-  { step: '3. Research', active: false, done: false },
-  { step: '4. Mentor', active: false, done: false },
-];
-
-const FACULTY_OPPS = [
-  {
-    category: 'FDP',
-    title: 'Faculty Development Program — Advanced AI/ML & LLMs',
-    org: 'IIT Madras · AICTE Sponsored',
-    location: 'Chennai · Hybrid',
-    date: 'Oct 14–18, 2026',
-    desc: '5-day intensive program covering Deep Learning, NLP transformers, and ML production deployment for university educators.',
-    icon: BookOpen,
-    grant: 'Fully Funded',
-    badgeBg: 'bg-orange-50 text-orange-700 border-orange-200',
-  },
-  {
-    category: 'Research Grant',
-    title: 'Indo-German Bilateral Research — Explainable AI in Medicine',
-    org: 'DAAD + DST India',
-    location: 'Remote & Munich',
-    date: 'Applications Close: Aug 31, 2026',
-    desc: 'Bilateral grant for Explainable AI models in clinical diagnostics. Open to principal investigators and faculty at IITs and NITs.',
-    icon: Microscope,
-    grant: '₹45,00,000 Grant',
-    badgeBg: 'bg-blue-50 text-blue-700 border-blue-200',
-  },
-  {
-    category: 'Corporate Consultancy',
-    title: 'AI Strategy & Algorithm Advisory — FinTech System',
-    org: 'FinEdge Technologies',
-    location: 'Mumbai · Hybrid',
-    date: '3 Months Engagement',
-    desc: 'Senior faculty advisory to design graph neural network fraud detection architecture for high-throughput payment rails.',
-    icon: Award,
-    grant: '₹95,000 / mo Retainer',
-    badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  },
-  {
-    category: 'Faculty Internship',
-    title: 'Industry Sabbatical — Cloud Robotics Architecture',
-    org: 'RoboTech Labs',
-    location: 'Bengaluru · Onsite',
-    date: 'Summer 2026 (2 Months)',
-    desc: 'Immersive industry residency working alongside robotics engineers on autonomous warehouse navigation algorithms.',
-    icon: Users,
-    grant: 'Stipend + Housing',
-    badgeBg: 'bg-purple-50 text-purple-700 border-purple-200',
-  },
-];
+import Image from 'next/image';
+import Link from 'next/link';
 
 const PLACEHOLDER: UserSession = {
   id: '',
@@ -77,6 +23,77 @@ const PLACEHOLDER: UserSession = {
   institutionName: 'IIT Delhi',
 };
 
+const MENTEES = [
+  {
+    name: 'Priya Sharma',
+    course: 'B.Tech CSE · Final Year',
+    project: 'Industry Project — Web Development',
+    progress: 78,
+    next: 'Review project milestone',
+    avatar: 'https://ui-avatars.com/api/?name=Priya+Sharma&background=2563EB&color=fff',
+  },
+  {
+    name: 'Rohan Gupta',
+    course: 'M.Tech AI & Data Science',
+    project: 'Research — LLM Optimization',
+    progress: 45,
+    next: 'Approve literature review',
+    avatar: 'https://ui-avatars.com/api/?name=Rohan+Gupta&background=0F766E&color=fff',
+  },
+  {
+    name: 'Ananya Desai',
+    course: 'B.Tech IT · 3rd Year',
+    project: 'Capstone — Smart IoT Systems',
+    progress: 92,
+    next: 'Final evaluation',
+    avatar: 'https://ui-avatars.com/api/?name=Ananya+Desai&background=F59E0B&color=fff',
+  }
+];
+
+const GRANTS = [
+  {
+    title: 'Autonomous Edge Diagnostics for Agricultural Robotics',
+    type: 'Industry Research Collaboration',
+    matchReason: 'Matches your interests in AI, robotics and applied machine learning.',
+  },
+  {
+    title: 'Federated Learning for Privacy-Preserving Healthcare',
+    type: 'Govt. Sponsored Research Grant',
+    matchReason: 'Matches your research interests in machine learning and data privacy.',
+  }
+];
+
+const FDP_UPCOMING = {
+  title: 'Advanced Generative AI Applications in Academia',
+  provider: 'AICTE / IIT Bombay',
+  starts: '18 Sept',
+  duration: '5 Days',
+};
+
+const FDP_OTHER = [
+  {
+    title: 'Pedagogy in the Digital Age',
+    provider: 'UGC Sponsored',
+    date: 'Oct 5–7',
+  },
+  {
+    title: 'Industry 4.0 Integration for Faculty',
+    provider: 'Tech Mahindra',
+    date: 'Nov 12',
+  }
+];
+
+const ANNOUNCEMENTS = [
+  {
+    title: 'New Industry Mentorship Program',
+    desc: 'Applications open for faculty mentors for the upcoming Spring semester.',
+  },
+  {
+    title: 'Research Collaboration Call',
+    desc: 'AI & Smart Manufacturing consortium is looking for principal investigators.',
+  }
+];
+
 export default function AcademicianDashboard() {
   const [user, setUser] = useState<UserSession>(PLACEHOLDER);
 
@@ -85,118 +102,242 @@ export default function AcademicianDashboard() {
   }, []);
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
-      {/* 1. Academician Workflow Journey */}
-      <div className="glass-card rounded-3xl p-5 border border-white shadow-lg bg-white">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-[#4F46E5]" />
-            <h2 className="text-xs font-black uppercase tracking-wider text-slate-800">
-              Academician Engagement Journey
-            </h2>
-          </div>
-          <span className="text-xs font-extrabold text-[#4F46E5] bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">
-            Active: Research Grants &amp; Faculty Development Programs
-          </span>
-        </div>
-
-        <div className="grid grid-cols-4 gap-2">
-          {ACADEMICIAN_JOURNEY.map((j, idx) => (
-            <div
-              key={j.step}
-              className={`p-2.5 rounded-2xl text-center text-xs font-extrabold transition-all ${
-                j.active
-                  ? 'bg-gradient-to-r from-[#4F46E5] to-[#7C3AED] text-white shadow-md shadow-indigo-500/25 ring-2 ring-indigo-500/20'
-                  : j.done
-                  ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                  : 'bg-slate-50 text-slate-400 border border-slate-200/80'
-              }`}
-            >
-              <div className="text-[10px] opacity-75">{j.done ? '✓' : idx + 1}</div>
-              <div className="truncate">{j.step}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* 2. Top Header */}
-      <div className="glass-card rounded-3xl p-6 sm:p-8 border border-white shadow-xl bg-gradient-to-r from-[#0F172A] via-[#1E1B4B] to-[#0F172A] text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-        <div>
-          <span className="text-[11px] font-black tracking-wider text-cyan-300 uppercase">
-            👨‍🏫 Faculty &amp; Research Portal
-          </span>
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight mt-0.5">
-            {user.name} · Research Hub
-          </h1>
-          <p className="text-indigo-200 text-xs sm:text-sm font-medium mt-1">
-            {user.department || 'Computer Science'} · {user.institutionName || 'IIT Delhi'}
-          </p>
-        </div>
-
-        <button className="inline-flex items-center gap-2 px-6 py-3.5 bg-gradient-to-r from-[#4F46E5] to-[#7C3AED] hover:from-[#4338CA] hover:to-[#6D28D9] text-white font-black text-xs sm:text-sm rounded-2xl shadow-xl shadow-indigo-500/30 bouncy-hover transition-all flex-shrink-0">
-          <Microscope className="w-4 h-4" /> Submit Research RFP
-        </button>
-      </div>
-
-      {/* 3. Metrics Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: 'Available FDPs', value: '3', sub: 'AICTE / DST Funded', color: 'from-indigo-600 to-violet-600' },
-          { label: 'Research Grants', value: '2', sub: '₹75L Total Funding', color: 'from-blue-600 to-indigo-600' },
-          { label: 'Corporate Consultancies', value: '2', sub: 'Active Industry RFPs', color: 'from-violet-600 to-purple-600' },
-          { label: 'Student Mentorships', value: '4', sub: 'Capstone Teams', color: 'from-emerald-500 to-teal-600' },
-        ].map((stat) => (
-          <div key={stat.label} className="glass-card rounded-3xl p-5 border border-white shadow-md bg-white">
-            <div className={`w-10 h-10 rounded-2xl bg-gradient-to-tr ${stat.color} flex items-center justify-center text-white font-black shadow-md mb-3`}>
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <div className="text-3xl font-black text-slate-900 tracking-tight">{stat.value}</div>
-            <div className="text-xs font-extrabold text-slate-700 mt-0.5">{stat.label}</div>
-            <div className="text-[11px] font-semibold text-slate-400 mt-0.5">{stat.sub}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* 4. Curated Opportunities List */}
-      <div className="glass-card rounded-3xl p-6 border border-white shadow-lg bg-white space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+    <div className="min-h-screen bg-[#F8FAFC] pb-12">
+      <div className="max-w-7xl mx-auto space-y-6">
+        
+        {/* 1. Header */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 py-4">
           <div>
-            <h3 className="font-black text-slate-900 text-base">Curated Faculty Opportunities &amp; Grants</h3>
-            <p className="text-xs text-slate-500 font-medium">Bilateral research, FDPs, and corporate advisory</p>
+            <h1 className="text-2xl font-bold text-[#111827]">Faculty & Academician Workspace</h1>
+            <p className="text-sm text-slate-500 mt-1">
+              Manage student mentorship, industry collaboration, research opportunities and professional development.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-[#E2E8F0] text-[#111827] text-sm font-medium rounded-lg hover:bg-slate-50 transition-colors">
+              <Download className="w-4 h-4" /> Export / View Profile
+            </button>
+            <button className="inline-flex items-center gap-2 px-4 py-2 bg-[#2563EB] text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+              <Plus className="w-4 h-4" /> Propose Research/Industry Project
+            </button>
           </div>
         </div>
 
-        <div className="space-y-3">
-          {FACULTY_OPPS.map((opp) => (
-            <div
-              key={opp.title}
-              className="p-5 rounded-2xl bg-slate-50 hover:bg-white border border-slate-200/80 hover:border-amber-300 hover:shadow-md transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
-            >
-              <div className="flex items-start gap-3.5 min-w-0 flex-1">
-                <div className="w-11 h-11 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-black flex-shrink-0 shadow-sm">
-                  <opp.icon className="w-5 h-5" />
+        {/* 2. KPI Overview */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white border border-[#E2E8F0] rounded-xl p-5">
+            <div className="text-sm font-medium text-slate-500 mb-1">Active Mentees</div>
+            <div className="text-2xl font-bold text-[#111827]">18</div>
+            <div className="text-xs text-slate-500 mt-1">Students currently under mentorship</div>
+          </div>
+          <div className="bg-white border border-[#E2E8F0] rounded-xl p-5">
+            <div className="text-sm font-medium text-slate-500 mb-1">Avg. Mentorship Progress</div>
+            <div className="text-2xl font-bold text-[#111827]">78.4%</div>
+            <div className="text-xs text-slate-500 mt-1">Across active mentorships</div>
+          </div>
+          <div className="bg-white border border-[#E2E8F0] rounded-xl p-5">
+            <div className="text-sm font-medium text-slate-500 mb-1">Active Grants</div>
+            <div className="text-2xl font-bold text-[#111827]">₹42.5L</div>
+            <div className="text-xs text-slate-500 mt-1">Sponsored research / industry grants</div>
+          </div>
+          <div className="bg-white border border-[#E2E8F0] rounded-xl p-5">
+            <div className="text-sm font-medium text-slate-500 mb-1">FDP Programs</div>
+            <div className="text-2xl font-bold text-[#111827]">5</div>
+            <div className="text-xs text-slate-500 mt-1">Available/upcoming programs</div>
+          </div>
+        </div>
+
+        {/* Desktop 2-Column Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          {/* LEFT COLUMN */}
+          <div className="lg:col-span-2 space-y-6">
+            
+            {/* Student Mentorships */}
+            <div className="bg-white border border-[#E2E8F0] rounded-xl p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-lg font-bold text-[#111827]">Student Mentorships & Programs</h2>
+                  <p className="text-sm text-slate-500 mt-1">Track your mentees, project progress and upcoming milestones.</p>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <h4 className="font-black text-slate-900 text-sm">{opp.title}</h4>
-                    <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full border ${opp.badgeBg}`}>
-                      {opp.category}
-                    </span>
-                    <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                      {opp.grant}
-                    </span>
+                <button className="text-sm font-medium text-[#2563EB] hover:underline">View All</button>
+              </div>
+
+              <div className="space-y-6">
+                {MENTEES.map((mentee) => (
+                  <div key={mentee.name} className="flex flex-col sm:flex-row gap-5 pb-6 border-b border-[#E2E8F0] last:border-0 last:pb-0">
+                    <img src={mentee.avatar} alt={mentee.name} className="w-12 h-12 rounded-full flex-shrink-0" />
+                    
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                        <div className="w-full">
+                          <h3 className="text-base font-semibold text-[#111827]">{mentee.name}</h3>
+                          <div className="text-sm text-slate-500 mt-0.5">{mentee.course}</div>
+                          <div className="text-sm font-medium text-[#111827] mt-1">{mentee.project}</div>
+                          
+                          <div className="mt-4 max-w-sm">
+                            <div className="flex justify-between text-xs font-medium mb-1.5">
+                              <span className="text-slate-600">Progress</span>
+                              <span className="text-[#0F766E] font-bold">{mentee.progress}%</span>
+                            </div>
+                            <div className="w-full bg-[#E2E8F0] rounded-full h-2">
+                              <div className="bg-[#0F766E] h-2 rounded-full" style={{ width: `${mentee.progress}%` }}></div>
+                            </div>
+                          </div>
+
+                          <div className="mt-3 text-sm">
+                            <span className="text-slate-500">Next milestone: </span>
+                            <span className="font-medium text-[#111827]">{mentee.next}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex sm:flex-col gap-2 shrink-0 w-full sm:w-auto">
+                          <button className="inline-flex justify-center items-center gap-2 px-4 py-2 border border-[#E2E8F0] text-[#111827] text-sm font-medium rounded-lg hover:bg-slate-50 transition-colors">
+                            <Eye className="w-4 h-4" /> View Details
+                          </button>
+                          <button className="inline-flex justify-center items-center gap-2 px-4 py-2 bg-[#EEF4FF] text-[#2563EB] text-sm font-medium rounded-lg hover:bg-blue-100 transition-colors">
+                            <MessageSquare className="w-4 h-4" /> Give Feedback
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-xs font-semibold text-slate-600 mb-1">{opp.org}</div>
-                  <p className="text-xs text-slate-500 leading-relaxed font-medium">{opp.desc}</p>
+                ))}
+              </div>
+            </div>
+
+            {/* Sponsored Research & Industry Grants */}
+            <div className="bg-white border border-[#E2E8F0] rounded-xl p-6">
+              <h2 className="text-lg font-bold text-[#111827]">Sponsored Research & Industry Grants</h2>
+              <p className="text-sm text-slate-500 mt-1 mb-6">Research and collaboration opportunities relevant to your expertise.</p>
+
+              <div className="space-y-4">
+                {GRANTS.map((grant) => (
+                  <div key={grant.title} className="p-5 border border-[#E2E8F0] rounded-xl hover:border-blue-200 transition-colors bg-[#F8FAFC]">
+                    <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">{grant.type}</div>
+                    <h3 className="text-base font-bold text-[#111827] leading-tight mb-4">{grant.title}</h3>
+                    
+                    <div className="bg-white p-3 rounded-lg border border-[#E2E8F0] mb-4">
+                      <div className="text-xs font-semibold text-slate-500 mb-1">Why it matches you</div>
+                      <div className="text-sm text-[#111827]">{grant.matchReason}</div>
+                    </div>
+
+                    <div className="flex gap-3">
+                      <button className="px-4 py-2 bg-white border border-[#E2E8F0] text-[#111827] text-sm font-medium rounded-lg hover:bg-slate-50 transition-colors">
+                        View Details
+                      </button>
+                      <button className="px-4 py-2 bg-[#2563EB] text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                        Submit Proposal
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+
+          {/* RIGHT COLUMN */}
+          <div className="space-y-6">
+            
+            {/* Academic Focus */}
+            <div className="bg-white border border-[#E2E8F0] rounded-xl p-6">
+              <h2 className="text-lg font-bold text-[#111827] mb-5">Your Academic Focus</h2>
+
+              <div className="space-y-5">
+                <div>
+                  <h3 className="text-sm font-bold text-slate-500 mb-2 uppercase tracking-wide">Expertise</h3>
+                  <ul className="space-y-1">
+                    <li className="text-sm text-[#111827]">Computer Science & Engineering</li>
+                    <li className="text-sm text-[#111827]">Artificial Intelligence</li>
+                    <li className="text-sm text-[#111827]">Data Science</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-bold text-slate-500 mb-2 uppercase tracking-wide">Research Interests</h3>
+                  <ul className="space-y-1">
+                    <li className="text-sm text-[#111827]">Machine Learning</li>
+                    <li className="text-sm text-[#111827]">Generative AI</li>
+                    <li className="text-sm text-[#111827]">Data Analytics</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-bold text-slate-500 mb-2 uppercase tracking-wide">Industry Interests</h3>
+                  <ul className="space-y-1">
+                    <li className="text-sm text-[#111827]">AI Applications</li>
+                    <li className="text-sm text-[#111827]">Industry 4.0</li>
+                    <li className="text-sm text-[#111827]">Digital Transformation</li>
+                  </ul>
                 </div>
               </div>
 
-              <button className="flex-shrink-0 px-4 py-2.5 bg-slate-900 hover:bg-amber-600 text-white text-xs font-extrabold rounded-xl transition-colors shadow-sm self-end sm:self-center">
-                Express Interest →
+              <button className="mt-6 w-full py-2.5 bg-white border border-[#E2E8F0] text-[#111827] text-sm font-medium rounded-lg hover:bg-slate-50 transition-colors">
+                Edit Focus
               </button>
             </div>
-          ))}
+
+            {/* Faculty Development */}
+            <div className="bg-white border border-[#E2E8F0] rounded-xl p-6">
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-lg font-bold text-[#111827]">Faculty Development</h2>
+                <button className="text-sm font-medium text-[#2563EB] hover:underline">View All</button>
+              </div>
+
+              {/* Upcoming Featured */}
+              <div className="bg-[#EEF4FF] border border-blue-100 rounded-xl p-5 mb-4">
+                <div className="inline-block px-2 py-1 bg-blue-100 text-[#2563EB] text-xs font-bold rounded mb-3">UPCOMING</div>
+                <h3 className="text-base font-bold text-[#111827] leading-snug mb-3">
+                  {FDP_UPCOMING.title}
+                </h3>
+                <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-slate-600 mb-4">
+                  <div className="flex items-center gap-1.5"><Calendar className="w-4 h-4"/> {FDP_UPCOMING.starts}</div>
+                  <div className="flex items-center gap-1.5"><span className="w-4 h-4 flex items-center justify-center">⏱</span> {FDP_UPCOMING.duration}</div>
+                </div>
+                <button className="w-full py-2 bg-[#2563EB] text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                  Register
+                </button>
+              </div>
+
+              {/* Other FDPs */}
+              <div className="space-y-3">
+                {FDP_OTHER.map((fdp, idx) => (
+                  <div key={idx} className="flex items-center justify-between py-2 border-b border-[#E2E8F0] last:border-0 last:pb-0">
+                    <div>
+                      <div className="text-sm font-semibold text-[#111827]">{fdp.title}</div>
+                      <div className="text-xs text-slate-500 mt-0.5">{fdp.provider} · {fdp.date}</div>
+                    </div>
+                    <button className="text-[#2563EB] hover:bg-[#EEF4FF] p-1.5 rounded-md transition-colors">
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
         </div>
+
+        {/* 3. Announcements (Full width bottom) */}
+        <div className="bg-white border border-[#E2E8F0] rounded-xl p-6">
+          <h2 className="text-lg font-bold text-[#111827] mb-4">Industry / Academia Announcements</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {ANNOUNCEMENTS.map((ann, idx) => (
+              <div key={idx} className="flex items-start justify-between p-4 border border-[#E2E8F0] rounded-lg hover:bg-slate-50 transition-colors">
+                <div>
+                  <h3 className="text-sm font-semibold text-[#111827]">{ann.title}</h3>
+                  <p className="text-sm text-slate-500 mt-1">{ann.desc}</p>
+                </div>
+                <button className="flex items-center gap-1 text-[#2563EB] text-sm font-medium hover:underline ml-4 shrink-0">
+                  View <ExternalLink className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
     </div>
   );

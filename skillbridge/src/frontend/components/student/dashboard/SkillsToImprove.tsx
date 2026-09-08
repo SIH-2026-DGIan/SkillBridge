@@ -31,7 +31,6 @@ export function SkillsToImprove({ skillGaps }: { skillGaps: SkillGap[] }) {
               <Target className="w-5 h-5 text-slate-400" />
             </div>
             <div>
-              <div className="text-sm font-semibold text-slate-700">No skill gaps identified</div>
               <div className="text-xs text-slate-500 mt-1">Complete your skill assessment to discover your strengths and areas you can improve.</div>
             </div>
             <Link href="/student/assessment" className="inline-flex items-center justify-center w-full px-4 py-2 mt-2 bg-blue-50 text-blue-700 text-xs font-bold rounded-lg border border-blue-100 hover:bg-blue-100 transition-colors">

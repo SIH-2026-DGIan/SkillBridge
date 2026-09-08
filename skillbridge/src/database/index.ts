@@ -6,5 +6,6 @@
 export * from './types';
 export * from './taxonomy';
 export * from './seed';
+export type { Skill } from './types';
 export { createClient as createBrowserClient } from './client';
 export { createClient as createServerClient } from './server';

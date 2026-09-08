@@ -34,8 +34,7 @@ export function ApplicationsPreview({ applications }: { applications: Applicatio
               <FileText className="w-5 h-5 text-slate-400" />
             </div>
             <div>
-              <div className="text-sm font-semibold text-slate-700">No active applications</div>
-              <div className="text-xs text-slate-500 mt-1">Applications you submit will appear here so you can track your progress.</div>
+              <div className="text-sm font-semibold text-slate-700">You haven't applied to any opportunities yet.</div>
             </div>
             <Link href="/student/opportunities" className="inline-flex items-center justify-center w-full px-4 py-2 mt-2 bg-blue-50 text-blue-700 text-xs font-bold rounded-lg border border-blue-100 hover:bg-blue-100 transition-colors">
               Explore Opportunities &rarr;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -20,7 +20,7 @@ const AUTH_CSS = `
   padding:0 24px; position:sticky; top:0; z-index:50;
 }
 .auth-logo { display:flex; align-items:center; text-decoration:none; }
-.auth-logo img { height:36px; width:auto; object-fit:contain; }
+.auth-logo img { height:48px; width:auto; object-fit:contain; transform:scale(3); transform-origin:left center; }
 .auth-header-right { display:flex; align-items:center; gap:20px; }
 .auth-lang-toggle { display:flex; background:#F1F5F9; border-radius:8px; padding:2px; }
 .auth-lang-btn {
@@ -142,7 +142,7 @@ const Icon = ({ name, size = 18 }: { name: string; size?: number }) => (
   <span className="material-symbols-outlined" style={{ fontSize: size, lineHeight: 1 }} aria-hidden="true">{name}</span>
 );
 
-export default function VerifyPage() {
+function VerifyContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [lang, setLang] = useLang();
@@ -364,5 +364,13 @@ export default function VerifyPage() {
         </nav>
       </footer>
     </div>
+  );
+}
+
+export default function VerifyPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">Loading...</div>}>
+      <VerifyContent />
+    </Suspense>
   );
 }

@@ -341,6 +341,8 @@ export const DEMO_CERTIFICATIONS = [
     name: 'Machine Learning Specialization',
     issuer: 'DeepLearning.AI & Stanford Online',
     issueDate: 'December 2025',
+    credentialId: 'DL-109348',
+    skills: ['machine_learning', 'python', 'tensorflow', 'deep_learning'],
     credentialUrl: '#',
   },
   {
@@ -348,6 +350,8 @@ export const DEMO_CERTIFICATIONS = [
     name: 'Python for Data Science & AI',
     issuer: 'IBM (Coursera)',
     issueDate: 'August 2025',
+    credentialId: 'IBM-98234',
+    skills: ['python', 'data_analysis', 'statistics'],
     credentialUrl: '#',
   },
 ];
