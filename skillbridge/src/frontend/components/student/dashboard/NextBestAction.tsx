@@ -6,6 +6,8 @@ export interface NextActionData {
   description: string;
   ctaText: string;
   ctaHref: string;
+  secondaryCtaText?: string;
+  secondaryCtaHref?: string;
 }
 
 export function NextBestAction({ action, userName }: { action: NextActionData; userName: string }) {
@@ -25,7 +27,15 @@ export function NextBestAction({ action, userName }: { action: NextActionData; u
           </p>
         </div>
         
-        <div className="shrink-0">
+        <div className="shrink-0 flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+          {action.secondaryCtaText && action.secondaryCtaHref && (
+            <Link 
+              href={action.secondaryCtaHref}
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-blue-700 border border-blue-200 text-sm font-bold rounded-xl hover:bg-blue-50 transition-all w-full md:w-auto"
+            >
+              {action.secondaryCtaText}
+            </Link>
+          )}
           <Link 
             href={action.ctaHref}
             className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 hover:shadow-md transition-all group w-full md:w-auto"

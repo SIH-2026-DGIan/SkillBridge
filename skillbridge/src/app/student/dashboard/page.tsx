@@ -5,20 +5,23 @@ import { getSession, getStudentSkills, getStudentResume, getStudentApplications,
 import { ROLE_REQUIRED_SKILLS, SKILL_MAP } from '@/lib/skills-taxonomy';
 import { DEMO_OPPORTUNITIES } from '@/lib/demo-data';
 import { calculateMatch } from '@/lib/ai/matching-engine';
+import { getInterviewHistory } from '@/app/actions/interview.actions';
 
 import { JourneyTracker } from '@/frontend/components/student/dashboard/JourneyTracker';
-import { NextBestAction } from '@/frontend/components/student/dashboard/NextBestAction';
+import { NextBestAction, type NextActionData } from '@/frontend/components/student/dashboard/NextBestAction';
 import { DashboardStats } from '@/frontend/components/student/dashboard/DashboardStats';
 import { SkillsToImprove } from '@/frontend/components/student/dashboard/SkillsToImprove';
 import { LearningPreview } from '@/frontend/components/student/dashboard/LearningPreview';
 import { OpportunitiesPreview } from '@/frontend/components/student/dashboard/OpportunitiesPreview';
 import { ApplicationsPreview } from '@/frontend/components/student/dashboard/ApplicationsPreview';
 import { PortfolioPreview } from '@/frontend/components/student/dashboard/PortfolioPreview';
+import { InterviewCoachPreview } from '@/frontend/components/student/dashboard/InterviewCoachPreview';
 
 export default function StudentDashboard() {
   const [user, setUser] = useState<UserSession | null>(null);
   const [skills, setSkills] = useState<Record<string, number>>({});
   const [resume, setResume] = useState<ParsedResume | null>(null);
+  const [lastInterview, setLastInterview] = useState<any>(undefined);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -26,6 +29,12 @@ export default function StudentDashboard() {
     setUser(getSession());
     setSkills(getStudentSkills());
     setResume(getStudentResume());
+
+    getInterviewHistory().then(history => {
+      if (history && history.length > 0) {
+        setLastInterview(history[0]);
+      }
+    });
 
     const sync = () => {
       setUser(getSession());
@@ -100,7 +109,7 @@ export default function StudentDashboard() {
 
   // Determine State
   let activeStep = 0;
-  let nextAction = {
+  let nextAction: NextActionData = {
     title: 'Your next step starts here',
     description: 'Upload your resume to start building your SkillBridge profile.',
     ctaText: 'Upload Resume',
@@ -112,20 +121,20 @@ export default function StudentDashboard() {
     nextAction = { title: 'Choose Career Goal', description: 'Select a target career role to get personalized recommendations.', ctaText: 'Select Role', ctaHref: '/student/profile' };
   } else if (resume && !user?.isAssessed) {
     activeStep = 1;
-    nextAction = { title: 'Check Your Skills', description: 'Take the assessment to verify your skills and discover your strengths.', ctaText: 'Take Assessment', ctaHref: '/student/assessment' };
+    nextAction = { title: 'Check Your Skills', description: 'Take the assessment to verify your skills and discover your strengths.', ctaText: 'Take Assessment', ctaHref: '/student/assessment', secondaryCtaText: 'Practice Interview', secondaryCtaHref: '/student/interview' };
   } else if (resume && user?.isAssessed && skillsCount === 0) {
     activeStep = 2;
-    nextAction = { title: 'Review Profile', description: 'Review your extracted skills to finalize your profile.', ctaText: 'Review Profile', ctaHref: '/student/skills' };
+    nextAction = { title: 'Review Profile', description: 'Review your extracted skills to finalize your profile.', ctaText: 'Review Profile', ctaHref: '/student/skills', secondaryCtaText: 'Practice Interview', secondaryCtaHref: '/student/interview' };
   } else if (resume && user?.isAssessed && skillsCount > 0 && skillGaps.length > 0) {
     activeStep = 3;
-    nextAction = { title: 'Improve This Skill', description: `Focus on improving ${skillGaps[0]?.name || 'your core skills'} to unlock more opportunities.`, ctaText: 'View Learning Path', ctaHref: '/student/learning' };
+    nextAction = { title: 'Improve This Skill', description: `Focus on improving ${skillGaps[0]?.name || 'your core skills'} to unlock more opportunities.`, ctaText: 'View Learning Path', ctaHref: '/student/learning', secondaryCtaText: 'Practice Interview', secondaryCtaHref: '/student/interview' };
   } else if (resume && user?.isAssessed && skillsCount > 0 && skillGaps.length === 0) {
     if (activeAppsCount > 0) {
       activeStep = 6;
-      nextAction = { title: 'Track Application', description: 'You have active applications. Keep an eye on their status.', ctaText: 'View Applications', ctaHref: '/student/applications' };
+      nextAction = { title: 'Track Application', description: 'You have active applications. Keep an eye on their status.', ctaText: 'View Applications', ctaHref: '/student/applications', secondaryCtaText: 'Practice Interview', secondaryCtaHref: '/student/interview' };
     } else {
       activeStep = 5;
-      nextAction = { title: 'Explore Opportunities', description: 'You have AI-matched opportunities waiting for you.', ctaText: 'Explore Matches', ctaHref: '/student/opportunities' };
+      nextAction = { title: 'Explore Opportunities', description: 'You have AI-matched opportunities waiting for you.', ctaText: 'Explore Matches', ctaHref: '/student/opportunities', secondaryCtaText: 'Practice Interview', secondaryCtaHref: '/student/interview' };
     }
   }
 
@@ -164,6 +173,7 @@ export default function StudentDashboard() {
           
           <div className="lg:col-span-4 flex flex-col gap-6">
             <LearningPreview />
+            <InterviewCoachPreview lastInterview={lastInterview} />
             <PortfolioPreview status={{ hasResume: !!resume, hasAssessment: !!user?.isAssessed, skillsCount }} />
           </div>
         </div>

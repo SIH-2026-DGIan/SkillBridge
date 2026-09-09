@@ -18,7 +18,8 @@ import {
   Award,
   LayoutGrid,
   LogOut,
-  X
+  X,
+  Video
 } from 'lucide-react';
 import type { UserSession } from '@/lib/user-session';
 
@@ -66,6 +67,7 @@ export function StudentSidebar({ user, gapsCount, activeAppsCount, onClose }: St
         { href: '/student/skills', label: 'Your Skills', icon: Target },
         { href: '/student/skill-gaps', label: 'Skills to Improve', icon: TrendingUp, badge: gapsCount > 0 ? gapsCount : null },
         { href: '/student/learning', label: 'Your Learning Plan', icon: BookOpen },
+        { href: '/student/interview', label: 'Interview Coach', icon: Video },
       ],
     },
     {
