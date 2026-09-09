@@ -284,3 +284,4 @@ INSERT INTO skills (id, name, category) VALUES
   ('critical_thinking', 'Critical Thinking', 'soft'),
   ('time_management', 'Time Management', 'soft')
 ON CONFLICT (id) DO NOTHING;
+
