@@ -1,280 +1,580 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { SKILLS } from '@/lib/skills-taxonomy';
-import { toast } from 'sonner';
-import { PlusCircle, X, Building2 } from 'lucide-react';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import SkillPicker, {
+  SelectedSkill,
+} from "@/components/industry/SkillPicker";
+import {
+  createOpportunity,
+  OpportunityInput,
+} from "@/backend/services/opportunities.service";
 
-const OPP_TYPES = ['internship', 'job', 'live_project'] as const;
-const WORK_MODES = ['remote', 'hybrid', 'onsite'] as const;
+const initialForm = {
+  title: "",
+  type: "internship" as "internship" | "job" | "live_project",
+  description: "",
+  location: "",
+  work_mode: "remote" as "remote" | "hybrid" | "onsite",
+  duration: "",
+  stipend: "",
+  deadline: "",
+  category: "",
+};
 
-export default function PostOpportunityPage() {
+export default function NewOpportunityPage() {
   const router = useRouter();
+
+  const [step, setStep] = useState(1);
+  const [skills, setSkills] = useState<SelectedSkill[]>([]);
+  const [form, setForm] = useState(initialForm);
   const [loading, setLoading] = useState(false);
-  const [selectedSkills, setSelectedSkills] = useState<string[]>(['python', 'machine_learning', 'sql', 'tensorflow']);
-  const [skillSearch, setSkillSearch] = useState('');
+  const [error, setError] = useState("");
 
-  const [form, setForm] = useState({
-    type: 'internship' as typeof OPP_TYPES[number],
-    title: 'Machine Learning Intern',
-    description: 'Work with our AI team to build and deploy ML models for real-world applications. You will be involved in the full ML pipeline from data preprocessing to model deployment.',
-    location: 'Bengaluru',
-    workMode: 'hybrid' as typeof WORK_MODES[number],
-    duration: '6 months',
-    stipend: '25000',
-    deadline: '2026-09-30',
-  });
-
-  const filteredSkills = SKILLS.filter(
-    (s) =>
-      !selectedSkills.includes(s.id) &&
-      s.name.toLowerCase().includes(skillSearch.toLowerCase())
-  ).slice(0, 10);
-
-  const addSkill = (skillId: string) => {
-    setSelectedSkills((prev) => [...prev, skillId]);
-    setSkillSearch('');
+  const updateForm = (
+    field: keyof typeof initialForm,
+    value: string
+  ) => {
+    setForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
-  const removeSkill = (skillId: string) => {
-    setSelectedSkills((prev) => prev.filter((s) => s !== skillId));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (selectedSkills.length === 0) {
-      toast.error('Please add at least one required skill');
-      return;
+  const validateStepOne = () => {
+    if (
+      !form.title ||
+      !form.description ||
+      !form.location ||
+      !form.duration ||
+      !form.deadline ||
+      !form.category
+    ) {
+      setError("Please fill all required fields.");
+      return false;
     }
+
+    setError("");
+    return true;
+  };
+
+  const handleNext = () => {
+    if (step === 1 && !validateStepOne()) return;
+
+    setStep((prev) => prev + 1);
+  };
+
+  const handleBack = () => {
+    setStep((prev) => prev - 1);
+  };
+
+  const handleSubmit = async (
+    status: "active" | "draft"
+  ) => {
     setLoading(true);
+    setError("");
 
     try {
-      const { createClient } = await import('@/lib/supabase/client');
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+      const opportunityData: OpportunityInput = {
+        title: form.title,
+        type: form.type,
+        description: form.description,
+        location: form.location,
+        work_mode: form.work_mode,
+        duration: form.duration,
+        stipend: form.stipend
+          ? Number(form.stipend)
+          : null,
+        deadline: form.deadline,
+        category: form.category,
+        status,
+        skills: skills.map((skill) => ({
+          skill_id: skill.skill_id,
+          required_level: skill.required_level,
+        })),
+      };
 
-      if (user) {
-        const { data: opp, error } = await supabase.from('opportunities').insert({
-          company: 'TechNova',
-          type: form.type,
-          title: form.title,
-          description: form.description,
-          location: form.location,
-          work_mode: form.workMode,
-          duration: form.duration,
-          stipend: parseInt(form.stipend) || 0,
-          deadline: form.deadline,
-          status: 'active',
-          posted_by: user.id,
-        }).select().single();
+      await createOpportunity(opportunityData);
 
-        if (error) throw error;
-
-        // Add skills
-        for (const skillId of selectedSkills) {
-          await supabase.from('opportunity_skills').insert({
-            opportunity_id: opp.id,
-            skill_id: skillId,
-            required_level: 70,
-          });
-        }
-
-        toast.success('Opportunity published! Students can now apply.');
-        router.push('/industry/dashboard');
-      } else {
-        // Demo mode
-        await new Promise((r) => setTimeout(r, 800));
-        toast.success('Opportunity posted! (Demo mode)');
-        router.push('/industry/dashboard');
-      }
+      router.push("/industry/opportunities");
     } catch (err) {
-      toast.error('Failed to post opportunity. Please try again.');
+      console.error(err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong. Please try again."
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const SKILL_MAP_LOCAL = Object.fromEntries(SKILLS.map((s) => [s.id, s]));
-
   return (
-    <div className="max-w-2xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-extrabold text-gray-900">Post an Opportunity</h1>
-        <p className="text-gray-500 text-sm mt-0.5">AI will automatically match and rank candidates based on skills</p>
-      </div>
+    <main className="min-h-screen bg-slate-50 px-6 py-8">
+      <div className="mx-auto max-w-4xl">
+        {/* Header */}
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Type */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4">
-          <h2 className="font-bold text-gray-800">Opportunity Type</h2>
-          <div className="flex gap-3 flex-wrap">
-            {OPP_TYPES.map((t) => (
-              <button
-                key={t}
-                type="button"
-                onClick={() => setForm({ ...form, type: t })}
-                className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-all ${
-                  form.type === t ? 'bg-purple-600 text-white border-purple-600' : 'border-gray-200 text-gray-600 hover:border-purple-300'
-                }`}
-              >
-                {t === 'live_project' ? 'Live Project' : t.charAt(0).toUpperCase() + t.slice(1)}
-              </button>
-            ))}
-          </div>
+        <div className="mb-8">
+          <button
+            onClick={() => router.back()}
+            className="mb-4 text-sm font-medium text-[#006a63] hover:underline"
+          >
+            ← Back to Opportunities
+          </button>
+
+          <h1 className="text-3xl font-bold text-[#004ac6]">
+            Post an Opportunity
+          </h1>
+
+          <p className="mt-2 text-gray-600">
+            Create an internship, job, or live project opportunity
+            for students.
+          </p>
         </div>
 
-        {/* Basic Info */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4">
-          <h2 className="font-bold text-gray-800">Basic Information</h2>
+        {/* Progress */}
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Job Title *</label>
-            <input
-              type="text"
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-              required
-              placeholder="e.g. Machine Learning Intern"
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500"
-            />
-          </div>
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            {[
+              "Basic Information",
+              "Required Skills",
+              "Review & Publish",
+            ].map((label, index) => {
+              const stepNumber = index + 1;
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Description *</label>
-            <textarea
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-              required
-              rows={4}
-              placeholder="Describe the role, responsibilities, and what you're looking for..."
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 resize-none"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Location</label>
-              <input
-                type="text"
-                value={form.location}
-                onChange={(e) => setForm({ ...form, location: e.target.value })}
-                placeholder="e.g. Bengaluru"
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Work Mode</label>
-              <select
-                value={form.workMode}
-                onChange={(e) => setForm({ ...form, workMode: e.target.value as typeof WORK_MODES[number] })}
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/30"
-              >
-                {WORK_MODES.map((m) => (
-                  <option key={m} value={m}>{m.charAt(0).toUpperCase() + m.slice(1)}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Duration</label>
-              <input
-                type="text"
-                value={form.duration}
-                onChange={(e) => setForm({ ...form, duration: e.target.value })}
-                placeholder="e.g. 6 months"
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/30"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Stipend (₹/month)</label>
-              <input
-                type="number"
-                value={form.stipend}
-                onChange={(e) => setForm({ ...form, stipend: e.target.value })}
-                placeholder="e.g. 25000"
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/30"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Application Deadline</label>
-              <input
-                type="date"
-                value={form.deadline}
-                onChange={(e) => setForm({ ...form, deadline: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/30"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Required Skills */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4">
-          <h2 className="font-bold text-gray-800">Required Skills</h2>
-          <p className="text-xs text-gray-500">These skills will be used by the AI matching engine to rank candidates</p>
-
-          {/* Selected skills */}
-          {selectedSkills.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {selectedSkills.map((skillId) => {
-                const skill = SKILL_MAP_LOCAL[skillId];
-                return (
-                  <span
-                    key={skillId}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 text-purple-700 text-sm font-medium rounded-full border border-purple-200"
+              return (
+                <div
+                  key={label}
+                  className="flex flex-1 flex-col items-center"
+                >
+                  <div
+                    className={`flex h-10 w-10 items-center justify-center rounded-full font-semibold ${
+                      step >= stepNumber
+                        ? "bg-[#004ac6] text-white"
+                        : "bg-gray-200 text-gray-500"
+                    }`}
                   >
-                    {skill?.name ?? skillId}
-                    <button type="button" onClick={() => removeSkill(skillId)} className="hover:text-purple-900">
-                      <X className="w-3 h-3" />
-                    </button>
+                    {stepNumber}
+                  </div>
+
+                  <span className="mt-2 text-center text-xs font-medium text-gray-600">
+                    {label}
                   </span>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Skill search */}
-          <div className="relative">
-            <input
-              type="text"
-              value={skillSearch}
-              onChange={(e) => setSkillSearch(e.target.value)}
-              placeholder="Search and add skills..."
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500"
-            />
-            {skillSearch && filteredSkills.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-10 max-h-48 overflow-y-auto">
-                {filteredSkills.map((skill) => (
-                  <button
-                    key={skill.id}
-                    type="button"
-                    onClick={() => addSkill(skill.id)}
-                    className="w-full text-left px-4 py-2 text-sm hover:bg-purple-50 flex items-center justify-between"
-                  >
-                    <span className="font-medium text-gray-900">{skill.name}</span>
-                    <span className="text-xs text-gray-400 capitalize">{skill.category}</span>
-                  </button>
-                ))}
-              </div>
-            )}
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        {/* Submit */}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-2 py-3.5 bg-purple-600 text-white font-bold text-base rounded-xl hover:bg-purple-700 transition-colors shadow-lg shadow-purple-500/25 disabled:opacity-50"
-        >
-          {loading ? (
-            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-          ) : (
-            <><PlusCircle className="w-5 h-5" /> Publish Opportunity</>
-          )}
-        </button>
-      </form>
-    </div>
+        {/* Error */}
+
+        {error && (
+          <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-600">
+            {error}
+          </div>
+        )}
+
+        {/* STEP 1 */}
+
+        {step === 1 && (
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            <h2 className="mb-6 text-xl font-semibold text-gray-900">
+              Basic Information
+            </h2>
+
+            <div className="grid gap-5 md:grid-cols-2">
+              {/* Title */}
+
+              <div className="md:col-span-2">
+                <label className="mb-2 block text-sm font-medium">
+                  Opportunity Title *
+                </label>
+
+                <input
+                  type="text"
+                  value={form.title}
+                  onChange={(e) =>
+                    updateForm("title", e.target.value)
+                  }
+                  placeholder="e.g. Software Development Intern"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-[#004ac6]"
+                />
+              </div>
+
+              {/* Type */}
+
+              <div>
+                <label className="mb-2 block text-sm font-medium">
+                  Opportunity Type *
+                </label>
+
+                <select
+                  value={form.type}
+                  onChange={(e) =>
+                    updateForm("type", e.target.value)
+                  }
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-[#004ac6]"
+                >
+                  <option value="internship">
+                    Internship
+                  </option>
+
+                  <option value="job">
+                    Job
+                  </option>
+
+                  <option value="live_project">
+                    Live Project
+                  </option>
+                </select>
+              </div>
+
+              {/* Category */}
+
+              <div>
+                <label className="mb-2 block text-sm font-medium">
+                  Category *
+                </label>
+
+                <input
+                  type="text"
+                  value={form.category}
+                  onChange={(e) =>
+                    updateForm("category", e.target.value)
+                  }
+                  placeholder="e.g. Software Development"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-[#004ac6]"
+                />
+              </div>
+
+              {/* Description */}
+
+              <div className="md:col-span-2">
+                <label className="mb-2 block text-sm font-medium">
+                  Description *
+                </label>
+
+                <textarea
+                  rows={5}
+                  value={form.description}
+                  onChange={(e) =>
+                    updateForm("description", e.target.value)
+                  }
+                  placeholder="Describe responsibilities, requirements, and what students will learn..."
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-[#004ac6]"
+                />
+              </div>
+
+              {/* Location */}
+
+              <div>
+                <label className="mb-2 block text-sm font-medium">
+                  Location *
+                </label>
+
+                <input
+                  type="text"
+                  value={form.location}
+                  onChange={(e) =>
+                    updateForm("location", e.target.value)
+                  }
+                  placeholder="e.g. Delhi, India"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-[#004ac6]"
+                />
+              </div>
+
+              {/* Work Mode */}
+
+              <div>
+                <label className="mb-2 block text-sm font-medium">
+                  Work Mode *
+                </label>
+
+                <select
+                  value={form.work_mode}
+                  onChange={(e) =>
+                    updateForm(
+                      "work_mode",
+                      e.target.value
+                    )
+                  }
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-[#004ac6]"
+                >
+                  <option value="remote">
+                    Remote
+                  </option>
+
+                  <option value="hybrid">
+                    Hybrid
+                  </option>
+
+                  <option value="onsite">
+                    Onsite
+                  </option>
+                </select>
+              </div>
+
+              {/* Duration */}
+
+              <div>
+                <label className="mb-2 block text-sm font-medium">
+                  Duration *
+                </label>
+
+                <input
+                  type="text"
+                  value={form.duration}
+                  onChange={(e) =>
+                    updateForm("duration", e.target.value)
+                  }
+                  placeholder="e.g. 3 Months"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-[#004ac6]"
+                />
+              </div>
+
+              {/* Stipend */}
+
+              <div>
+                <label className="mb-2 block text-sm font-medium">
+                  Stipend / Salary
+                </label>
+
+                <input
+                  type="number"
+                  value={form.stipend}
+                  onChange={(e) =>
+                    updateForm("stipend", e.target.value)
+                  }
+                  placeholder="e.g. 15000"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-[#004ac6]"
+                />
+              </div>
+
+              {/* Deadline */}
+
+              <div>
+                <label className="mb-2 block text-sm font-medium">
+                  Application Deadline *
+                </label>
+
+                <input
+                  type="date"
+                  value={form.deadline}
+                  onChange={(e) =>
+                    updateForm("deadline", e.target.value)
+                  }
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-[#004ac6]"
+                />
+              </div>
+            </div>
+
+            <div className="mt-8 flex justify-end">
+              <button
+                onClick={handleNext}
+                className="rounded-lg bg-[#004ac6] px-6 py-3 font-medium text-white transition hover:opacity-90"
+              >
+                Continue →
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 2 */}
+
+        {step === 2 && (
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            <h2 className="text-xl font-semibold text-gray-900">
+              Required Skills
+            </h2>
+
+            <p className="mb-6 mt-2 text-sm text-gray-600">
+              Select the skills required for this opportunity
+              and set the expected proficiency level.
+            </p>
+
+            <SkillPicker
+              selected={skills}
+              onChange={setSkills}
+            />
+
+            <div className="mt-8 flex justify-between">
+              <button
+                onClick={handleBack}
+                className="rounded-lg border border-gray-300 px-6 py-3 font-medium text-gray-700"
+              >
+                ← Back
+              </button>
+
+              <button
+                onClick={handleNext}
+                className="rounded-lg bg-[#004ac6] px-6 py-3 font-medium text-white"
+              >
+                Review →
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 3 */}
+
+        {step === 3 && (
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            <h2 className="text-xl font-semibold text-gray-900">
+              Review Opportunity
+            </h2>
+
+            <p className="mb-6 mt-2 text-sm text-gray-600">
+              Review the information before publishing.
+            </p>
+
+            <div className="space-y-6">
+              <section>
+                <h3 className="mb-3 font-semibold text-[#004ac6]">
+                  Opportunity Details
+                </h3>
+
+                <div className="grid gap-4 rounded-xl bg-slate-50 p-5 md:grid-cols-2">
+                  <div>
+                    <p className="text-xs text-gray-500">
+                      Title
+                    </p>
+
+                    <p className="font-medium">
+                      {form.title}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-500">
+                      Type
+                    </p>
+
+                    <p className="font-medium capitalize">
+                      {form.type.replace("_", " ")}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-500">
+                      Location
+                    </p>
+
+                    <p className="font-medium">
+                      {form.location}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-500">
+                      Work Mode
+                    </p>
+
+                    <p className="font-medium capitalize">
+                      {form.work_mode}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-500">
+                      Duration
+                    </p>
+
+                    <p className="font-medium">
+                      {form.duration}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-500">
+                      Deadline
+                    </p>
+
+                    <p className="font-medium">
+                      {form.deadline}
+                    </p>
+                  </div>
+                </div>
+              </section>
+
+              <section>
+                <h3 className="mb-3 font-semibold text-[#004ac6]">
+                  Description
+                </h3>
+
+                <div className="rounded-xl bg-slate-50 p-5 text-gray-700">
+                  {form.description}
+                </div>
+              </section>
+
+              <section>
+                <h3 className="mb-3 font-semibold text-[#004ac6]">
+                  Required Skills
+                </h3>
+
+                <div className="flex flex-wrap gap-3">
+                  {skills.length > 0 ? (
+                    skills.map((skill) => (
+                      <div
+                        key={skill.skill_id}
+                        className="rounded-lg border border-[#006a63]/20 bg-[#006a63]/5 px-4 py-2 text-sm"
+                      >
+                        <span className="font-medium">
+                          {skill.name}
+                        </span>
+
+                        <span className="ml-2 text-[#006a63]">
+                          {skill.required_level}%
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-500">
+                      No skills selected.
+                    </p>
+                  )}
+                </div>
+              </section>
+            </div>
+
+            <div className="mt-8 flex flex-wrap justify-between gap-3">
+              <button
+                onClick={handleBack}
+                disabled={loading}
+                className="rounded-lg border border-gray-300 px-6 py-3 font-medium text-gray-700"
+              >
+                ← Back
+              </button>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() =>
+                    handleSubmit("draft")
+                  }
+                  disabled={loading}
+                  className="rounded-lg border border-[#006a63] px-6 py-3 font-medium text-[#006a63]"
+                >
+                  {loading
+                    ? "Saving..."
+                    : "Save Draft"}
+                </button>
+
+                <button
+                  onClick={() =>
+                    handleSubmit("active")
+                  }
+                  disabled={loading}
+                  className="rounded-lg bg-[#004ac6] px-6 py-3 font-medium text-white"
+                >
+                  {loading
+                    ? "Publishing..."
+                    : "Publish Opportunity"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </main>
   );
 }

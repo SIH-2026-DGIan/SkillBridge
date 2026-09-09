@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { getSession, getStudentSkills, getStudentResume, type UserSession, type ParsedResume } from '@/lib/user-session';
+import { getSession, getStudentSkills, getStudentResume, getStudentApplications, type UserSession, type ParsedResume } from '@/lib/user-session';
 import { ROLE_REQUIRED_SKILLS, SKILL_MAP } from '@/lib/skills-taxonomy';
-import { DEMO_OPPORTUNITIES, DEMO_APPLICATIONS } from '@/lib/demo-data';
+import { DEMO_OPPORTUNITIES } from '@/lib/demo-data';
 import { calculateMatch } from '@/lib/ai/matching-engine';
 
 import { JourneyTracker } from '@/frontend/components/student/dashboard/JourneyTracker';
@@ -16,17 +16,22 @@ import { ApplicationsPreview } from '@/frontend/components/student/dashboard/App
 import { PortfolioPreview } from '@/frontend/components/student/dashboard/PortfolioPreview';
 
 export default function StudentDashboard() {
-  const [user, setUser] = useState<UserSession>(getSession());
+  const [user, setUser] = useState<UserSession | null>(null);
   const [skills, setSkills] = useState<Record<string, number>>({});
   const [resume, setResume] = useState<ParsedResume | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
+    setUser(getSession());
+    setSkills(getStudentSkills());
+    setResume(getStudentResume());
+
     const sync = () => {
       setUser(getSession());
       setSkills(getStudentSkills());
       setResume(getStudentResume());
     };
-    sync();
 
     window.addEventListener('sb_session_updated', sync);
     window.addEventListener('sb_skills_updated', sync);
@@ -39,11 +44,12 @@ export default function StudentDashboard() {
     };
   }, []);
 
-  const targetRole = user.targetRole || 'Machine Learning Engineer';
-  const requiredSkills = ROLE_REQUIRED_SKILLS[targetRole] || [];
+  const targetRole = user?.targetRole;
+  const requiredSkills = targetRole ? ROLE_REQUIRED_SKILLS[targetRole] || [] : [];
 
   // Computed data
   const gapAnalysis = useMemo(() => {
+    if (!targetRole || Object.keys(skills).length === 0) return [];
     return requiredSkills.map(({ skillId, required }) => {
       const current = skills[skillId] ?? 0;
       const gap = Math.max(0, required - current);
@@ -54,7 +60,7 @@ export default function StudentDashboard() {
         isGap: current < required,
       };
     });
-  }, [requiredSkills, skills]);
+  }, [requiredSkills, skills, targetRole]);
 
   const skillGaps = useMemo(() => {
     return gapAnalysis.filter((g) => g.isGap).sort((a, b) => b.gap - a.gap);
@@ -64,21 +70,21 @@ export default function StudentDashboard() {
     if (!resume && Object.keys(skills).length === 0) return 0;
     let score = 20; // Base score for creating account
     if (resume) score += 20;
-    if (user.isAssessed) score += 20;
+    if (user?.isAssessed) score += 20;
     if (Object.keys(skills).length > 0) score += 40;
     return score;
-  }, [resume, user.isAssessed, skills]);
+  }, [resume, user?.isAssessed, skills]);
 
   const dynamicUserProfile = useMemo(() => ({
     skills: Object.entries(skills).map(([skillId, proficiency]) => ({ skillId, proficiency })),
-    targetRoles: [targetRole],
-    education: { degree: user.degree || 'B.Tech', branch: user.branch || 'Computer Science', graduationYear: user.graduationYear || 2026 },
+    targetRoles: targetRole ? [targetRole] : [],
+    education: { degree: user?.degree || 'B.Tech', branch: user?.branch || 'Computer Science', graduationYear: user?.graduationYear || 2026 },
     projects: [],
     cgpa: 8.4,
   }), [skills, targetRole, user]);
 
   const recommendedOpps = useMemo(() => {
-    if (Object.keys(skills).length === 0) return [];
+    if (Object.keys(skills).length === 0 || !targetRole) return [];
     
     return DEMO_OPPORTUNITIES
       .map((opp) => ({
@@ -88,7 +94,8 @@ export default function StudentDashboard() {
       .sort((a, b) => b.match.score - a.match.score);
   }, [dynamicUserProfile, skills]);
 
-  const activeAppsCount = DEMO_APPLICATIONS.filter(a => (a.status as string) !== 'accepted' && (a.status as string) !== 'rejected').length;
+  const applications = getStudentApplications();
+  const activeAppsCount = applications.filter(a => (a.status as string) !== 'accepted' && (a.status as string) !== 'rejected').length;
   const skillsCount = Object.keys(skills).length;
 
   // Determine State
@@ -100,19 +107,19 @@ export default function StudentDashboard() {
     ctaHref: '/student/profile'
   };
 
-  if (!user.targetRole) {
+  if (!user?.targetRole) {
     activeStep = 0;
     nextAction = { title: 'Choose Career Goal', description: 'Select a target career role to get personalized recommendations.', ctaText: 'Select Role', ctaHref: '/student/profile' };
-  } else if (resume && !user.isAssessed) {
+  } else if (resume && !user?.isAssessed) {
     activeStep = 1;
     nextAction = { title: 'Check Your Skills', description: 'Take the assessment to verify your skills and discover your strengths.', ctaText: 'Take Assessment', ctaHref: '/student/assessment' };
-  } else if (resume && user.isAssessed && skillsCount === 0) {
+  } else if (resume && user?.isAssessed && skillsCount === 0) {
     activeStep = 2;
     nextAction = { title: 'Review Profile', description: 'Review your extracted skills to finalize your profile.', ctaText: 'Review Profile', ctaHref: '/student/skills' };
-  } else if (resume && user.isAssessed && skillsCount > 0 && skillGaps.length > 0) {
+  } else if (resume && user?.isAssessed && skillsCount > 0 && skillGaps.length > 0) {
     activeStep = 3;
     nextAction = { title: 'Improve This Skill', description: `Focus on improving ${skillGaps[0]?.name || 'your core skills'} to unlock more opportunities.`, ctaText: 'View Learning Path', ctaHref: '/student/learning' };
-  } else if (resume && user.isAssessed && skillsCount > 0 && skillGaps.length === 0) {
+  } else if (resume && user?.isAssessed && skillsCount > 0 && skillGaps.length === 0) {
     if (activeAppsCount > 0) {
       activeStep = 6;
       nextAction = { title: 'Track Application', description: 'You have active applications. Keep an eye on their status.', ctaText: 'View Applications', ctaHref: '/student/applications' };
@@ -121,6 +128,8 @@ export default function StudentDashboard() {
       nextAction = { title: 'Explore Opportunities', description: 'You have AI-matched opportunities waiting for you.', ctaText: 'Explore Matches', ctaHref: '/student/opportunities' };
     }
   }
+
+  if (!isMounted || !user) return null;
 
   return (
     <div className="flex flex-col min-h-full bg-[#FAFAF8] pb-12">
@@ -143,7 +152,7 @@ export default function StudentDashboard() {
               <OpportunitiesPreview opportunities={recommendedOpps} />
             </div>
             
-            <ApplicationsPreview applications={DEMO_APPLICATIONS.map(a => ({
+            <ApplicationsPreview applications={applications.map(a => ({
               id: a.id,
               company: a.company,
               role: a.title,
@@ -155,7 +164,7 @@ export default function StudentDashboard() {
           
           <div className="lg:col-span-4 flex flex-col gap-6">
             <LearningPreview />
-            <PortfolioPreview status={{ hasResume: !!resume, hasAssessment: !!user.isAssessed, skillsCount }} />
+            <PortfolioPreview status={{ hasResume: !!resume, hasAssessment: !!user?.isAssessed, skillsCount }} />
           </div>
         </div>
       </main>

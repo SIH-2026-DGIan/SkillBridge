@@ -53,6 +53,7 @@ const ROLE_CSS = `
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   padding: 0 28px;
   background: rgba(255,255,255,0.80);
   backdrop-filter: blur(20px);
@@ -75,6 +76,45 @@ const ROLE_CSS = `
 .sb2-step { display: flex; align-items: center; gap: 6px; color: #cbd5e1; white-space: nowrap; }
 .sb2-step.active { color: #2563eb; }
 .sb2-step-num {
+
+  padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.auth-logo { display: flex; align-items: center; text-decoration: none; }
+.auth-logo img { height: 48px; width: auto; object-fit: contain; transform: scale(3); transform-origin: left center; }
+.auth-header-right { display: flex; align-items: center; gap: 20px; }
+.auth-lang-toggle {
+  display: flex; background: #F1F5F9; border-radius: 8px; padding: 2px;
+}
+.auth-lang-btn {
+  padding: 4px 12px; border-radius: 6px; border: none;
+  background: transparent; font-size: 13px; font-weight: 500;
+  color: #64748B; cursor: pointer; font-family: inherit; transition: all 0.15s;
+}
+.auth-lang-btn.active {
+  background: #fff; color: #111827;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.auth-back-link {
+  font-size: 14px; font-weight: 500; color: #2563EB;
+  text-decoration: none; transition: opacity 0.15s;
+}
+.auth-back-link:hover { opacity: 0.75; }
+/* ── Progress stepper ── */
+.auth-stepper {
+  display: flex; align-items: center; gap: 0;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+}
+.auth-step {
+  display: flex; align-items: center; gap: 6px;
+  color: #CBD5E1;
+}
+.auth-step.active { color: #2563EB; }
+.auth-step.done { color: #059669; }
+.auth-step-num {
+
   width: 22px; height: 22px; border-radius: 50%;
   border: 1.5px solid currentColor;
   display: flex; align-items: center; justify-content: center;

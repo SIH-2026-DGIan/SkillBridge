@@ -1,72 +1,26 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
-  BookOpen,
-  Microscope,
-  Users,
-  Award,
+  Plus,
   ExternalLink,
-  MapPin,
+  MessageSquare,
+  Eye,
   Calendar,
-  Sparkles,
-  Zap,
+  ArrowRight,
+  Search,
+  Bell,
+  User,
+  CheckCircle2,
+  Clock3,
+  BookOpen,
+  Award,
+  Users,
+  IndianRupee,
+  X,
 } from 'lucide-react';
+
 import { getSession, UserSession } from '@/lib/user-session';
-
-const ACADEMICIAN_JOURNEY = [
-  { step: '1. Collaborate', active: false, done: true },
-  { step: '2. Train (FDP)', active: true, done: false },
-  { step: '3. Research', active: false, done: false },
-  { step: '4. Mentor', active: false, done: false },
-];
-
-const FACULTY_OPPS = [
-  {
-    category: 'FDP',
-    title: 'Faculty Development Program — Advanced AI/ML & LLMs',
-    org: 'IIT Madras · AICTE Sponsored',
-    location: 'Chennai · Hybrid',
-    date: 'Oct 14–18, 2026',
-    desc: '5-day intensive program covering Deep Learning, NLP transformers, and ML production deployment for university educators.',
-    icon: BookOpen,
-    grant: 'Fully Funded',
-    badgeBg: 'bg-orange-50 text-orange-700 border-orange-200',
-  },
-  {
-    category: 'Research Grant',
-    title: 'Indo-German Bilateral Research — Explainable AI in Medicine',
-    org: 'DAAD + DST India',
-    location: 'Remote & Munich',
-    date: 'Applications Close: Aug 31, 2026',
-    desc: 'Bilateral grant for Explainable AI models in clinical diagnostics. Open to principal investigators and faculty at IITs and NITs.',
-    icon: Microscope,
-    grant: '₹45,00,000 Grant',
-    badgeBg: 'bg-blue-50 text-blue-700 border-blue-200',
-  },
-  {
-    category: 'Corporate Consultancy',
-    title: 'AI Strategy & Algorithm Advisory — FinTech System',
-    org: 'FinEdge Technologies',
-    location: 'Mumbai · Hybrid',
-    date: '3 Months Engagement',
-    desc: 'Senior faculty advisory to design graph neural network fraud detection architecture for high-throughput payment rails.',
-    icon: Award,
-    grant: '₹95,000 / mo Retainer',
-    badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  },
-  {
-    category: 'Faculty Internship',
-    title: 'Industry Sabbatical — Cloud Robotics Architecture',
-    org: 'RoboTech Labs',
-    location: 'Bengaluru · Onsite',
-    date: 'Summer 2026 (2 Months)',
-    desc: 'Immersive industry residency working alongside robotics engineers on autonomous warehouse navigation algorithms.',
-    icon: Users,
-    grant: 'Stipend + Housing',
-    badgeBg: 'bg-purple-50 text-purple-700 border-purple-200',
-  },
-];
 
 const PLACEHOLDER: UserSession = {
   id: '',
@@ -74,130 +28,1066 @@ const PLACEHOLDER: UserSession = {
   email: '',
   role: 'academician',
   department: 'Computer Science',
-  institutionName: 'IIT Delhi',
+  institutionName: 'Sample Institution',
 };
+
+const MENTEES = [
+  {
+    id: 'STU-1024',
+    name: 'Priya Sharma',
+    course: 'B.Tech CSE · Final Year',
+    project: 'Industry Project — Web Development',
+    progress: 78,
+    next: 'Review project milestone',
+    status: 'On Track',
+    avatar:
+      'https://ui-avatars.com/api/?name=Priya+Sharma&background=2563EB&color=fff',
+  },
+  {
+    id: 'STU-1088',
+    name: 'Rohan Gupta',
+    course: 'M.Tech AI & Data Science',
+    project: 'Research — LLM Optimization',
+    progress: 45,
+    next: 'Approve literature review',
+    status: 'Needs Attention',
+    avatar:
+      'https://ui-avatars.com/api/?name=Rohan+Gupta&background=0F766E&color=fff',
+  },
+  {
+    id: 'STU-1142',
+    name: 'Ananya Desai',
+    course: 'B.Tech IT · 3rd Year',
+    project: 'Capstone — Smart IoT Systems',
+    progress: 92,
+    next: 'Final evaluation',
+    status: 'Excellent',
+    avatar:
+      'https://ui-avatars.com/api/?name=Ananya+Desai&background=F59E0B&color=fff',
+  },
+];
+
+const GRANTS = [
+  {
+    title: 'Autonomous Edge Diagnostics for Agricultural Robotics',
+    type: 'Industry Research Collaboration',
+    matchReason:
+      'Matches your interests in AI, robotics and applied machine learning.',
+    amount: '₹18.5L',
+  },
+  {
+    title: 'Federated Learning for Privacy-Preserving Healthcare',
+    type: 'Govt. Sponsored Research Grant',
+    matchReason:
+      'Matches your research interests in machine learning and data privacy.',
+    amount: '₹24L',
+  },
+];
+
+const FDP_UPCOMING = {
+  title: 'Advanced Generative AI Applications in Academia',
+  provider: 'AICTE / IIT Bombay',
+  starts: '18 Sept',
+  duration: '5 Days',
+};
+
+const FDP_OTHER = [
+  {
+    title: 'Pedagogy in the Digital Age',
+    provider: 'UGC Sponsored',
+    date: 'Oct 5–7',
+  },
+  {
+    title: 'Industry 4.0 Integration for Faculty',
+    provider: 'Tech Mahindra',
+    date: 'Nov 12',
+  },
+];
+
+const ANNOUNCEMENTS = [
+  {
+    title: 'New Industry Mentorship Program',
+    desc: 'Applications open for faculty mentors for the upcoming Spring semester.',
+  },
+  {
+    title: 'Research Collaboration Call',
+    desc: 'AI & Smart Manufacturing consortium is looking for principal investigators.',
+  },
+];
 
 export default function AcademicianDashboard() {
   const [user, setUser] = useState<UserSession>(PLACEHOLDER);
+  const [search, setSearch] = useState('');
+  const [selectedMentee, setSelectedMentee] = useState<
+    (typeof MENTEES)[number] | null
+  >(null);
+  const [feedbackMentee, setFeedbackMentee] = useState<
+    (typeof MENTEES)[number] | null
+  >(null);
+  const [feedback, setFeedback] = useState('');
+  const [showResearchModal, setShowResearchModal] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
+  const [registered, setRegistered] = useState(false);
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
-    setUser(getSession());
+    try {
+      const session = getSession();
+
+      if (session) {
+        setUser(session);
+      }
+    } catch (error) {
+      console.error('Unable to load user session:', error);
+    }
   }, []);
 
+  const filteredMentees = MENTEES.filter((mentee) => {
+    const query = search.toLowerCase();
+
+    return (
+      mentee.name.toLowerCase().includes(query) ||
+      mentee.course.toLowerCase().includes(query) ||
+      mentee.project.toLowerCase().includes(query)
+    );
+  });
+
+  const showMessage = (text: string) => {
+    setMessage(text);
+
+    setTimeout(() => {
+      setMessage('');
+    }, 3000);
+  };
+
+  const submitFeedback = () => {
+    if (!feedback.trim()) {
+      showMessage('Please enter feedback before submitting.');
+      return;
+    }
+
+    showMessage(`Feedback sent to ${feedbackMentee?.name}.`);
+    setFeedback('');
+    setFeedbackMentee(null);
+  };
+
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
-      {/* 1. Academician Workflow Journey */}
-      <div className="glass-card rounded-3xl p-5 border border-white shadow-lg bg-white">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-[#4F46E5]" />
-            <h2 className="text-xs font-black uppercase tracking-wider text-slate-800">
-              Academician Engagement Journey
-            </h2>
-          </div>
-          <span className="text-xs font-extrabold text-[#4F46E5] bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">
-            Active: Research Grants &amp; Faculty Development Programs
-          </span>
+    <div className="min-h-screen bg-slate-50 text-slate-900">
+      {/* Toast */}
+      {message && (
+        <div className="fixed right-5 top-5 z-[100] flex items-center gap-3 rounded-xl bg-slate-900 px-5 py-3 text-sm font-medium text-white shadow-xl">
+          <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+          {message}
         </div>
+      )}
 
-        <div className="grid grid-cols-4 gap-2">
-          {ACADEMICIAN_JOURNEY.map((j, idx) => (
-            <div
-              key={j.step}
-              className={`p-2.5 rounded-2xl text-center text-xs font-extrabold transition-all ${
-                j.active
-                  ? 'bg-gradient-to-r from-[#4F46E5] to-[#7C3AED] text-white shadow-md shadow-indigo-500/25 ring-2 ring-indigo-500/20'
-                  : j.done
-                  ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                  : 'bg-slate-50 text-slate-400 border border-slate-200/80'
-              }`}
-            >
-              <div className="text-[10px] opacity-75">{j.done ? '✓' : idx + 1}</div>
-              <div className="truncate">{j.step}</div>
+      {/* Top Navigation */}
+      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
+        <div className="mx-auto flex max-w-[1320px] items-center justify-between px-5 py-3 lg:px-8">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm">
+              <BookOpen className="h-5 w-5" />
             </div>
-          ))}
-        </div>
-      </div>
 
-      {/* 2. Top Header */}
-      <div className="glass-card rounded-3xl p-6 sm:p-8 border border-white shadow-xl bg-gradient-to-r from-[#0F172A] via-[#1E1B4B] to-[#0F172A] text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-        <div>
-          <span className="text-[11px] font-black tracking-wider text-cyan-300 uppercase">
-            👨‍🏫 Faculty &amp; Research Portal
-          </span>
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight mt-0.5">
-            {user.name} · Research Hub
-          </h1>
-          <p className="text-indigo-200 text-xs sm:text-sm font-medium mt-1">
-            {user.department || 'Computer Science'} · {user.institutionName || 'IIT Delhi'}
-          </p>
-        </div>
-
-        <button className="inline-flex items-center gap-2 px-6 py-3.5 bg-gradient-to-r from-[#4F46E5] to-[#7C3AED] hover:from-[#4338CA] hover:to-[#6D28D9] text-white font-black text-xs sm:text-sm rounded-2xl shadow-xl shadow-indigo-500/30 bouncy-hover transition-all flex-shrink-0">
-          <Microscope className="w-4 h-4" /> Submit Research RFP
-        </button>
-      </div>
-
-      {/* 3. Metrics Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: 'Available FDPs', value: '3', sub: 'AICTE / DST Funded', color: 'from-indigo-600 to-violet-600' },
-          { label: 'Research Grants', value: '2', sub: '₹75L Total Funding', color: 'from-blue-600 to-indigo-600' },
-          { label: 'Corporate Consultancies', value: '2', sub: 'Active Industry RFPs', color: 'from-violet-600 to-purple-600' },
-          { label: 'Student Mentorships', value: '4', sub: 'Capstone Teams', color: 'from-emerald-500 to-teal-600' },
-        ].map((stat) => (
-          <div key={stat.label} className="glass-card rounded-3xl p-5 border border-white shadow-md bg-white">
-            <div className={`w-10 h-10 rounded-2xl bg-gradient-to-tr ${stat.color} flex items-center justify-center text-white font-black shadow-md mb-3`}>
-              <Sparkles className="w-5 h-5" />
+            <div>
+              <div className="font-bold text-slate-900">AcademicHub</div>
+              <div className="text-xs text-slate-500">
+                Faculty Workspace
+              </div>
             </div>
-            <div className="text-3xl font-black text-slate-900 tracking-tight">{stat.value}</div>
-            <div className="text-xs font-extrabold text-slate-700 mt-0.5">{stat.label}</div>
-            <div className="text-[11px] font-semibold text-slate-400 mt-0.5">{stat.sub}</div>
           </div>
-        ))}
-      </div>
 
-      {/* 4. Curated Opportunities List */}
-      <div className="glass-card rounded-3xl p-6 border border-white shadow-lg bg-white space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-          <div>
-            <h3 className="font-black text-slate-900 text-base">Curated Faculty Opportunities &amp; Grants</h3>
-            <p className="text-xs text-slate-500 font-medium">Bilateral research, FDPs, and corporate advisory</p>
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          {FACULTY_OPPS.map((opp) => (
-            <div
-              key={opp.title}
-              className="p-5 rounded-2xl bg-slate-50 hover:bg-white border border-slate-200/80 hover:border-amber-300 hover:shadow-md transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+          <div className="hidden items-center gap-6 md:flex">
+            <button
+              onClick={() => showMessage('Dashboard is already active.')}
+              className="text-sm font-semibold text-blue-600"
             >
-              <div className="flex items-start gap-3.5 min-w-0 flex-1">
-                <div className="w-11 h-11 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-black flex-shrink-0 shadow-sm">
-                  <opp.icon className="w-5 h-5" />
+              Dashboard
+            </button>
+
+            <button
+              onClick={() => showMessage('Mentorship section selected.')}
+              className="text-sm font-medium text-slate-600 hover:text-blue-600"
+            >
+              Mentorship
+            </button>
+
+            <button
+              onClick={() => showMessage('Research section selected.')}
+              className="text-sm font-medium text-slate-600 hover:text-blue-600"
+            >
+              Research
+            </button>
+
+            <button
+              onClick={() => showMessage('Programs section selected.')}
+              className="text-sm font-medium text-slate-600 hover:text-blue-600"
+            >
+              Programs
+            </button>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => showMessage('No new notifications.')}
+              className="relative rounded-lg p-2 text-slate-500 hover:bg-slate-100"
+            >
+              <Bell className="h-5 w-5" />
+              <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-blue-600" />
+            </button>
+
+            <button
+              onClick={() => setShowProfile(true)}
+              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-2 py-1.5 hover:bg-slate-50"
+            >
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-700">
+                <User className="h-4 w-4" />
+              </div>
+
+              <div className="hidden text-left sm:block">
+                <div className="text-xs font-semibold text-slate-900">
+                  {user.name || 'Faculty'}
                 </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <h4 className="font-black text-slate-900 text-sm">{opp.title}</h4>
-                    <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full border ${opp.badgeBg}`}>
-                      {opp.category}
-                    </span>
-                    <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                      {opp.grant}
-                    </span>
+                <div className="text-[11px] text-slate-500">
+                  {user.role || 'Academician'}
+                </div>
+              </div>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-[1320px] space-y-6 px-5 py-6 lg:px-8">
+        {/* Hero */}
+        <section className="overflow-hidden rounded-2xl bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-600 p-6 text-white shadow-lg lg:p-8">
+          <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-center">
+            <div>
+              <div className="mb-2 flex items-center gap-2 text-sm font-medium text-blue-100">
+                <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                Faculty workspace active
+              </div>
+
+              <h1 className="text-2xl font-bold lg:text-3xl">
+                Welcome back, {user.name || 'Faculty'}
+              </h1>
+
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-blue-100">
+                Manage student mentorship, research collaborations and
+                professional development from one workspace.
+              </p>
+
+              {user.institutionName && (
+                <p className="mt-3 text-xs font-medium text-blue-200">
+                  {user.institutionName} · {user.department}
+                </p>
+              )}
+            </div>
+
+            <button
+              onClick={() => setShowResearchModal(true)}
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-blue-700 shadow-md transition hover:bg-blue-50"
+            >
+              <Plus className="h-4 w-4" />
+              Propose Research Project
+            </button>
+          </div>
+        </section>
+
+        {/* Search */}
+        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+          <div>
+            <h2 className="text-xl font-bold text-slate-900">
+              Faculty & Academician Workspace
+            </h2>
+            <p className="mt-1 text-sm text-slate-500">
+              Your academic activities, mentorship and opportunities.
+            </p>
+          </div>
+
+          <div className="relative w-full sm:w-80">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search mentees..."
+              className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            />
+          </div>
+        </div>
+
+        {/* KPI Cards */}
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="rounded-xl bg-blue-50 p-2.5 text-blue-600">
+                <Users className="h-5 w-5" />
+              </div>
+              <span className="text-xs font-semibold text-emerald-600">
+                +3 this month
+              </span>
+            </div>
+
+            <div className="text-sm font-medium text-slate-500">
+              Active Mentees
+            </div>
+            <div className="mt-1 text-3xl font-bold text-slate-900">18</div>
+            <div className="mt-1 text-xs text-slate-500">
+              Students currently under mentorship
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="rounded-xl bg-emerald-50 p-2.5 text-emerald-600">
+                <CheckCircle2 className="h-5 w-5" />
+              </div>
+              <span className="text-xs font-semibold text-emerald-600">
+                Healthy
+              </span>
+            </div>
+
+            <div className="text-sm font-medium text-slate-500">
+              Avg. Mentorship Progress
+            </div>
+            <div className="mt-1 text-3xl font-bold text-slate-900">
+              78.4%
+            </div>
+            <div className="mt-1 text-xs text-slate-500">
+              Across active mentorships
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="rounded-xl bg-amber-50 p-2.5 text-amber-600">
+                <IndianRupee className="h-5 w-5" />
+              </div>
+              <span className="text-xs font-semibold text-slate-500">
+                2 active
+              </span>
+            </div>
+
+            <div className="text-sm font-medium text-slate-500">
+              Active Grants
+            </div>
+            <div className="mt-1 text-3xl font-bold text-slate-900">
+              ₹42.5L
+            </div>
+            <div className="mt-1 text-xs text-slate-500">
+              Sponsored research / industry grants
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="rounded-xl bg-indigo-50 p-2.5 text-indigo-600">
+                <Award className="h-5 w-5" />
+              </div>
+              <span className="text-xs font-semibold text-indigo-600">
+                2 upcoming
+              </span>
+            </div>
+
+            <div className="text-sm font-medium text-slate-500">
+              FDP Programs
+            </div>
+            <div className="mt-1 text-3xl font-bold text-slate-900">5</div>
+            <div className="mt-1 text-xs text-slate-500">
+              Available/upcoming programs
+            </div>
+          </div>
+        </section>
+
+        {/* Main Grid */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          {/* LEFT */}
+          <div className="space-y-6 lg:col-span-2">
+            {/* Mentorship */}
+            <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+                <div>
+                  <h2 className="text-lg font-bold text-slate-900">
+                    Student Mentorships & Programs
+                  </h2>
+                  <p className="mt-1 text-sm text-slate-500">
+                    Track your mentees, project progress and milestones.
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => showMessage('Showing all 18 mentees.')}
+                  className="text-sm font-semibold text-blue-600 hover:underline"
+                >
+                  View All
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {filteredMentees.length === 0 ? (
+                  <div className="rounded-xl bg-slate-50 py-10 text-center">
+                    <Search className="mx-auto h-8 w-8 text-slate-300" />
+                    <p className="mt-2 text-sm font-medium text-slate-500">
+                      No mentees found.
+                    </p>
                   </div>
-                  <div className="text-xs font-semibold text-slate-600 mb-1">{opp.org}</div>
-                  <p className="text-xs text-slate-500 leading-relaxed font-medium">{opp.desc}</p>
+                ) : (
+                  filteredMentees.map((mentee) => (
+                    <div
+                      key={mentee.id}
+                      className="border-b border-slate-200 pb-6 last:border-0 last:pb-0"
+                    >
+                      <div className="flex flex-col gap-4 sm:flex-row">
+                        <img
+                          src={mentee.avatar}
+                          alt={mentee.name}
+                          className="h-12 w-12 rounded-full"
+                        />
+
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-col justify-between gap-3 sm:flex-row">
+                            <div>
+                              <div className="flex flex-wrap items-center gap-2">
+                                <h3 className="font-semibold text-slate-900">
+                                  {mentee.name}
+                                </h3>
+
+                                <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-600">
+                                  {mentee.id}
+                                </span>
+                              </div>
+
+                              <div className="mt-1 text-sm text-slate-500">
+                                {mentee.course}
+                              </div>
+
+                              <div className="mt-1 text-sm font-medium text-slate-900">
+                                {mentee.project}
+                              </div>
+                            </div>
+
+                            <span
+                              className={`h-fit rounded-full px-2.5 py-1 text-xs font-semibold ${
+                                mentee.status === 'Excellent'
+                                  ? 'bg-emerald-50 text-emerald-700'
+                                  : mentee.status === 'Needs Attention'
+                                  ? 'bg-amber-50 text-amber-700'
+                                  : 'bg-blue-50 text-blue-700'
+                              }`}
+                            >
+                              {mentee.status}
+                            </span>
+                          </div>
+
+                          <div className="mt-4">
+                            <div className="mb-1.5 flex justify-between text-xs font-semibold">
+                              <span className="text-slate-500">
+                                Project Progress
+                              </span>
+                              <span className="text-emerald-600">
+                                {mentee.progress}%
+                              </span>
+                            </div>
+
+                            <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+                              <div
+                                className="h-full rounded-full bg-emerald-500 transition-all"
+                                style={{ width: `${mentee.progress}%` }}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="mt-3 flex items-center gap-2 text-sm">
+                            <Clock3 className="h-4 w-4 text-slate-400" />
+                            <span className="text-slate-500">
+                              Next milestone:
+                            </span>
+                            <span className="font-medium text-slate-900">
+                              {mentee.next}
+                            </span>
+                          </div>
+
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            <button
+                              onClick={() => setSelectedMentee(mentee)}
+                              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                            >
+                              <Eye className="h-4 w-4" />
+                              View Details
+                            </button>
+
+                            <button
+                              onClick={() => setFeedbackMentee(mentee)}
+                              className="inline-flex items-center gap-2 rounded-lg bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 transition hover:bg-blue-100"
+                            >
+                              <MessageSquare className="h-4 w-4" />
+                              Give Feedback
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <button
+                onClick={() => showMessage('Loading all 18 mentees...')}
+                className="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-blue-600 hover:underline"
+              >
+                View all 18 mentees
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </section>
+
+            {/* Grants */}
+            <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <h2 className="text-lg font-bold text-slate-900">
+                Sponsored Research & Industry Grants
+              </h2>
+
+              <p className="mt-1 mb-6 text-sm text-slate-500">
+                Research opportunities relevant to your expertise.
+              </p>
+
+              <div className="space-y-4">
+                {GRANTS.map((grant) => (
+                  <div
+                    key={grant.title}
+                    className="rounded-xl border border-slate-200 bg-slate-50 p-5 transition hover:border-blue-200 hover:shadow-sm"
+                  >
+                    <div className="mb-1 text-xs font-bold uppercase tracking-wider text-blue-600">
+                      {grant.type}
+                    </div>
+
+                    <div className="flex flex-col justify-between gap-3 sm:flex-row">
+                      <h3 className="max-w-2xl text-base font-bold leading-snug text-slate-900">
+                        {grant.title}
+                      </h3>
+
+                      <span className="whitespace-nowrap text-sm font-bold text-emerald-600">
+                        {grant.amount}
+                      </span>
+                    </div>
+
+                    <div className="mt-4 rounded-lg border border-slate-200 bg-white p-3">
+                      <div className="mb-1 text-xs font-bold uppercase text-slate-500">
+                        Why it matches you
+                      </div>
+
+                      <div className="text-sm text-slate-700">
+                        {grant.matchReason}
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex gap-3">
+                      <button
+                        onClick={() =>
+                          showMessage(`Opening ${grant.title} details.`)
+                        }
+                        className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                      >
+                        View Details
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          showMessage('Proposal application started.')
+                        }
+                        className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                      >
+                        Submit Proposal
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
+
+          {/* RIGHT */}
+          <div className="space-y-6">
+            {/* Academic Focus */}
+            <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-bold text-slate-900">
+                    Your Academic Focus
+                  </h2>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Your current expertise profile
+                  </p>
+                </div>
+
+                <div className="rounded-xl bg-blue-50 p-2 text-blue-600">
+                  <BookOpen className="h-5 w-5" />
                 </div>
               </div>
 
-              <button className="flex-shrink-0 px-4 py-2.5 bg-slate-900 hover:bg-amber-600 text-white text-xs font-extrabold rounded-xl transition-colors shadow-sm self-end sm:self-center">
-                Express Interest →
+              <div className="mt-6 space-y-5">
+                <div>
+                  <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">
+                    Expertise
+                  </h3>
+
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      'Computer Science',
+                      'Artificial Intelligence',
+                      'Data Science',
+                    ].map((item) => (
+                      <span
+                        key={item}
+                        className="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700"
+                      >
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">
+                    Research Interests
+                  </h3>
+
+                  <div className="flex flex-wrap gap-2">
+                    {['Machine Learning', 'Generative AI', 'Data Analytics'].map(
+                      (item) => (
+                        <span
+                          key={item}
+                          className="rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700"
+                        >
+                          {item}
+                        </span>
+                      )
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">
+                    Industry Interests
+                  </h3>
+
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      'AI Applications',
+                      'Industry 4.0',
+                      'Digital Transformation',
+                    ].map((item) => (
+                      <span
+                        key={item}
+                        className="rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700"
+                      >
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => showMessage('Academic focus editor opened.')}
+                className="mt-6 w-full rounded-lg border border-slate-200 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+              >
+                Edit Focus
+              </button>
+            </section>
+
+            {/* FDP */}
+            <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="mb-5 flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-bold text-slate-900">
+                    Faculty Development
+                  </h2>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Learn, certify and grow
+                  </p>
+                </div>
+
+                <Award className="h-5 w-5 text-indigo-500" />
+              </div>
+
+              <div className="rounded-xl border border-blue-100 bg-blue-50 p-5">
+                <div className="mb-3 inline-flex rounded-full bg-blue-100 px-2.5 py-1 text-[10px] font-bold text-blue-700">
+                  UPCOMING
+                </div>
+
+                <h3 className="text-base font-bold leading-snug text-slate-900">
+                  {FDP_UPCOMING.title}
+                </h3>
+
+                <div className="mt-4 space-y-2 text-sm text-slate-600">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    {FDP_UPCOMING.starts}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Clock3 className="h-4 w-4" />
+                    {FDP_UPCOMING.duration}
+                  </div>
+
+                  <div className="text-xs font-medium text-slate-500">
+                    {FDP_UPCOMING.provider}
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => {
+                    setRegistered(true);
+                    showMessage('Successfully registered for the FDP.');
+                  }}
+                  disabled={registered}
+                  className="mt-5 w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-emerald-600"
+                >
+                  {registered ? 'Registered ✓' : 'Register'}
+                </button>
+              </div>
+
+              <div className="mt-5 space-y-3">
+                {FDP_OTHER.map((fdp) => (
+                  <div
+                    key={fdp.title}
+                    className="flex items-center justify-between border-b border-slate-100 py-3 last:border-0"
+                  >
+                    <div>
+                      <div className="text-sm font-semibold text-slate-800">
+                        {fdp.title}
+                      </div>
+
+                      <div className="mt-1 text-xs text-slate-500">
+                        {fdp.provider} · {fdp.date}
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => showMessage(`Opening ${fdp.title}.`)}
+                      className="rounded-lg p-2 text-blue-600 hover:bg-blue-50"
+                    >
+                      <ArrowRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
+        </div>
+
+        {/* Announcements */}
+        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="mb-5 flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-bold text-slate-900">
+                Industry / Academia Announcements
+              </h2>
+              <p className="mt-1 text-sm text-slate-500">
+                Stay updated with relevant opportunities.
+              </p>
+            </div>
+
+            <Bell className="hidden h-5 w-5 text-slate-400 sm:block" />
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {ANNOUNCEMENTS.map((announcement) => (
+              <div
+                key={announcement.title}
+                className="flex items-start justify-between rounded-xl border border-slate-200 p-4 transition hover:border-blue-200 hover:bg-slate-50"
+              >
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-900">
+                    {announcement.title}
+                  </h3>
+
+                  <p className="mt-1 text-sm leading-5 text-slate-500">
+                    {announcement.desc}
+                  </p>
+                </div>
+
+                <button
+                  onClick={() =>
+                    showMessage(`Opening ${announcement.title}.`)
+                  }
+                  className="ml-4 shrink-0 text-blue-600"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
+      </main>
+
+      {/* Mentee Details Modal */}
+      {selectedMentee && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <img
+                  src={selectedMentee.avatar}
+                  alt={selectedMentee.name}
+                  className="h-12 w-12 rounded-full"
+                />
+
+                <div>
+                  <h3 className="font-bold text-slate-900">
+                    {selectedMentee.name}
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    {selectedMentee.id}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setSelectedMentee(null)}
+                className="rounded-lg p-2 text-slate-400 hover:bg-slate-100"
+              >
+                <X className="h-5 w-5" />
               </button>
             </div>
-          ))}
+
+            <div className="mt-6 space-y-4">
+              <div>
+                <div className="text-xs font-bold uppercase text-slate-400">
+                  Course
+                </div>
+                <div className="mt-1 text-sm font-medium text-slate-800">
+                  {selectedMentee.course}
+                </div>
+              </div>
+
+              <div>
+                <div className="text-xs font-bold uppercase text-slate-400">
+                  Project
+                </div>
+                <div className="mt-1 text-sm font-medium text-slate-800">
+                  {selectedMentee.project}
+                </div>
+              </div>
+
+              <div>
+                <div className="mb-2 flex justify-between text-xs font-semibold">
+                  <span>Progress</span>
+                  <span className="text-emerald-600">
+                    {selectedMentee.progress}%
+                  </span>
+                </div>
+
+                <div className="h-2 rounded-full bg-slate-100">
+                  <div
+                    className="h-2 rounded-full bg-emerald-500"
+                    style={{ width: `${selectedMentee.progress}%` }}
+                  />
+                </div>
+              </div>
+
+              <div className="rounded-xl bg-slate-50 p-4">
+                <div className="text-xs font-bold uppercase text-slate-400">
+                  Next Milestone
+                </div>
+                <div className="mt-1 text-sm font-semibold text-slate-800">
+                  {selectedMentee.next}
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setSelectedMentee(null)}
+              className="mt-6 w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+            >
+              Close
+            </button>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Feedback Modal */}
+      {feedbackMentee && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900">
+                  Give Feedback
+                </h3>
+                <p className="mt-1 text-sm text-slate-500">
+                  Feedback for {feedbackMentee.name}
+                </p>
+              </div>
+
+              <button
+                onClick={() => setFeedbackMentee(null)}
+                className="rounded-lg p-2 text-slate-400 hover:bg-slate-100"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <textarea
+              value={feedback}
+              onChange={(e) => setFeedback(e.target.value)}
+              rows={5}
+              placeholder="Write your feedback here..."
+              className="mt-5 w-full resize-none rounded-xl border border-slate-200 p-4 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            />
+
+            <div className="mt-4 flex gap-3">
+              <button
+                onClick={() => setFeedbackMentee(null)}
+                className="flex-1 rounded-lg border border-slate-200 py-2.5 text-sm font-semibold text-slate-700"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={submitFeedback}
+                className="flex-1 rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+              >
+                Send Feedback
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Research Modal */}
+      {showResearchModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
+          <div className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900">
+                  Propose Research / Industry Project
+                </h3>
+                <p className="mt-1 text-sm text-slate-500">
+                  Start a new collaboration proposal.
+                </p>
+              </div>
+
+              <button
+                onClick={() => setShowResearchModal(false)}
+                className="rounded-lg p-2 text-slate-400 hover:bg-slate-100"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="mt-5 space-y-4">
+              <input
+                placeholder="Project title"
+                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-500"
+              />
+
+              <select className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-500">
+                <option>Industry Collaboration</option>
+                <option>Sponsored Research</option>
+                <option>Student Capstone</option>
+                <option>Government Research</option>
+              </select>
+
+              <textarea
+                rows={4}
+                placeholder="Describe your project idea..."
+                className="w-full resize-none rounded-xl border border-slate-200 p-4 text-sm outline-none focus:border-blue-500"
+              />
+            </div>
+
+            <div className="mt-5 flex gap-3">
+              <button
+                onClick={() => setShowResearchModal(false)}
+                className="flex-1 rounded-lg border border-slate-200 py-2.5 text-sm font-semibold text-slate-700"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowResearchModal(false);
+                  showMessage('Research proposal saved as draft.');
+                }}
+                className="flex-1 rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+              >
+                Save Proposal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Profile Modal */}
+      {showProfile && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-slate-900">
+                Faculty Profile
+              </h3>
+
+              <button
+                onClick={() => setShowProfile(false)}
+                className="rounded-lg p-2 text-slate-400 hover:bg-slate-100"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="mt-6 flex flex-col items-center text-center">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-blue-100 text-blue-700">
+                <User className="h-9 w-9" />
+              </div>
+
+              <h4 className="mt-4 text-lg font-bold text-slate-900">
+                {user.name || 'Faculty'}
+              </h4>
+
+              <p className="text-sm text-slate-500">
+                {user.email || 'faculty@example.com'}
+              </p>
+
+              <div className="mt-5 w-full space-y-3 text-left">
+                <div className="rounded-xl bg-slate-50 p-4">
+                  <div className="text-xs font-bold uppercase text-slate-400">
+                    Department
+                  </div>
+                  <div className="mt-1 text-sm font-semibold text-slate-800">
+                    {user.department || 'Computer Science'}
+                  </div>
+                </div>
+
+                <div className="rounded-xl bg-slate-50 p-4">
+                  <div className="text-xs font-bold uppercase text-slate-400">
+                    Institution
+                  </div>
+                  <div className="mt-1 text-sm font-semibold text-slate-800">
+                    {user.institutionName || 'Sample Institution'}
+                  </div>
+                </div>
+
+                <div className="rounded-xl bg-blue-50 p-4">
+                  <div className="text-xs font-bold uppercase text-blue-500">
+                    User ID
+                  </div>
+                  <div className="mt-1 text-sm font-bold text-blue-700">
+                    {user.id || 'FACULTY-001'}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowProfile(false)}
+              className="mt-6 w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+            >
+              Close Profile
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

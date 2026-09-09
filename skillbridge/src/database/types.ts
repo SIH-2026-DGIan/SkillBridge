@@ -76,10 +76,21 @@ export interface Application {
   id: string;
   opportunity_id: string;
   student_id: string;
-  status: 'applied' | 'under_review' | 'shortlisted' | 'interviewing' | 'rejected' | 'accepted';
-  match_score: number;
+  status: 'applied' | 'under_review' | 'shortlisted' | 'interview' | 'accepted' | 'rejected';
+  match_score?: number | null;
   applied_at: string;
   updated_at?: string;
+  status_updated_by?: string | null;
+  rejection_reason?: string | null;
+}
+
+export interface ApplicationStatusHistory {
+  id: string;
+  application_id: string;
+  old_status?: string | null;
+  new_status: string;
+  changed_by?: string | null;
+  changed_at: string;
   notes?: string | null;
 }
 

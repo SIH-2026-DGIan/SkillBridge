@@ -55,7 +55,7 @@ export function StudentHeader({ user, onOpenSidebar }: StudentHeaderProps) {
               onChange={handleRoleChange}
               className="text-xs font-semibold text-blue-700 bg-transparent border-0 p-0 pr-5 focus:ring-0 cursor-pointer appearance-none outline-none"
             >
-              <option value="" disabled>Choose a goal</option>
+              <option value="" disabled>Choose your career goal</option>
               {TARGET_ROLES.map((role) => (
                 <option key={role} value={role}>{role}</option>
               ))}
@@ -82,13 +82,13 @@ export function StudentHeader({ user, onOpenSidebar }: StudentHeaderProps) {
 
         {/* Student Profile */}
         <div className="flex items-center gap-2 pl-1">
-          <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
-            {initials}
-          </div>
-          <div className="hidden md:flex flex-col text-left leading-tight">
-            <span className="text-xs font-semibold text-slate-900">{user.name || 'Candidate'}</span>
-            <span className="text-[10px] text-slate-500">{user.degree || 'B.Tech'} {user.branch || 'Computer Science'}</span>
-          </div>
+          {user.profilePictureUrl ? (
+            <img src={user.profilePictureUrl} alt="Profile" className="w-8 h-8 rounded-lg object-cover shadow-xs" />
+          ) : (
+            <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+              {initials}
+            </div>
+          )}
         </div>
       </div>
     </header>

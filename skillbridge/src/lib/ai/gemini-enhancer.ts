@@ -3,7 +3,7 @@
  * Falls back gracefully to template strings if API key is missing or request fails.
  */
 
-interface EnhancerInput {
+export interface EnhancerInput {
   studentName: string;
   opportunityTitle: string;
   company: string;

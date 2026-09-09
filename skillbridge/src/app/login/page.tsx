@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import LangSelector, { useLang } from '@/components/LangSelector';
+import { setSession, getSession } from '@/lib/user-session';
 
 interface FieldErrors {
   identifier?: string;
@@ -64,6 +65,13 @@ export default function LoginPage() {
     setTimeout(() => {
       setLoading(false);
       const id = identifier.toLowerCase();
+      const isEmail = id.includes('@');
+      
+      setSession({
+        email: isEmail ? id : '',
+        phone: !isEmail ? id : '',
+      });
+
       if (id.includes('industry')) {
         router.push('/industry/dashboard');
       } else if (id.includes('faculty')) {
@@ -71,7 +79,12 @@ export default function LoginPage() {
       } else if (id.includes('institution')) {
         router.push('/institution/dashboard');
       } else {
-        router.push('/student/dashboard');
+        const session = getSession();
+        if (!session.isProfileComplete) {
+          router.push('/student/onboarding');
+        } else {
+          router.push('/student/dashboard');
+        }
       }
     }, 1200);
   };
@@ -143,9 +156,11 @@ export default function LoginPage() {
           text-decoration: none;
         }
         .sb-logo-img {
-          height: 36px;
+          height: 48px;
           width: auto;
           object-fit: contain;
+          transform: scale(3);
+          transform-origin: left center;
         }
         .sb-wordmark {
           font-size: 18px;

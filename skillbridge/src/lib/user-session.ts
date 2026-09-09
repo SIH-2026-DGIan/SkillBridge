@@ -12,15 +12,21 @@ export interface UserSession {
   name: string;
   email: string;
   role: UserRole;
+  profilePictureUrl?: string;
   
   // Student Specific
+  phone?: string;
   college?: string;
   degree?: string;
   branch?: string;
   year?: string;
   graduationYear?: number;
+  cgpa?: number;
   targetRole?: string;
+  assessmentDate?: string;
+  experienceLevel?: string;
   onboardingStep?: number;
+  isProfileComplete?: boolean;
   isAssessed?: boolean;
   assessmentScore?: number;
   
@@ -55,15 +61,17 @@ export interface ParsedResume {
 
 const DEFAULT_SESSION: UserSession = {
   id: 'user-active-1',
-  name: 'Arav Gupta',
-  email: 'arav.gupta@student.edu',
+  name: '',
+  email: '',
   role: 'student',
-  college: 'Dronacharya Group of Institutions',
-  degree: 'B.Tech',
-  branch: 'Computer Science & Engineering',
-  year: '3rd Year',
-  graduationYear: 2026,
+  phone: '',
+  college: '',
+  degree: '',
+  branch: '',
+  year: '',
+  graduationYear: undefined,
   onboardingStep: 1,
+  isProfileComplete: false,
 };
 
 export function getSession(): UserSession {
@@ -102,7 +110,12 @@ export function setSession(session: Partial<UserSession>): UserSession {
 
   if (typeof window !== 'undefined') {
     localStorage.setItem('sb_user_session', JSON.stringify(updated));
-    document.cookie = `sb-demo-session=${JSON.stringify(updated)}; path=/; max-age=86400; SameSite=Lax`;
+    
+    // Cookie only needs essential auth/routing info. Exclude large data (like base64 images) to prevent 4KB cookie overflow
+    const cookieSession = { ...updated };
+    delete cookieSession.profilePictureUrl;
+    
+    document.cookie = `sb-demo-session=${encodeURIComponent(JSON.stringify(cookieSession))}; path=/; max-age=86400; SameSite=Lax`;
     window.dispatchEvent(new Event('sb_session_updated'));
   }
 
@@ -150,4 +163,17 @@ export function setStudentResume(resume: ParsedResume): void {
     setStudentSkills(resume.extractedSkills);
     window.dispatchEvent(new Event('sb_resume_updated'));
   }
+}
+
+export function getStudentApplications(): any[] {
+  if (typeof window === 'undefined') return [];
+
+  try {
+    const raw = localStorage.getItem('sb_student_applications');
+    if (raw) return JSON.parse(raw);
+  } catch (e) {
+    console.warn('Failed to get student applications:', e);
+  }
+
+  return [];
 }

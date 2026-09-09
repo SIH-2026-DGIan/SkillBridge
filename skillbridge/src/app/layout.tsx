@@ -56,12 +56,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${plusJakarta.variable} ${newsreader.variable} ${caveat.variable}`}>
+    <html lang="en" className={`${plusJakarta.variable} ${newsreader.variable} ${caveat.variable}`} suppressHydrationWarning>
       <head>
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
-      <body className="font-sans antialiased bg-surface text-on-surface min-h-screen">
+      <body className="font-sans antialiased bg-surface text-on-surface min-h-screen" suppressHydrationWarning>
         {children}
         <Toaster
           position="top-right"

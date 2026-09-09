@@ -22,7 +22,7 @@ export function Logo({ subtitle, size = 36, className = '' }: LogoProps) {
         width={size * 3.2}   // logo is wider than tall (≈3.2:1 ratio)
         height={size}
         priority
-        className="object-contain"
+        className="object-contain scale-[1.5] origin-left"
       />
       {subtitle && (
         <span className="text-[10px] font-extrabold text-[#4F46E5] uppercase tracking-wider hidden sm:block">

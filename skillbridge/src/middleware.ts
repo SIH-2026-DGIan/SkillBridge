@@ -12,7 +12,7 @@ export async function middleware(request: NextRequest) {
   const hasSupabase = supabaseUrl && supabaseUrl !== 'your_supabase_project_url';
 
   // Public routes — always accessible
-  const publicRoutes = ['/', '/demo', '/login', '/signup', '/api'];
+  const publicRoutes = ['/', '/login', '/signup', '/api'];
   const isPublic = publicRoutes.some(
     (route) => pathname === route || pathname.startsWith(route + '/')
   );
@@ -49,7 +49,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next();
     } catch {
       // Invalid demo session — clear it and redirect
-      const response = NextResponse.redirect(new URL('/demo', request.url));
+      const response = NextResponse.redirect(new URL('/login', request.url));
       response.cookies.delete('sb-demo-session');
       return response;
     }
@@ -86,12 +86,12 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // No session at all — redirect to demo page
-  return NextResponse.redirect(new URL('/demo', request.url));
+  // No session at all — redirect to login page
+  return NextResponse.redirect(new URL('/login', request.url));
 }
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp4|webm|m4v)$).*)',
   ],
 };

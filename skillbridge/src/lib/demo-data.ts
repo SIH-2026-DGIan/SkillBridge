@@ -306,6 +306,24 @@ export const DEMO_APPLICATIONS = [
     appliedAt: '2026-07-20',
     updatedAt: '2026-08-12',
   },
+  {
+    id: 'app-4',
+    opportunityId: 'opp-3',
+    company: 'WebStack',
+    title: 'Frontend Developer Intern',
+    status: 'under_review' as const,
+    appliedAt: '2026-08-08',
+    updatedAt: '2026-08-09',
+  },
+  {
+    id: 'app-5',
+    opportunityId: 'opp-5',
+    company: 'CloudCore',
+    title: 'Cloud Engineering Intern',
+    status: 'accepted' as const,
+    appliedAt: '2026-07-15',
+    updatedAt: '2026-08-14',
+  },
 ];
 
 export const DEMO_PROJECTS = [
@@ -341,6 +359,8 @@ export const DEMO_CERTIFICATIONS = [
     name: 'Machine Learning Specialization',
     issuer: 'DeepLearning.AI & Stanford Online',
     issueDate: 'December 2025',
+    credentialId: 'DL-109348',
+    skills: ['machine_learning', 'python', 'tensorflow', 'deep_learning'],
     credentialUrl: '#',
   },
   {
@@ -348,6 +368,8 @@ export const DEMO_CERTIFICATIONS = [
     name: 'Python for Data Science & AI',
     issuer: 'IBM (Coursera)',
     issueDate: 'August 2025',
+    credentialId: 'IBM-98234',
+    skills: ['python', 'data_analysis', 'statistics'],
     credentialUrl: '#',
   },
 ];
