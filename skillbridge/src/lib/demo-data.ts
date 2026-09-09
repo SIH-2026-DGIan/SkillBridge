@@ -306,6 +306,24 @@ export const DEMO_APPLICATIONS = [
     appliedAt: '2026-07-20',
     updatedAt: '2026-08-12',
   },
+  {
+    id: 'app-4',
+    opportunityId: 'opp-3',
+    company: 'WebStack',
+    title: 'Frontend Developer Intern',
+    status: 'under_review' as const,
+    appliedAt: '2026-08-08',
+    updatedAt: '2026-08-09',
+  },
+  {
+    id: 'app-5',
+    opportunityId: 'opp-5',
+    company: 'CloudCore',
+    title: 'Cloud Engineering Intern',
+    status: 'accepted' as const,
+    appliedAt: '2026-07-15',
+    updatedAt: '2026-08-14',
+  },
 ];
 
 export const DEMO_PROJECTS = [

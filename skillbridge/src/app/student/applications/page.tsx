@@ -1,31 +1,64 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { CheckCircle, Clock, XCircle, ArrowRight, Briefcase, ChevronRight } from 'lucide-react';
+import { CheckCircle, Clock, XCircle, ArrowRight, Briefcase, ChevronRight, Loader } from 'lucide-react';
 import { DEMO_APPLICATIONS, DEMO_OPPORTUNITIES } from '@/lib/demo-data';
 import { formatDate } from '@/lib/utils';
+import type { Application } from '@/database/types';
 
-type AppStatus = 'applied' | 'under_review' | 'shortlisted' | 'interview' | 'selected' | 'rejected';
+type AppStatus = 'applied' | 'under_review' | 'shortlisted' | 'interview' | 'accepted' | 'rejected';
 
-const PIPELINE: AppStatus[] = ['applied', 'under_review', 'shortlisted', 'interview', 'selected'];
+const PIPELINE: AppStatus[] = ['applied', 'under_review', 'shortlisted', 'interview', 'accepted'];
 
 export default function ApplicationsPage() {
+  const [applications, setApplications] = useState<(Application & { opportunity?: any; company?: string; title?: string })[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<AppStatus | 'all'>('all');
 
-  const applications = DEMO_APPLICATIONS.map((app) => ({
-    ...app,
-    // normalize demo data status if needed
-    status: ((app.status as string) === 'under_review' || (app.status as string) === 'applied' || (app.status as string) === 'shortlisted' || (app.status as string) === 'interview' || (app.status as string) === 'selected' || (app.status as string) === 'rejected') 
-      ? app.status as AppStatus 
-      : 'applied' as AppStatus,
-    opportunity: DEMO_OPPORTUNITIES.find((o) => o.id === app.opportunityId),
-  }));
+  useEffect(() => {
+    async function fetchApplications() {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const response = await fetch('/api/applications');
+        
+        if (!response.ok) {
+          // Fallback to demo data if API fails
+          const demoApps = DEMO_APPLICATIONS.map((app) => ({
+            ...app,
+            status: app.status as AppStatus,
+            opportunity: DEMO_OPPORTUNITIES.find((o) => o.id === app.opportunityId),
+          }));
+          setApplications(demoApps);
+          return;
+        }
+
+        const data = await response.json();
+        setApplications(data);
+      } catch (err) {
+        console.error('Failed to fetch applications:', err);
+        // Fallback to demo data on error
+        const demoApps = DEMO_APPLICATIONS.map((app) => ({
+          ...app,
+          status: app.status as AppStatus,
+          opportunity: DEMO_OPPORTUNITIES.find((o) => o.id === app.opportunityId),
+        }));
+        setApplications(demoApps);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchApplications();
+  }, []);
 
   const filtered = filter === 'all' ? applications : applications.filter((a) => a.status === filter);
 
   const counts: Record<string, number> = {
-    applied: 0, under_review: 0, shortlisted: 0, interview: 0, selected: 0, rejected: 0
+    applied: 0, under_review: 0, shortlisted: 0, interview: 0, accepted: 0, rejected: 0
   };
   
   for (const app of applications) {
@@ -48,10 +81,10 @@ export default function ApplicationsPage() {
           </div>
           
           <div className="flex bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden shrink-0">
-            {['applied', 'under_review', 'shortlisted', 'interview', 'selected'].map((stat, idx) => (
+            {['applied', 'under_review', 'shortlisted', 'interview', 'accepted'].map((stat, idx) => (
               <div key={stat} className={`px-4 py-3 flex flex-col justify-center ${idx !== 4 ? 'border-r border-slate-100' : ''}`}>
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">{formatStatus(stat)}</span>
-                <span className="text-xl font-black text-slate-900">{counts[stat]}</span>
+                <span className="text-xl font-black text-slate-900">{counts[stat] || 0}</span>
               </div>
             ))}
           </div>
@@ -83,13 +116,18 @@ export default function ApplicationsPage() {
                   filter === s ? 'bg-slate-900 border-slate-900 text-white' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                 }`}
               >
-                {s === 'all' ? `All (${applications.length})` : `${formatStatus(s)} (${counts[s]})`}
+                {s === 'all' ? `All (${applications.length})` : `${formatStatus(s)} (${counts[s] || 0})`}
               </button>
             ))}
           </div>
 
           <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-            {filtered.length === 0 ? (
+            {isLoading ? (
+              <div className="p-12 text-center">
+                <Loader className="w-10 h-10 text-slate-400 mx-auto mb-3 animate-spin" />
+                <h3 className="font-bold text-slate-900 text-base">Loading applications...</h3>
+              </div>
+            ) : filtered.length === 0 ? (
               <div className="p-12 text-center">
                 <Briefcase className="w-10 h-10 text-slate-300 mx-auto mb-3" />
                 <h3 className="font-bold text-slate-900 text-base">You haven't applied to any opportunities yet.</h3>
@@ -121,11 +159,11 @@ export default function ApplicationsPage() {
                           <div className="text-sm text-slate-600">{app.company || app.opportunity?.company}</div>
                         </td>
                         <td className="px-5 py-4">
-                          <div className="text-sm text-slate-600">{formatDate(app.appliedAt)}</div>
+                          <div className="text-sm text-slate-600">{formatDate(app.applied_at)}</div>
                         </td>
                         <td className="px-5 py-4">
                           <span className={`inline-block px-2.5 py-1 text-[10px] font-bold rounded border uppercase tracking-wider ${
-                            app.status === 'selected' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                            app.status === 'accepted' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
                             app.status === 'rejected' ? 'bg-red-50 text-red-700 border-red-200' :
                             app.status === 'interview' ? 'bg-amber-50 text-amber-700 border-amber-200' :
                             app.status === 'shortlisted' ? 'bg-purple-50 text-purple-700 border-purple-200' :
@@ -136,8 +174,8 @@ export default function ApplicationsPage() {
                           </span>
                         </td>
                         <td className="px-5 py-4">
-                          <Link href={`/student/opportunities/${app.opportunityId}`} className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1">
-                            {app.status === 'interview' ? 'Interview Details →' : 'View Application →'}
+                          <Link href={`/student/applications/${app.id}`} className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                            {app.status === 'interview' ? 'Interview Details →' : 'View Details →'}
                           </Link>
                         </td>
                       </tr>
