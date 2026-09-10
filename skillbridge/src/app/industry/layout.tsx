@@ -1,24 +1,70 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-  LayoutDashboard, PlusCircle, Briefcase, Users, FileText, User, Zap, LogOut, Menu, X, Bell, Sparkles, Building2, ShieldCheck, ChevronRight,
+  LayoutDashboard,
+  PlusCircle,
+  Briefcase,
+  Users,
+  FileText,
+  User,
+  LogOut,
+  Menu,
+  X,
+  Bell,
+  Building2,
+  ShieldCheck,
+  Search,
+  CheckCircle2,
+  ChevronDown,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const NAV_ITEMS = [
-  { href: '/industry/dashboard', label: 'Command Center', icon: LayoutDashboard, badge: null },
-  { href: '/industry/opportunities/new', label: 'Post Job', icon: PlusCircle, badge: 'New' },
-  { href: '/industry/opportunities', label: 'Active Jobs', icon: Briefcase, badge: '8' },
-  { href: '/industry/candidates', label: 'AI Talent Matcher', icon: Users, badge: '11 Top' },
-  { href: '/industry/applications', label: 'Pipeline Funnel', icon: FileText, badge: null },
-  { href: '/industry/profile', label: 'Company Profile', icon: User, badge: null },
+interface NavItem {
+  href: string;
+  label: string;
+  icon: any;
+  badge?: string | null;
+}
+
+const NAV_GROUPS: { group: string; items: NavItem[] }[] = [
+  {
+    group: 'COMMAND',
+    items: [
+      { href: '/industry/dashboard', label: 'Command Center', icon: LayoutDashboard },
+    ],
+  },
+  {
+    group: 'RECRUITMENT',
+    items: [
+      { href: '/industry/opportunities/new', label: 'Post Job', icon: PlusCircle, badge: 'New' },
+      { href: '/industry/opportunities', label: 'Active Jobs', icon: Briefcase },
+      { href: '/industry/candidates', label: 'AI Talent Matcher', icon: Users },
+      { href: '/industry/applications', label: 'Pipeline Funnel', icon: FileText },
+    ],
+  },
+  {
+    group: 'ORGANIZATION',
+    items: [
+      { href: '/industry/profile', label: 'Company Profile', icon: User },
+    ],
+  },
 ];
 
-function Sidebar({ userName, isDemo, onClose }: { userName: string; isDemo: boolean; onClose?: () => void }) {
+function Sidebar({
+  userName,
+  companyName,
+  isDemo,
+  onClose,
+}: {
+  userName: string;
+  companyName: string;
+  isDemo: boolean;
+  onClose?: () => void;
+}) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -35,14 +81,25 @@ function Sidebar({ userName, isDemo, onClose }: { userName: string; isDemo: bool
     .toUpperCase();
 
   return (
-    <div className="flex flex-col h-full bg-white border-r border-slate-200/80">
-      {/* Brand */}
-      <div className="flex items-center justify-between p-5 border-b border-slate-100">
-        <Link href="/">
-          <Image src="/image.png" alt="SkillBridge" width={170} height={46} className="h-11 w-auto object-contain" />
+    <div className="flex flex-col h-full bg-white border-r border-slate-200/80 select-none">
+      {/* Brand Header */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+        <Link href="/" className="flex items-center gap-2">
+          <Image
+            src="/image.png"
+            alt="SkillBridge"
+            width={160}
+            height={42}
+            className="h-9 w-auto object-contain"
+            priority
+          />
         </Link>
         {onClose && (
-          <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-600 md:hidden rounded-xl bg-slate-100">
+          <button
+            onClick={onClose}
+            className="p-1.5 text-slate-400 hover:text-slate-600 md:hidden rounded-lg bg-slate-100 transition-colors"
+            aria-label="Close sidebar"
+          >
             <X className="w-5 h-5" />
           </button>
         )}
@@ -50,59 +107,86 @@ function Sidebar({ userName, isDemo, onClose }: { userName: string; isDemo: bool
 
       {/* Recruiter Profile Card */}
       <div className="p-4 border-b border-slate-100">
-        <div className="glass-card rounded-2xl p-3.5 border border-indigo-100/80 bg-gradient-to-br from-indigo-50/50 to-purple-50/40">
+        <div className="rounded-2xl p-3.5 border border-slate-200/80 bg-slate-50/70 hover:bg-slate-50 transition-colors shadow-2xs">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#4F46E5] to-[#7C3AED] flex items-center justify-center text-white font-black text-sm shadow-md ring-2 ring-white flex-shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white font-black text-xs shadow-xs ring-2 ring-white shrink-0">
               {initials || 'RM'}
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-slate-900 text-sm truncate">{userName}</span>
-                <ShieldCheck className="w-3.5 h-3.5 text-[#4F46E5] flex-shrink-0" />
+                <span className="font-extrabold text-slate-900 text-xs truncate">{userName}</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" title="Active"></span>
               </div>
-              <div className="text-[11px] font-bold text-indigo-700">Talent Acquisition Lead</div>
-              <div className="text-[10px] font-semibold text-slate-400">TechNova · Bengaluru</div>
+              <div className="text-[11px] font-bold text-indigo-700 truncate">Talent Acquisition Lead</div>
+              <div className="text-[10px] font-semibold text-slate-400 truncate">{companyName} · Bengaluru</div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-        {NAV_ITEMS.map((item) => {
-          const active = pathname === item.href || (item.href !== '/industry/dashboard' && pathname.startsWith(item.href));
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={onClose}
-              className={cn(
-                'nav-pill group',
-                active && 'bg-gradient-to-r from-[#4F46E5] to-[#7C3AED] text-white shadow-md shadow-indigo-500/25'
-              )}
-            >
-              <item.icon className={cn('w-4 h-4 flex-shrink-0 transition-colors', active ? 'text-white' : 'text-slate-500 group-hover:text-[#4F46E5]')} />
-              <span className="flex-1">{item.label}</span>
-              {item.badge && (
-                <span
-                  className={cn(
-                    'text-[10px] font-extrabold px-2 py-0.5 rounded-full',
-                    active ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-700'
-                  )}
-                >
-                  {item.badge}
-                </span>
-              )}
-            </Link>
-          );
-        })}
+      <nav className="flex-1 p-3.5 space-y-4 overflow-y-auto scrollbar-thin">
+        {NAV_GROUPS.map((group) => (
+          <div key={group.group}>
+            <span className="px-3 block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+              {group.group}
+            </span>
+            <div className="space-y-1">
+              {group.items.map((item) => {
+                const active =
+                  pathname === item.href ||
+                  (item.href !== '/industry/dashboard' && pathname.startsWith(item.href));
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={onClose}
+                    className={cn(
+                      'flex items-center justify-between px-3 h-10 rounded-xl text-xs font-semibold transition-all',
+                      active
+                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-sm shadow-blue-500/20'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
+                    )}
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <item.icon
+                        className={cn(
+                          'w-4 h-4 shrink-0 transition-colors',
+                          active ? 'text-white' : 'text-slate-500'
+                        )}
+                      />
+                      <span className="truncate">{item.label}</span>
+                    </div>
+                    {item.badge && (
+                      <span
+                        className={cn(
+                          'text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0',
+                          active ? 'bg-white/20 text-white' : 'bg-indigo-50 text-indigo-700 border border-indigo-100'
+                        )}
+                      >
+                        {item.badge}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
 
-      {/* Logout */}
-      <div className="p-3 border-t border-slate-100">
-        <button onClick={handleLogout} className="nav-pill w-full text-slate-500 hover:text-rose-600 hover:bg-rose-50 font-bold">
-          <LogOut className="w-4 h-4 text-slate-400 group-hover:text-rose-600" />
-          <span>{isDemo ? 'Switch Persona / Exit' : 'Sign Out'}</span>
+      {/* Logout / Switch Persona */}
+      <div className="p-3.5 border-t border-slate-100 bg-slate-50/50">
+        <button
+          onClick={handleLogout}
+          className="flex items-center justify-between w-full text-slate-600 hover:text-rose-600 hover:bg-rose-50 px-3 py-2 rounded-xl text-xs font-bold transition-colors"
+          type="button"
+        >
+          <span className="flex items-center gap-2">
+            <LogOut className="w-4 h-4 text-slate-400" />
+            <span>{isDemo ? 'Switch Persona / Exit' : 'Sign Out'}</span>
+          </span>
+          <span className="text-[10px] text-slate-400 font-mono">Demo</span>
         </button>
       </div>
     </div>
@@ -110,9 +194,15 @@ function Sidebar({ userName, isDemo, onClose }: { userName: string; isDemo: bool
 }
 
 export default function IndustryLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userName, setUserName] = useState('Rohan Mehta');
+  const [companyName, setCompanyName] = useState('TechNova Solutions');
   const [isDemo, setIsDemo] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+
+  const notifRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const cookies = document.cookie.split(';').reduce((acc, cookie) => {
@@ -126,6 +216,7 @@ export default function IndustryLayout({ children }: { children: React.ReactNode
       try {
         const session = JSON.parse(decodeURIComponent(demoSession));
         setUserName(session.name ?? 'Rohan Mehta');
+        if (session.company) setCompanyName(session.company);
         setIsDemo(true);
       } catch {
         setIsDemo(true);
@@ -133,43 +224,135 @@ export default function IndustryLayout({ children }: { children: React.ReactNode
     }
   }, []);
 
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setNotificationsOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/industry/opportunities?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
   return (
-    <div className="flex h-screen overflow-hidden bg-[#f8fafc]">
+    <div className="flex h-screen overflow-hidden bg-[#F8FAFC] text-[#0F172A] font-sans antialiased">
+      {/* Desktop Sidebar */}
       <div className="hidden md:flex md:flex-col md:w-64 flex-shrink-0">
-        <Sidebar userName={userName} isDemo={isDemo} />
+        <Sidebar userName={userName} companyName={companyName} isDemo={isDemo} />
       </div>
 
+      {/* Mobile Sidebar */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
-          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
-          <div className="absolute left-0 top-0 bottom-0 w-64 z-50">
-            <Sidebar userName={userName} isDemo={isDemo} onClose={() => setSidebarOpen(false)} />
+          <div
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+            onClick={() => setSidebarOpen(false)}
+          />
+          <div className="absolute left-0 top-0 bottom-0 w-64 z-50 bg-white">
+            <Sidebar
+              userName={userName}
+              companyName={companyName}
+              isDemo={isDemo}
+              onClose={() => setSidebarOpen(false)}
+            />
           </div>
         </div>
       )}
 
+      {/* Main Column */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {isDemo && (
-          <div className="demo-banner-playful flex-shrink-0 flex items-center justify-center gap-2 bg-gradient-to-r from-[#4F46E5] via-[#7C3AED] to-[#06B6D4]">
-            <Sparkles className="w-4 h-4 text-cyan-200 animate-pulse" />
-            <span>INDUSTRY RECRUITER SANDBOX — AI Candidate Ranking, Shortlist Automation &amp; Pipeline Funnel</span>
-          </div>
-        )}
-        <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/80 px-4 md:px-8 py-3.5 flex items-center justify-between flex-shrink-0">
-          <div className="flex items-center gap-3">
-            <button onClick={() => setSidebarOpen(true)} className="p-2 text-slate-600 md:hidden rounded-xl bg-slate-100">
+        {/* Top Header */}
+        <header className="bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-4 md:px-8 py-2.5 flex items-center justify-between gap-4 flex-shrink-0 sticky top-0 z-30 shadow-2xs">
+          {/* Left: Mobile trigger & Company Badge */}
+          <div className="flex items-center gap-3 shrink-0">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="p-1.5 text-slate-600 hover:text-slate-900 md:hidden rounded-lg bg-slate-100"
+              aria-label="Open sidebar"
+            >
               <Menu className="w-5 h-5" />
             </button>
-            <span className="badge-pill badge-pill-purple">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#4F46E5]" /> TechNova Verified Recruiter
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200/60 shadow-2xs">
+                <Building2 className="w-3.5 h-3.5 text-indigo-600" />
+                <span>{companyName}</span>
+                <span className="text-[10px] text-indigo-400 font-semibold">• Verified Employer</span>
+              </span>
+            </div>
           </div>
-          <button className="relative p-2 text-slate-500 hover:text-[#4F46E5] rounded-xl hover:bg-slate-100 transition-colors">
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#4F46E5] rounded-full ring-2 ring-white" />
-          </button>
+
+          {/* Center: Global Search */}
+          <div className="flex-1 max-w-md hidden sm:block">
+            <form onSubmit={handleSearchSubmit} className="relative">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search candidates, skills, college cohorts..."
+                className="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white text-slate-900 placeholder:text-slate-400 text-xs pl-10 pr-12 py-2 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
+              />
+              <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-0.5 pointer-events-none">
+                <kbd className="text-[10px] font-mono text-slate-400 bg-white px-1.5 py-0.5 rounded border border-slate-200">⌘K</kbd>
+              </div>
+            </form>
+          </div>
+
+          {/* Right: Notifications & Recruiter Meta */}
+          <div className="flex items-center gap-3 shrink-0">
+            {/* Notifications */}
+            <div className="relative" ref={notifRef}>
+              <button
+                onClick={() => setNotificationsOpen(!notificationsOpen)}
+                className="relative p-2 text-slate-500 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition-colors"
+                title="Notifications"
+                aria-label="View notifications"
+              >
+                <Bell className="w-4 h-4" />
+              </button>
+
+              {notificationsOpen && (
+                <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-lg border border-slate-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-900">Recruitment Alerts</span>
+                  </div>
+                  <div className="py-8 px-4 text-center">
+                    <Bell className="w-6 h-6 text-slate-300 mx-auto mb-2" />
+                    <p className="text-xs font-bold text-slate-700">No new alerts</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      Candidate match alerts and pipeline updates will appear here.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="h-5 w-px bg-slate-200 hidden sm:block" />
+
+            {/* Recruiter Quick Identity */}
+            <div className="hidden sm:flex items-center gap-2 pl-1">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-2xs">
+                {userName.charAt(0)}
+              </div>
+              <div className="flex flex-col text-left leading-tight">
+                <span className="text-xs font-bold text-slate-900 truncate max-w-[130px]">{userName}</span>
+                <span className="text-[10px] text-slate-500 font-medium">Recruiter</span>
+              </div>
+            </div>
+          </div>
         </header>
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-mesh-playful">{children}</main>
+
+        {/* Page Content */}
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-[#F8FAFC]">
+          {children}
+        </main>
       </div>
     </div>
   );
