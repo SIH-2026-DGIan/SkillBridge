@@ -201,7 +201,8 @@ function VerifyContent() {
           student: '/student/dashboard',
           industry: '/industry/dashboard',
           academician: '/academician/dashboard',
-          institution: '/institution/dashboard',
+          // Institution must complete details before the dashboard
+          institution: '/institution/details',
         };
         router.push(dashboardMap[role] ?? '/student/dashboard');
       }, 900);

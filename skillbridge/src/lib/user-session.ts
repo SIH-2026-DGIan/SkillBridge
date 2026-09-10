@@ -38,6 +38,16 @@ export interface UserSession {
   
   // Institution Specific
   institutionName?: string;
+  institutionType?: string;
+  institutionCode?: string;
+  academicYear?: string;
+  affiliatedUniversity?: string;
+  placementContactName?: string;
+  placementEmail?: string;
+  contactNumber?: string;
+  website?: string;
+  state?: string;
+  city?: string;
   tpoHead?: string;
   totalBatchSize?: number;
 
