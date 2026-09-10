@@ -5,8 +5,20 @@ import { interviewStore } from '@/lib/interview/interview-state';
 import { AudioStreamManager } from '@/lib/interview/audio-stream';
 import { GeminiLiveClient } from '@/lib/interview/gemini-live';
 import { Mic, MicOff, PhoneOff, Video, Share, AudioLines } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { TranscriptPanel } from '@/frontend/components/student/interview/TranscriptPanel';
-import { Avatar3D } from '@/frontend/components/student/interview/Avatar3D';
+
+const Avatar3D = dynamic(
+  () => import('@/frontend/components/student/interview/Avatar3D').then((mod) => mod.Avatar3D),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-full absolute inset-0 z-0 flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
+      </div>
+    ),
+  }
+);
 
 export function InterviewRoom() {
   const [isMicOn, setIsMicOn] = useState(true);
