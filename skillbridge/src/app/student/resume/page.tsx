@@ -365,6 +365,39 @@ export default function ResumeUploadPage() {
                   ))}
                 </div>
 
+                {/* Render Extracted Experience */}
+                {currentParsed.experience && currentParsed.experience.length > 0 && (
+                  <div className="mt-4 border-t border-slate-100 pt-3">
+                    <h4 className="font-black text-slate-800 text-xs uppercase tracking-wider mb-2">Work Experience</h4>
+                    <div className="space-y-2">
+                      {currentParsed.experience.map((exp, idx) => (
+                        <div key={idx} className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-xs">
+                          <div className="font-extrabold text-slate-900">{exp.role}</div>
+                          <div className="text-slate-500 font-medium flex items-center justify-between mt-1">
+                            <span>{exp.company}</span>
+                            <span className="text-[10px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full">{exp.duration}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Render Extracted Projects */}
+                {currentParsed.projects && currentParsed.projects.length > 0 && (
+                  <div className="mt-4 border-t border-slate-100 pt-3">
+                    <h4 className="font-black text-slate-800 text-xs uppercase tracking-wider mb-2">Projects</h4>
+                    <div className="space-y-2">
+                      {currentParsed.projects.map((proj, idx) => (
+                        <div key={idx} className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-xs">
+                          <div className="font-extrabold text-indigo-700 mb-1">{proj.title}</div>
+                          <div className="text-slate-600 font-medium leading-relaxed">{proj.description}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="pt-2 flex flex-col gap-2">
                   <Link
                     href="/student/skill-gaps"

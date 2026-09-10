@@ -2,57 +2,86 @@
 
 import { createClient, isSupabaseConfigured } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { evaluateInterview } from '@/lib/interview/interview-scoring';
+import { InterviewConfig } from '@/lib/interview/interview-types';
 
 export async function createInterviewSession(targetRole: string, interviewType: string) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user) {
+  const isDemoMode = process.env.NEXT_PUBLIC_SUPABASE_URL === 'https://your-project.supabase.co';
+
+  if (!user && !isDemoMode) {
     throw new Error('Unauthorized');
   }
 
-  // Create session token (In a real app this could be a signed JWT specific to the proxy)
-  // For the MVP, the proxy will just validate the Supabase user token if passed, 
-  // or we can generate a random session ID here for tracking.
   const sessionId = Math.random().toString(36).substring(2, 15);
+  let interviewId = 'demo-interview-' + sessionId;
+  let token = 'mock-demo-token';
 
-  const { data, error } = await supabase
-    .from('interviews')
-    .insert({
-      user_id: user.id,
-      target_role: targetRole,
-      interview_type: interviewType,
-      session_id: sessionId,
-      status: 'in_progress'
-    })
-    .select('id')
-    .single();
+  if (!isDemoMode) {
+    const { data, error } = await supabase
+      .from('interviews')
+      .insert({
+        user_id: user!.id,
+        target_role: targetRole,
+        interview_type: interviewType,
+        session_id: sessionId,
+        status: 'in_progress'
+      })
+      .select('id')
+      .single();
 
-  if (error) {
-    console.error('Error creating interview:', error);
-    throw new Error('Failed to create interview session');
+    if (error) {
+      console.error('Error creating interview:', error);
+      throw new Error('Failed to create interview session');
+    }
+    
+    interviewId = data.id;
+    const { data: sessionData } = await supabase.auth.getSession();
+    token = sessionData.session?.access_token || token;
   }
-
-  // Return the interview ID and the supabase access token so the client can pass it to the proxy
-  const { data: sessionData } = await supabase.auth.getSession();
   
   return { 
-    interviewId: data.id, 
+    interviewId, 
     sessionId,
-    token: sessionData.session?.access_token 
+    token 
   };
 }
 
 export async function finalizeInterview(
   interviewId: string, 
   messages: { speaker: string, content: string }[],
-  status: 'completed' | 'abandoned' | 'failed'
+  status: 'completed' | 'abandoned' | 'failed',
+  config: InterviewConfig
 ) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user) {
+  const isDemoMode = process.env.NEXT_PUBLIC_SUPABASE_URL === 'https://your-project.supabase.co';
+
+  if (!user && !isDemoMode) {
     throw new Error('Unauthorized');
+  }
+
+  let evaluation = null;
+  
+  if (isDemoMode) {
+    if (status === 'completed' && messages.length > 0) {
+      try {
+        const transcript = messages.map((msg, idx) => ({ 
+          id: `msg-${idx}`,
+          sender: msg.speaker as 'user' | 'ai', 
+          text: msg.content,
+          timestamp: new Date()
+        }));
+        evaluation = await evaluateInterview(transcript, config);
+      } catch (err) {
+        console.error('Error generating evaluation:', err);
+      }
+    }
+    revalidatePath('/student/interview');
+    return { success: true, evaluation };
   }
 
   // Calculate duration (approximate for MVP based on created_at and now)
@@ -75,7 +104,7 @@ export async function finalizeInterview(
       duration_seconds: durationSeconds
     })
     .eq('id', interviewId)
-    .eq('user_id', user.id);
+    .eq('user_id', user!.id);
 
   // 2. Save all messages if there are any
   if (messages.length > 0) {
@@ -94,8 +123,35 @@ export async function finalizeInterview(
     }
   }
 
+  // 3. Generate and save evaluation if completed
+  if (status === 'completed' && messages.length > 0) {
+    try {
+      // Map back to the expected format for evaluateInterview
+      const transcript = messages.map((msg, idx) => ({ 
+        id: `msg-${idx}`,
+        sender: msg.speaker as 'user' | 'ai', 
+        text: msg.content,
+        timestamp: new Date()
+      }));
+      
+      evaluation = await evaluateInterview(transcript, config);
+      
+      await supabase
+        .from('interviews')
+        .update({ 
+          evaluation,
+          overall_score: evaluation.score.overall
+        })
+        .eq('id', interviewId)
+        .eq('user_id', user!.id);
+        
+    } catch (err) {
+      console.error('Error generating evaluation:', err);
+    }
+  }
+
   revalidatePath('/student/interview');
-  return { success: true };
+  return { success: true, evaluation };
 }
 
 export async function getInterviewHistory() {
@@ -105,7 +161,6 @@ export async function getInterviewHistory() {
   }
 
   const supabase = await createClient();
-
   const { data, error } = await supabase
     .from('interviews')
     .select('*')

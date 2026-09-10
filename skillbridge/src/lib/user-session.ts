@@ -67,6 +67,8 @@ export interface ParsedResume {
   summary: string;
   experienceLevel: string;
   targetRole: string;
+  projects?: { title: string; description: string }[];
+  experience?: { role: string; company: string; duration: string }[];
 }
 
 const DEFAULT_SESSION: UserSession = {
