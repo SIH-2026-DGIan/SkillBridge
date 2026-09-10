@@ -1,9 +1,10 @@
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Sparkles, Compass } from 'lucide-react';
 
 export interface NextActionData {
   title: string;
   description: string;
+  impactReason?: string;
   ctaText: string;
   ctaHref: string;
   secondaryCtaText?: string;
@@ -11,37 +12,53 @@ export interface NextActionData {
 }
 
 export function NextBestAction({ action, userName }: { action: NextActionData; userName: string }) {
+  const firstName = userName?.split(' ')[0] || 'Candidate';
+
   return (
-    <div className="bg-gradient-to-r from-blue-50 to-sky-50 rounded-2xl p-6 sm:p-8 relative overflow-hidden shadow-sm border border-blue-100/50">
-      <div className="absolute top-0 right-0 w-64 h-64 bg-white/40 rounded-full blur-3xl pointer-events-none -translate-y-1/2 translate-x-1/3"></div>
-      <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 text-white p-6 sm:p-7 shadow-sm border border-blue-500/30">
+      {/* Subtle decorative background circles */}
+      <div className="absolute top-0 right-0 -mt-8 -mr-8 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+      <div className="absolute bottom-0 right-1/3 -mb-12 w-48 h-48 bg-indigo-400/10 rounded-full blur-xl pointer-events-none" />
+
+      <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div className="max-w-2xl">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-100/50 border border-blue-200/50 text-[10px] font-bold text-blue-700 uppercase tracking-wider mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Your Next Step
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 border border-white/20 text-blue-100 text-[11px] font-bold uppercase tracking-wider mb-3 backdrop-blur-xs">
+            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+            <span>Recommended Next Best Step</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-2 text-slate-900">
-            {action.title}, {userName.split(' ')[0]}!
-          </h1>
-          <p className="text-slate-600 text-sm md:text-base leading-relaxed">
+
+          <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white mb-2">
+            {action.title}
+          </h2>
+
+          <p className="text-blue-100/90 text-sm leading-relaxed mb-3">
             {action.description}
           </p>
+
+          {action.impactReason && (
+            <div className="inline-flex items-center gap-2 text-xs font-semibold text-blue-200 bg-black/15 px-3 py-1.5 rounded-lg border border-white/10">
+              <span className="text-amber-300 font-bold">Why:</span>
+              <span>{action.impactReason}</span>
+            </div>
+          )}
         </div>
-        
-        <div className="shrink-0 flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+
+        <div className="shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           {action.secondaryCtaText && action.secondaryCtaHref && (
-            <Link 
+            <Link
               href={action.secondaryCtaHref}
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-blue-700 border border-blue-200 text-sm font-bold rounded-xl hover:bg-blue-50 transition-all w-full md:w-auto"
+              className="inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold border border-white/20 transition-all backdrop-blur-xs text-center"
             >
               {action.secondaryCtaText}
             </Link>
           )}
-          <Link 
+
+          <Link
             href={action.ctaHref}
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 hover:shadow-md transition-all group w-full md:w-auto"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-white text-blue-700 hover:bg-blue-50 text-xs font-black shadow-md hover:shadow-lg transition-all group text-center"
           >
-            {action.ctaText} 
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+            <span>{action.ctaText}</span>
+            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
       </div>
