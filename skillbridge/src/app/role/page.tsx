@@ -62,8 +62,7 @@ function RoleSelectionContent() {
     }, 300);
   };
 
-  return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans selection:bg-blue-200">
+  return (<div className="min-h-screen pt-20 bg-[#F8FAFC] text-slate-900 font-sans selection:bg-blue-200">
       
       {/* Background Ambience */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
@@ -72,9 +71,9 @@ function RoleSelectionContent() {
       </div>
 
       {/* Header */}
-      <header className="relative z-10 w-full h-20 flex items-center justify-between px-8 bg-white/60 backdrop-blur-md border-b border-slate-200/50">
+      <header className="fixed top-0 left-0 z-50 w-full h-20 flex items-center justify-between px-8">
         <Link href="/" className="flex items-center gap-2">
-          <Image src="/image.png" alt="SkillBridge" width={160} height={40} priority className="object-contain" />
+          <Image src="/image.png" alt="SkillBridge" width={160} height={40} priority className="object-contain mix-blend-multiply" />
         </Link>
       </header>
 
