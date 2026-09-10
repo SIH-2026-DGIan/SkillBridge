@@ -59,19 +59,24 @@ export function StudentSidebar({ user, gapsCount, activeAppsCount, onClose }: St
     }>;
   }> = [
     {
-      group: 'My SkillBridge',
+      group: 'OVERVIEW',
       items: [
         { href: '/student/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+      ],
+    },
+    {
+      group: 'CAREER',
+      items: [
         { href: '/student/profile', label: 'My Profile', icon: User },
         { href: '/student/assessment', label: 'Check Your Skills', icon: ClipboardCheck },
         { href: '/student/skills', label: 'Your Skills', icon: Target },
         { href: '/student/skill-gaps', label: 'Skills to Improve', icon: TrendingUp, badge: gapsCount > 0 ? gapsCount : null },
-        { href: '/student/learning', label: 'Your Learning Plan', icon: BookOpen },
+        { href: '/student/learning', label: 'Learning', icon: BookOpen },
         { href: '/student/interview', label: 'Interview Coach', icon: Video },
       ],
     },
     {
-      group: 'Opportunities',
+      group: 'OPPORTUNITIES',
       items: [
         { href: '/student/opportunities', label: 'Opportunities for You', icon: Briefcase },
         { href: '/student/applications', label: 'Your Applications', icon: FileText, badge: activeAppsCount > 0 ? activeAppsCount : null, badgeStyle: 'slate' },
@@ -79,7 +84,7 @@ export function StudentSidebar({ user, gapsCount, activeAppsCount, onClose }: St
       ],
     },
     {
-      group: 'Portfolio',
+      group: 'PORTFOLIO',
       items: [
         { href: '/student/portfolio', label: 'Your Portfolio', icon: FolderOpen },
         { href: '/student/portfolio?tab=certifications', label: 'Certifications', icon: Award },

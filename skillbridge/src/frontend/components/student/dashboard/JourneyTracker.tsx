@@ -1,79 +1,82 @@
-import { Check } from 'lucide-react';
+'use client';
+
+import { Check, Lock, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
-export const JOURNEY_STEPS = [
-  { id: 'profile', label: 'Profile', href: '/student/profile' },
-  { id: 'assess', label: 'Check Your Skills', href: '/student/assessment' },
-  { id: 'skills', label: 'Your Skills', href: '/student/skills' },
-  { id: 'gaps', label: 'Skills to Improve', href: '/student/skill-gaps' },
-  { id: 'learn', label: 'Learn', href: '/student/learning' },
-  { id: 'match', label: 'Find Opportunities', href: '/student/opportunities' },
-  { id: 'apply', label: 'Apply', href: '/student/applications' },
-];
+export interface JourneyStage {
+  id: string;
+  label: string;
+  href: string;
+  isCompleted: boolean;
+  isCurrent: boolean;
+}
 
-export function JourneyTracker({ activeStep }: { activeStep: number }) {
+interface JourneyTrackerProps {
+  stages: JourneyStage[];
+}
+
+export function JourneyTracker({ stages }: JourneyTrackerProps) {
   return (
-    <section className="bg-white border-b border-[#E2E8F0] overflow-x-auto hide-scrollbar">
-      <div className="px-6 lg:px-8 py-4 flex items-center min-w-max">
-        {JOURNEY_STEPS.map((step, idx) => {
-          const isCompleted = idx < activeStep;
-          const isActive = idx === activeStep;
-          const isNext = idx === activeStep + 1;
-          const isLocked = idx > activeStep;
+    <section className="bg-white border-b border-slate-200/80 sticky top-[57px] z-20 shadow-xs">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
+        <div className="flex items-center justify-between gap-4 overflow-x-auto scrollbar-none">
+          <div className="flex items-center gap-1.5 shrink-0">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mr-2 hidden xl:inline">
+              Career Journey:
+            </span>
+          </div>
 
-          return (
-            <div key={step.id} className="flex items-center">
-              <Link 
-                href={isLocked ? '#' : step.href} 
-                className={cn(
-                  "flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors",
-                  isCompleted ? "bg-emerald-50 hover:bg-emerald-100" :
-                  isActive ? "bg-blue-50 border border-blue-200" :
-                  "hover:bg-slate-50",
-                  isLocked && "opacity-60 cursor-not-allowed hover:bg-transparent"
-                )}
-                onClick={(e) => isLocked && e.preventDefault()}
-              >
-                {isCompleted ? (
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-emerald-500 text-white shrink-0">
-                    <Check className="w-3 h-3" />
-                  </span>
-                ) : isActive ? (
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-600 text-white font-bold text-[10px] shrink-0">
-                    {idx + 1}
-                  </span>
-                ) : isLocked ? (
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-slate-100 text-slate-400 shrink-0 border border-slate-200">
-                    <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                  </span>
-                ) : (
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-slate-100 text-slate-400 font-bold text-[10px] border border-slate-200 shrink-0">
-                    {idx + 1}
-                  </span>
-                )}
-                
-                <span className={cn(
-                  "text-xs font-semibold whitespace-nowrap",
-                  isCompleted ? "text-emerald-700" :
-                  isActive ? "text-blue-700" :
-                  "text-slate-500"
-                )}>
-                  {step.label}
-                </span>
-              </Link>
-              
-              {idx < JOURNEY_STEPS.length - 1 && (
-                <div className={cn(
-                  "w-6 h-px mx-2",
-                  isCompleted ? "bg-emerald-300" : "bg-[#E2E8F0]"
-                )} />
-              )}
-            </div>
-          );
-        })}
+          <div className="flex items-center gap-1 sm:gap-2 min-w-max flex-1 justify-between">
+            {stages.map((stage, idx) => {
+              const isCompleted = stage.isCompleted;
+              const isCurrent = stage.isCurrent;
+              const isPending = !isCompleted && !isCurrent;
+
+              return (
+                <div key={stage.id} className="flex items-center">
+                  <Link
+                    href={stage.href}
+                    className={cn(
+                      "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all",
+                      isCompleted && "bg-emerald-50 text-emerald-700 hover:bg-emerald-100/80 border border-emerald-200/60",
+                      isCurrent && "bg-blue-50 text-blue-700 border-2 border-blue-600 shadow-xs ring-2 ring-blue-100",
+                      isPending && "bg-slate-50 text-slate-500 hover:bg-slate-100/80 border border-slate-200/60"
+                    )}
+                  >
+                    {isCompleted ? (
+                      <span className="flex items-center justify-center w-4 h-4 rounded-full bg-emerald-500 text-white shrink-0">
+                        <Check className="w-2.5 h-2.5 stroke-[3]" />
+                      </span>
+                    ) : isCurrent ? (
+                      <span className="flex items-center justify-center w-4 h-4 rounded-full bg-blue-600 text-white text-[10px] font-bold shrink-0 animate-pulse">
+                        {idx + 1}
+                      </span>
+                    ) : (
+                      <span className="flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-500 text-[10px] font-bold shrink-0">
+                        {idx + 1}
+                      </span>
+                    )}
+
+                    <span className="whitespace-nowrap tracking-tight">{stage.label}</span>
+
+                    {isCurrent && (
+                      <span className="text-[9px] uppercase tracking-wider bg-blue-600 text-white px-1.5 py-0.2 rounded font-bold ml-1">
+                        Current
+                      </span>
+                    )}
+                  </Link>
+
+                  {idx < stages.length - 1 && (
+                    <div className="px-1.5 sm:px-2 text-slate-300 shrink-0">
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </section>
   );
