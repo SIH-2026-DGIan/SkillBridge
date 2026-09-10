@@ -122,6 +122,7 @@ function Sidebar({ userName, institutionName, isDemo, onClose }: { userName: str
 }
 
 export default function InstitutionLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userName, setUserName] = useState('Placement Cell');
   const [institutionName, setInstitutionName] = useState('Placement Cell');
@@ -145,6 +146,13 @@ export default function InstitutionLayout({ children }: { children: React.ReactN
       }
     }
   }, []);
+
+  // The /institution/details page is an auth onboarding page, not a dashboard page.
+  // Render it without the sidebar layout.
+  if (pathname === '/institution/details') {
+    return <>{children}</>;
+  }
+
 
   const initials = userName
     .split(' ')

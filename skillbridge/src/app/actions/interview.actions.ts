@@ -1,6 +1,6 @@
 'use server';
 
-import { createClient } from '@/lib/supabase/server';
+import { createClient, isSupabaseConfigured } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 
 export async function createInterviewSession(targetRole: string, interviewType: string) {
@@ -99,8 +99,13 @@ export async function finalizeInterview(
 }
 
 export async function getInterviewHistory() {
+  // Return empty array gracefully when Supabase is not configured (demo/local mode).
+  if (!isSupabaseConfigured()) {
+    return [];
+  }
+
   const supabase = await createClient();
-  
+
   const { data, error } = await supabase
     .from('interviews')
     .select('*')
