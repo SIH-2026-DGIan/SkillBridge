@@ -50,7 +50,7 @@ export function AICareerCoachCard({
   ];
 
   return (
-    <div className="bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-900 rounded-2xl p-5 sm:p-6 text-white shadow-sm border border-indigo-700/40 relative overflow-hidden flex flex-col justify-between">
+    <div className="bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-900 rounded-2xl p-5 sm:p-6 text-white shadow-sm relative overflow-hidden flex flex-col justify-between h-full">
       {/* Subtle AI Glow */}
       <div className="absolute top-0 right-0 -mt-10 -mr-10 w-48 h-48 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-purple-500/10 rounded-full blur-2xl pointer-events-none" />

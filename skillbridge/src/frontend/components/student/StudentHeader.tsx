@@ -101,23 +101,22 @@ export function StudentHeader({ user, onOpenSidebar }: StudentHeaderProps) {
       {/* RIGHT: Role selector, Notifications, Profile, Lang */}
       <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
         {/* Career Goal Selector */}
-        <div className="hidden xl:flex items-center">
-          <div className="relative inline-flex items-center">
-            <label className="sr-only" htmlFor="target-role-select">Career Goal</label>
-            <div className="flex items-center gap-2 bg-blue-50/70 border border-blue-200/80 px-2.5 py-1.5 rounded-lg hover:border-blue-300 transition-colors">
-              <span className="text-[11px] font-medium text-slate-500">Goal:</span>
+        <div className="hidden xl:flex items-center mr-4">
+          <div className="flex flex-col items-end">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Target Career</span>
+            <div className="relative inline-flex items-center cursor-pointer group">
               <select
                 id="target-role-select"
                 value={user.targetRole || ''}
                 onChange={handleRoleChange}
-                className="text-xs font-semibold text-blue-700 bg-transparent border-0 p-0 pr-4 focus:ring-0 cursor-pointer appearance-none outline-none max-w-[150px] truncate"
+                className="text-sm font-black text-slate-900 bg-transparent border-0 p-0 pr-4 focus:ring-0 cursor-pointer appearance-none outline-none max-w-[180px] truncate group-hover:text-blue-600 transition-colors"
               >
                 <option value="" disabled>Select target role</option>
                 {TARGET_ROLES.map((role) => (
                   <option key={role} value={role}>{role}</option>
                 ))}
               </select>
-              <span className="pointer-events-none text-blue-600 text-[10px] font-bold absolute right-2.5">▾</span>
+              <ChevronDown className="w-4 h-4 text-slate-400 absolute right-0 pointer-events-none group-hover:text-blue-600" />
             </div>
           </div>
         </div>

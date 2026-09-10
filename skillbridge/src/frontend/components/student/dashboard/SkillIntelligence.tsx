@@ -52,7 +52,7 @@ export function SkillIntelligence({
       };
 
   return (
-    <div className="bg-white border border-slate-200/80 rounded-2xl p-6 sm:p-7 shadow-xs flex flex-col justify-between h-full">
+    <div className="bg-white rounded-2xl p-6 sm:p-7 shadow-sm flex flex-col justify-between h-full">
       <div>
         {/* Card Header */}
         <div className="flex items-center justify-between pb-4 border-b border-slate-100">
@@ -83,7 +83,7 @@ export function SkillIntelligence({
         {/* Content Body */}
         {!hasData ? (
           <div className="py-12 px-4 text-center space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center mx-auto text-indigo-600">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center mx-auto text-indigo-600">
               <Compass className="w-6 h-6" />
             </div>
             <h3 className="text-sm font-bold text-slate-900">
@@ -111,7 +111,7 @@ export function SkillIntelligence({
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                   Your Strengths
                 </span>
-                <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/50">
+                <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
                   {topStrengths.length} Verified
                 </span>
               </div>
@@ -125,7 +125,7 @@ export function SkillIntelligence({
                     return (
                       <div
                         key={skillId}
-                        className="p-2.5 rounded-xl bg-slate-50/70 border border-slate-200/60 flex items-center justify-between"
+                        className="p-2.5 rounded-xl bg-slate-50/70 flex items-center justify-between"
                       >
                         <div className="min-w-0 pr-2">
                           <span className="text-xs font-bold text-slate-800 truncate block">
@@ -152,13 +152,13 @@ export function SkillIntelligence({
                   <TrendingUp className="w-3.5 h-3.5 text-amber-600" />
                   Skills to Improve
                 </span>
-                <span className="text-[10px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/50">
+                <span className="text-[10px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded">
                   {topGaps.length} Target Gaps
                 </span>
               </div>
 
               {topGaps.length === 0 ? (
-                <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-200/60 text-xs text-emerald-800 font-medium flex items-center gap-2">
+                <div className="p-3 rounded-xl bg-emerald-50/60 text-xs text-emerald-800 font-medium flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>All core benchmarks for {targetRole || 'your target role'} are satisfied!</span>
                 </div>

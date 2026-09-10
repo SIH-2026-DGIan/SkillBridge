@@ -20,10 +20,8 @@ import { DashboardStats } from '@/frontend/components/student/dashboard/Dashboar
 import { NextBestAction, type NextActionData } from '@/frontend/components/student/dashboard/NextBestAction';
 import { CareerReadinessCard } from '@/frontend/components/student/dashboard/CareerReadinessCard';
 import { SkillIntelligence } from '@/frontend/components/student/dashboard/SkillIntelligence';
-import { OpportunitiesPreview } from '@/frontend/components/student/dashboard/OpportunitiesPreview';
-import { ApplicationsPreview } from '@/frontend/components/student/dashboard/ApplicationsPreview';
+import { RecommendedActions } from '@/frontend/components/student/dashboard/RecommendedActions';
 import { AICareerCoachCard } from '@/frontend/components/student/dashboard/AICareerCoachCard';
-import { PortfolioPreview } from '@/frontend/components/student/dashboard/PortfolioPreview';
 import { RecentActivityCard, type ActivityEvent } from '@/frontend/components/student/dashboard/RecentActivityCard';
 
 export default function StudentDashboard() {
@@ -209,17 +207,13 @@ export default function StudentDashboard() {
     const hasProjects = false; // Real portfolio status
     const hasCerts = false; // Real certifications status
     const hasOpps = recommendedOpps.length > 0;
-    const hasApps = applications.length > 0;
-    const hasInterview = Boolean(lastInterview);
 
     const stages = [
-      { id: 'profile', label: 'Profile', href: '/student/profile', isCompleted: hasProfile, isCurrent: false },
-      { id: 'skills', label: 'Skills', href: '/student/assessment', isCompleted: hasSkills, isCurrent: false },
-      { id: 'projects', label: 'Projects', href: '/student/portfolio?tab=projects', isCompleted: hasProjects, isCurrent: false },
-      { id: 'certifications', label: 'Certifications', href: '/student/portfolio?tab=certifications', isCompleted: hasCerts, isCurrent: false },
-      { id: 'opportunities', label: 'Opportunities', href: '/student/opportunities', isCompleted: hasOpps, isCurrent: false },
-      { id: 'applications', label: 'Applications', href: '/student/applications', isCompleted: hasApps, isCurrent: false },
-      { id: 'interviews', label: 'Interviews', href: '/student/interview', isCompleted: hasInterview, isCurrent: false },
+      { id: 'profile', label: 'Profile', href: '/student/profile', isCompleted: hasProfile, isCurrent: false, subtitle: hasProfile ? 'Complete' : 'Upload Resume' },
+      { id: 'skills', label: 'Skills', href: '/student/assessment', isCompleted: hasSkills, isCurrent: false, subtitle: hasSkills ? 'Verified' : 'Take assessment' },
+      { id: 'projects', label: 'Projects', href: '/student/portfolio?tab=projects', isCompleted: hasProjects, isCurrent: false, subtitle: hasProjects ? 'Showcased' : (hasSkills ? 'Add projects' : 'Assessment required') },
+      { id: 'certifications', label: 'Certifications', href: '/student/portfolio?tab=certifications', isCompleted: hasCerts, isCurrent: false, subtitle: hasCerts ? 'Verified' : 'Add credentials' },
+      { id: 'opportunities', label: 'Opportunities', href: '/student/opportunities', isCompleted: hasOpps, isCurrent: false, subtitle: hasOpps ? `${recommendedOpps.length} matches` : 'Profile incomplete' },
     ];
 
     // Find current stage (first non-completed stage)
@@ -231,7 +225,7 @@ export default function StudentDashboard() {
     }
 
     return stages;
-  }, [resume, user?.isProfileComplete, isAssessed, skillsCount, recommendedOpps.length, applications.length, lastInterview]);
+  }, [resume, user?.isProfileComplete, isAssessed, skillsCount, recommendedOpps.length]);
 
   // Determine Next Best Action
   const nextAction: NextActionData = useMemo(() => {
@@ -288,7 +282,6 @@ export default function StudentDashboard() {
         secondaryCtaHref: '/student/applications',
       };
     }
-
     return {
       title: 'Enhance Your Career Portfolio',
       description: 'Upload verified projects and certifications to stand out to campus hiring partners.',
@@ -298,66 +291,37 @@ export default function StudentDashboard() {
     };
   }, [targetRole, isAssessed, skillsCount, skillGaps, applications.length, recommendedOpps.length]);
 
-  // Primary CTA for CareerHero
-  const heroPrimaryCta = useMemo(() => {
-    if (!user?.isProfileComplete && !resume) {
-      return { label: 'Complete Profile', href: '/student/profile' };
-    }
-    if (!isAssessed) {
-      return { label: 'Start Skill Assessment', href: '/student/assessment' };
-    }
+  // Derive a list of recommended actions
+  const recommendedActionsList: NextActionData[] = useMemo(() => {
+    const list = [nextAction];
+    
     if (skillGaps.length > 0) {
-      return { label: 'Bridge Skill Gaps', href: '/student/learning' };
-    }
-    return { label: 'Explore Opportunities', href: '/student/opportunities' };
-  }, [user?.isProfileComplete, resume, isAssessed, skillGaps.length]);
-
-  // Real Activity Events
-  const activityEvents: ActivityEvent[] = useMemo(() => {
-    const events: ActivityEvent[] = [];
-
-    if (user?.assessmentDate) {
-      events.push({
-        id: 'evt-assessment',
-        title: 'Skill Assessment Completed',
-        description: `Verified core competencies with score of ${user.assessmentScore || 80}%.`,
-        timestamp: user.assessmentDate,
-        type: 'assessment',
+      list.push({
+        title: `Strengthen ${skillGaps[0].name}`,
+        description: `Recommended to strengthen your profile for ${targetRole || 'your target role'}.`,
+        ctaText: 'Learn',
+        ctaHref: '/student/learning',
       });
     }
 
-    if (lastInterview?.date) {
-      events.push({
-        id: 'evt-interview',
-        title: `Mock Interview Practiced`,
-        description: `${lastInterview.role} voice session • Score: ${lastInterview.score}%.`,
-        timestamp: lastInterview.date,
-        type: 'interview',
+    if (recommendedOpps.length > 0) {
+      list.push({
+        title: 'Apply to Matched Roles',
+        description: `You have ${recommendedOpps.length} corporate opportunities matching your verified skills.`,
+        ctaText: 'Explore',
+        ctaHref: '/student/opportunities',
+      });
+    } else {
+      list.push({
+        title: 'Build a Portfolio Project',
+        description: 'Recommended to strengthen your practical experience and portfolio.',
+        ctaText: 'Explore Projects',
+        ctaHref: '/student/portfolio?tab=projects',
       });
     }
 
-    if (resume?.parsedAt) {
-      events.push({
-        id: 'evt-resume',
-        title: `Resume Parsed`,
-        description: `${resume.fileName} • ${Object.keys(resume.extractedSkills || {}).length} skills identified.`,
-        timestamp: resume.parsedAt,
-        type: 'resume',
-      });
-    }
-
-    applications.slice(0, 2).forEach((app) => {
-      events.push({
-        id: `evt-app-${app.id}`,
-        title: `Application Submitted`,
-        description: `${app.title || app.role} at ${app.company}.`,
-        timestamp: app.appliedAt || app.appliedDate,
-        type: 'application',
-      });
-    });
-
-    return events;
-  }, [user?.assessmentDate, user?.assessmentScore, lastInterview, resume, applications]);
+    return list.slice(0, 3);
+  }, [nextAction, skillGaps, recommendedOpps, targetRole]);
 
   if (!isMounted || !user) return null;
 
@@ -366,31 +330,28 @@ export default function StudentDashboard() {
       {/* SECTION 6: Horizontal Career Journey Tracker */}
       <JourneyTracker stages={journeyStages} />
 
-      <main className="px-4 sm:px-6 lg:px-8 py-6 w-full max-w-[1600px] mx-auto space-y-6">
-        {/* SECTION 4: Hero — Personalized Career Snapshot */}
-        <CareerHero
-          user={user}
-          status={profileStatus}
-          primaryCta={heroPrimaryCta}
-          aiInsight={aiInsight}
-        />
+      <main className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-[1600px] mx-auto space-y-10">
+        
+        {/* Simple Clean Greeting */}
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            Good morning, {user.name?.split(' ')[0] || 'Candidate'}
+          </h1>
+          <p className="text-slate-500 text-sm font-medium">
+            {user.targetRole || 'Select a target role'} • {user.academicYear || user.graduationYear ? `Class of ${user.graduationYear}` : 'Student'}
+          </p>
+        </div>
 
-        {/* SECTION 6: Key Metrics — Four Premium KPI Cards */}
-        <DashboardStats
-          profileCompletion={profileCompletion}
-          skillsCount={skillsCount}
-          gapsCount={skillGaps.length}
-          appsCount={applications.length}
-          isAssessed={isAssessed}
-        />
-
-        {/* Next Best Action Card */}
-        <NextBestAction action={nextAction} userName={user.name} />
-
-        {/* Hero Metrics & Intelligence Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        {/* WHERE AM I & NEXT ACTION GRID */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch">
           {/* SECTION 5: Career Readiness — The Hero Metric (5 cols) */}
-          <div className="lg:col-span-5 flex flex-col">
+          <div className="lg:col-span-5 flex flex-col h-full">
+            <div className="flex items-center gap-2 mb-3">
+              <h2 className="text-sm font-black uppercase tracking-widest text-slate-900">
+                Career Readiness
+              </h2>
+              <div className="flex-1 h-px bg-slate-200"></div>
+            </div>
             <CareerReadinessCard
               overallScore={overallReadiness}
               isAssessed={isAssessed}
@@ -400,8 +361,25 @@ export default function StudentDashboard() {
             />
           </div>
 
-          {/* SECTION 7: Skill Intelligence & Gap Analysis (7 cols) */}
-          <div className="lg:col-span-7 flex flex-col justify-between">
+          {/* Next Best Action Card (7 cols) */}
+          <div className="lg:col-span-7 flex flex-col h-full">
+            <NextBestAction action={nextAction} userName={user.name || 'Candidate'} />
+          </div>
+        </div>
+
+        {/* Lower Row: Recommended Actions, AI Insight & Skill Gap */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch">
+          <div className="lg:col-span-7 flex flex-col h-full">
+            <RecommendedActions actions={recommendedActionsList} />
+          </div>
+
+          <div className="lg:col-span-5 flex flex-col h-full gap-6">
+            <AICareerCoachCard
+              lastInterview={lastInterview}
+              targetRole={targetRole}
+              gapsCount={skillGaps.length}
+              hasResume={Boolean(resume)}
+            />
             <SkillIntelligence
               skills={skills}
               skillGaps={skillGaps}
@@ -409,46 +387,6 @@ export default function StudentDashboard() {
               targetRole={targetRole}
             />
           </div>
-        </div>
-
-        {/* SECTION 8: Opportunity Matching */}
-        <OpportunitiesPreview opportunities={recommendedOpps} />
-
-        {/* SECTION 9: Application Pipeline */}
-        <ApplicationsPreview
-          applications={applications.map((a) => ({
-            id: a.id,
-            company: a.company,
-            role: a.title || a.role,
-            location: a.location || 'Remote',
-            status: a.status,
-            appliedDate: a.appliedAt || a.appliedDate || new Date().toISOString(),
-          }))}
-        />
-
-        {/* Lower Row: AI Career Coach, Portfolio Readiness, and Recent Activity */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
-          {/* SECTION 10: AI Career Coach */}
-          <AICareerCoachCard
-            lastInterview={lastInterview}
-            targetRole={targetRole}
-            gapsCount={skillGaps.length}
-            hasResume={Boolean(resume)}
-          />
-
-          {/* SECTION 11: Portfolio Readiness */}
-          <PortfolioPreview
-            status={{
-              hasResume: Boolean(resume),
-              skillsCount,
-              hasProjects: false,
-              hasCertifications: false,
-              hasInternships: false,
-            }}
-          />
-
-          {/* SECTION 12: Recent Activity */}
-          <RecentActivityCard events={activityEvents} />
         </div>
       </main>
     </div>

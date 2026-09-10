@@ -32,7 +32,7 @@ export function CareerReadinessCard({
     : circumference;
 
   return (
-    <div className="bg-white border border-slate-200/80 rounded-2xl p-6 sm:p-7 shadow-xs flex flex-col justify-between h-full">
+    <div className="bg-white rounded-2xl p-6 sm:p-7 shadow-sm flex flex-col justify-between h-full">
       <div>
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-slate-100">
