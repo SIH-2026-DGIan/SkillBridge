@@ -177,6 +177,7 @@ export default function IndustryDashboard() {
         </div>
       </div>
 
+
       {/* 7. Recruitment Insights */}
       <RecruitmentInsights
         topSkill={topSkill}

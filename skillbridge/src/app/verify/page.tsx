@@ -193,21 +193,30 @@ function VerifyContent() {
     if (otpString !== '123456') { setError('Incorrect code. Please try again.'); return; }
     setVerifying(true);
     setTimeout(() => {
-      setVerified(true);
-      setTimeout(() => {
-        const session = getSession();
-        const role = session?.role || 'student';
-        const dashboardMap: Record<string, string> = {
-          student: '/student/dashboard',
-          industry: '/industry/dashboard',
-          academician: '/academician/dashboard',
-          // Institution must complete details before the dashboard
-          institution: '/institution/details',
-        };
-        router.push(dashboardMap[role] ?? '/student/dashboard');
-      }, 900);
-    }, 1200);
-  };
+  setVerified(true);
+
+  setTimeout(() => {
+    const session = getSession();
+    const role = session?.role || 'student';
+
+    // Industry recruiters must complete company onboarding first
+    if (role === 'industry' && !session.isProfileComplete) {
+      router.push('/industry/onboarding');
+      return;
+    }
+
+    const dashboardMap: Record<string, string> = {
+      student: '/student/dashboard',
+      industry: '/industry/dashboard',
+      academician: '/academician/dashboard',
+
+      // Institution must complete details before the dashboard
+      institution: '/institution/details',
+    };
+
+    router.push(dashboardMap[role] ?? '/student/dashboard');
+  }, 900);
+}, 1200);
 
   const resend = () => {
     setTimeLeft(45);
