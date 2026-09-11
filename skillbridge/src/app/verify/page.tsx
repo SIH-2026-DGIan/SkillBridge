@@ -203,13 +203,14 @@ function VerifyContent() {
       router.push('/industry/onboarding');
       return;
     }
+const dashboardMap: Record<string, string> = {
+  student: '/student/dashboard',
+  industry: '/industry/dashboard',
+  academician: '/academician/dashboard',
 
-    const dashboardMap: Record<string, string> = {
-      student: '/student/dashboard',
-      industry: '/industry/dashboard',
-      academician: '/academician/dashboard',
-      institution: '/institution/dashboard',
-    };
+  // Institution must complete details before the dashboard
+  institution: '/institution/details',
+};
     router.push(dashboardMap[role] ?? '/student/dashboard');
   }, 900);
 }, 1200);
