@@ -192,20 +192,27 @@ function VerifyContent() {
     // Demo: accept 123456; real: validate against backend
     if (otpString !== '123456') { setError('Incorrect code. Please try again.'); return; }
     setVerifying(true);
-    setTimeout(() => {
-      setVerified(true);
-      setTimeout(() => {
-        const session = getSession();
-        const role = session?.role || 'student';
-        const dashboardMap: Record<string, string> = {
-          student: '/student/dashboard',
-          industry: '/industry/dashboard',
-          academician: '/academician/dashboard',
-          institution: '/institution/dashboard',
-        };
-        router.push(dashboardMap[role] ?? '/student/dashboard');
-      }, 900);
-    }, 1200);
+   setTimeout(() => {
+  setVerified(true);
+  setTimeout(() => {
+    const session = getSession();
+    const role = session?.role || 'student';
+
+    // Industry recruiters must complete company onboarding first
+    if (role === 'industry' && !session.isProfileComplete) {
+      router.push('/industry/onboarding');
+      return;
+    }
+
+    const dashboardMap: Record<string, string> = {
+      student: '/student/dashboard',
+      industry: '/industry/dashboard',
+      academician: '/academician/dashboard',
+      institution: '/institution/dashboard',
+    };
+    router.push(dashboardMap[role] ?? '/student/dashboard');
+  }, 900);
+}, 1200);
   };
 
   const resend = () => {

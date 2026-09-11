@@ -104,6 +104,25 @@ export default function IndustryDashboard() {
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight mt-0.5">
             {user.company || 'TechNova Solutions'} Talent Hub
           </h1>
+          <div className="flex flex-wrap gap-2 mt-3">
+  {user.industryType && (
+    <span className="rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold text-cyan-200">
+      {user.industryType}
+    </span>
+  )}
+
+  {user.location && (
+    <span className="rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold text-indigo-200">
+      📍 {user.location}
+    </span>
+  )}
+
+  {user.companySize && (
+    <span className="rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold text-indigo-200">
+      {user.companySize}
+    </span>
+  )}
+</div>
           <p className="text-indigo-200 text-xs sm:text-sm font-medium mt-1">
             Recruiter: <strong>{user.name}</strong> · AI Candidate ranking by verified competence.
           </p>
