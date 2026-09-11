@@ -15,8 +15,9 @@ export class GeminiLiveClient {
     const token = config?.token || 'mock_token';
     const interviewId = config?.interviewId || 'mock_id';
 
-    // The proxy runs on localhost:8080 during development
-    const wsUrl = `ws://localhost:8080?token=${encodeURIComponent(token)}&interviewId=${encodeURIComponent(interviewId)}`;
+    // The proxy runs on the configured URL (defaults to localhost:8080 during development)
+    const baseUrl = process.env.NEXT_PUBLIC_GEMINI_WS_URL || 'ws://localhost:8080';
+    const wsUrl = `${baseUrl}?token=${encodeURIComponent(token)}&interviewId=${encodeURIComponent(interviewId)}`;
     
     try {
       this.ws = new WebSocket(wsUrl);
@@ -60,7 +61,7 @@ export class GeminiLiveClient {
           parts: [{ text: `${SYSTEM_INSTRUCTION}\n\nCandidate Target Role: ${role}\nInterview Type: ${type}\nDifficulty: ${difficulty}` }]
         },
         generationConfig: {
-          responseModalities: ["audio", "text"], // We want both audio (to play) and text (for the transcript)
+          responseModalities: ["AUDIO"], // Live API uses AUDIO enum and returns both audio and text transcripts
           speechConfig: {
             voiceConfig: {
               prebuiltVoiceConfig: {
@@ -91,6 +92,24 @@ export class GeminiLiveClient {
                 }
               }
             ]
+          }
+        ],
+        turnComplete: true
+      }
+    };
+    
+    this.ws.send(JSON.stringify(clientContentMessage));
+  }
+
+  sendText(text: string) {
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
+    
+    const clientContentMessage = {
+      clientContent: {
+        turns: [
+          {
+            role: "user",
+            parts: [{ text: text }]
           }
         ],
         turnComplete: true

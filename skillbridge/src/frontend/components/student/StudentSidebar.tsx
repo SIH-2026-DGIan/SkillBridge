@@ -59,31 +59,26 @@ export function StudentSidebar({ user, gapsCount, activeAppsCount, onClose }: St
     }>;
   }> = [
     {
-      group: 'My SkillBridge',
+      group: 'OVERVIEW',
       items: [
         { href: '/student/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-        { href: '/student/profile', label: 'My Profile', icon: User },
-        { href: '/student/assessment', label: 'Check Your Skills', icon: ClipboardCheck },
-        { href: '/student/skills', label: 'Your Skills', icon: Target },
-        { href: '/student/skill-gaps', label: 'Skills to Improve', icon: TrendingUp, badge: gapsCount > 0 ? gapsCount : null },
-        { href: '/student/learning', label: 'Your Learning Plan', icon: BookOpen },
-        { href: '/student/interview', label: 'Interview Coach', icon: Video },
       ],
     },
     {
-      group: 'Opportunities',
+      group: 'CAREER JOURNEY',
       items: [
-        { href: '/student/opportunities', label: 'Opportunities for You', icon: Briefcase },
-        { href: '/student/applications', label: 'Your Applications', icon: FileText, badge: activeAppsCount > 0 ? activeAppsCount : null, badgeStyle: 'slate' },
-        { href: '/student/opportunities?saved=true', label: 'Saved Opportunities', icon: Bookmark },
-      ],
-    },
-    {
-      group: 'Portfolio',
-      items: [
-        { href: '/student/portfolio', label: 'Your Portfolio', icon: FolderOpen },
-        { href: '/student/portfolio?tab=certifications', label: 'Certifications', icon: Award },
+        { href: '/student/profile', label: 'Profile', icon: User },
+        { href: '/student/assessment', label: 'Skills', icon: Target, badge: gapsCount > 0 ? gapsCount : null, badgeStyle: 'amber' },
         { href: '/student/portfolio?tab=projects', label: 'Projects', icon: LayoutGrid },
+        { href: '/student/portfolio?tab=certifications', label: 'Certifications', icon: Award },
+        { href: '/student/opportunities', label: 'Opportunities', icon: Briefcase },
+        { href: '/student/interview', label: 'Mock Interviews', icon: Video },
+      ],
+    },
+    {
+      group: 'APPLICATIONS',
+      items: [
+        { href: '/student/applications', label: 'My Applications', icon: FileText, badge: activeAppsCount > 0 ? activeAppsCount : null, badgeStyle: 'slate' },
       ],
     },
   ];

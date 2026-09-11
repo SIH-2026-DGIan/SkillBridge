@@ -38,6 +38,16 @@ export interface UserSession {
   
   // Institution Specific
   institutionName?: string;
+  institutionType?: string;
+  institutionCode?: string;
+  academicYear?: string;
+  affiliatedUniversity?: string;
+  placementContactName?: string;
+  placementEmail?: string;
+  contactNumber?: string;
+  website?: string;
+  state?: string;
+  city?: string;
   tpoHead?: string;
   totalBatchSize?: number;
 
@@ -57,6 +67,8 @@ export interface ParsedResume {
   summary: string;
   experienceLevel: string;
   targetRole: string;
+  projects?: { title: string; description: string }[];
+  experience?: { role: string; company: string; duration: string }[];
 }
 
 const DEFAULT_SESSION: UserSession = {

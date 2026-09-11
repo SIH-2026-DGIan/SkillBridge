@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { interviewStore } from '@/lib/interview/interview-state';
-import { evaluateInterview } from '@/lib/interview/interview-scoring';
 import { type InterviewResult } from '@/lib/interview/interview-types';
 import { CheckCircle, AlertTriangle, Save, Loader2, BarChart2, TrendingUp, Target } from 'lucide-react';
 import Link from 'next/link';
@@ -14,33 +13,18 @@ export function InterviewResults() {
   const [isSaved, setIsSaved] = useState(false);
   const [isEvaluating, setIsEvaluating] = useState(false);
 
+  // Interview evaluation is now handled securely on the server in InterviewRoom.tsx -> finalizeInterview.
+  // This component simply reads and displays the evaluation result that was passed to the store.
+  
   useEffect(() => {
-    const processInterview = async () => {
-      try {
-        if (!config || transcript.length === 0) return;
-        
-        setIsEvaluating(true);
-        setIsSaved(true); // Already saved by InterviewRoom
-
-        // Run evaluation
-        const evaluation = await evaluateInterview(transcript, config);
-        setResult(evaluation);
-        interviewStore.endInterview(evaluation); // Save to store
-
-        // In P1/P2, we will also update the Supabase record with this evaluation score.
-        // For P0, we just show it.
-
-      } catch (err) {
-        console.error("Failed to evaluate interview", err);
-      } finally {
-        setIsEvaluating(false);
-      }
-    };
-
-    if (!result || result.score.overall === 0) {
-      processInterview();
+    // If somehow no result exists, wait for it
+    if (result && result.score.overall > 0) {
+      setIsSaved(true);
+      setIsEvaluating(false);
+    } else {
+      setIsEvaluating(true);
     }
-  }, [transcript, config]);
+  }, [result]);
 
   const MetricBar = ({ label, value }: { label: string, value: number }) => (
     <div className="space-y-1.5">

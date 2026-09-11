@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Users, CheckCircle, Clock, Award, ArrowRight, Loader, AlertCircle } from 'lucide-react';
-import { DEMO_OPPORTUNITIES } from '@/lib/demo-data';
 import type { Application } from '@/database/types';
 
 type FilterStatus = 'all' | 'applied' | 'under_review' | 'shortlisted' | 'interview' | 'accepted' | 'rejected';
@@ -30,14 +29,13 @@ export default function IndustryApplicationsPage() {
 
         const response = await fetch('/api/applications');
         if (!response.ok) {
-          throw new Error('Failed to fetch applications');
+          setApplications([]);
+          return;
         }
 
         const data = await response.json();
-        setApplications(data || []);
+        setApplications(Array.isArray(data) ? data : []);
       } catch (err) {
-        console.error('Failed to fetch applications:', err);
-        setError('Unable to load applications. Please try again.');
         setApplications([]);
       } finally {
         setIsLoading(false);

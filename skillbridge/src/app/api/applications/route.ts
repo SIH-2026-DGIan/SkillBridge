@@ -76,7 +76,36 @@ export async function GET(req: NextRequest) {
       data: { user },
       error: userError,
     } = await supabase.auth.getUser();
+
+    // If no Supabase user, check for demo session cookie
     if (userError || !user) {
+      const demoCookie = req.cookies.get('sb-demo-session');
+      if (demoCookie?.value) {
+        try {
+          const session = JSON.parse(decodeURIComponent(demoCookie.value));
+          const role = session.role;
+          const sessionId = session.id || 'demo-user-id';
+
+          if (role === 'industry') {
+            try {
+              const applications = await ApplicationService.getIndustryApplications(sessionId);
+              return NextResponse.json(applications || []);
+            } catch {
+              return NextResponse.json([]);
+            }
+          } else if (role === 'student') {
+            try {
+              const applications = await ApplicationService.getStudentApplications(sessionId);
+              return NextResponse.json(applications || []);
+            } catch {
+              return NextResponse.json([]);
+            }
+          }
+        } catch {
+          return NextResponse.json([]);
+        }
+      }
+
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -90,7 +119,7 @@ export async function GET(req: NextRequest) {
       .eq('user_id', user.id)
       .single();
 
-    let applications;
+    let applications = [];
     if (profile?.role === 'student') {
       applications = await ApplicationService.getStudentApplications(user.id);
     } else if (profile?.role === 'industry') {
@@ -102,7 +131,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    return NextResponse.json(applications);
+    return NextResponse.json(applications || []);
   } catch (error: any) {
     console.error('Error fetching applications:', error);
     return NextResponse.json(

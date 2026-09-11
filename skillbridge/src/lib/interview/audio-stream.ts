@@ -19,6 +19,14 @@ export class AudioStreamManager {
         sampleRate: 16000,
       });
 
+      // Check if any audio input devices exist before requesting them to prevent native browser console errors
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const hasMic = devices.some(device => device.kind === 'audioinput');
+      
+      if (!hasMic) {
+        throw new Error("No microphone detected. Please connect a microphone to continue.");
+      }
+
       this.mediaStream = await navigator.mediaDevices.getUserMedia({ 
         audio: {
           channelCount: 1,
@@ -67,7 +75,6 @@ export class AudioStreamManager {
       this.nextPlayTime = this.audioContext.currentTime + 0.1;
 
     } catch (err) {
-      console.error("Failed to start audio recording:", err);
       throw err;
     }
   }
