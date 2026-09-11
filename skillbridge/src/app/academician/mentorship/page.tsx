@@ -414,11 +414,10 @@ function FeedbackModal({
                   key={n}
                   type="button"
                   onClick={() => setForm({ ...form, rating: n })}
-                  className={`w-10 h-10 rounded-xl font-black text-sm transition-all ${
-                    form.rating >= n
-                      ? 'bg-amber-400 text-white shadow-md'
-                      : 'bg-slate-100 text-slate-400 hover:bg-amber-50'
-                  }`}
+                  className={`w-10 h-10 rounded-xl font-black text-sm transition-all ${form.rating >= n
+                    ? 'bg-amber-400 text-white shadow-md'
+                    : 'bg-slate-100 text-slate-400 hover:bg-amber-50'
+                    }`}
                 >
                   <Star className={`w-4 h-4 mx-auto ${form.rating >= n ? 'fill-white' : ''}`} />
                 </button>
@@ -603,11 +602,10 @@ function WorkshopCard({
 
       <button
         onClick={() => onRegister(ws.id)}
-        className={`w-full py-2.5 font-black text-xs rounded-xl transition-all ${
-          ws.registered
-            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
-            : 'bg-gradient-to-r from-[#4F46E5] to-[#7C3AED] text-white shadow-md hover:shadow-lg hover:scale-[1.02]'
-        }`}
+        className={`w-full py-2.5 font-black text-xs rounded-xl transition-all ${ws.registered
+          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
+          : 'bg-gradient-to-r from-[#4F46E5] to-[#7C3AED] text-white shadow-md hover:shadow-lg hover:scale-[1.02]'
+          }`}
       >
         {ws.registered ? '✓ Registered to Conduct — Click to Withdraw' : 'Register to Conduct'}
       </button>
@@ -620,7 +618,7 @@ function WorkshopCard({
 type Tab = 'mentees' | 'workshops' | 'history';
 
 export default function MentorshipPage() {
-  const [activeTab, setActiveTab] = useState<Tab>('mentees');
+  const [activeTab, setActiveTab] = useState<string>('mentees');
   const [feedbackMentee, setFeedbackMentee] = useState<Mentee | null>(null);
   const [workshops, setWorkshops] = useState<Workshop[]>(WORKSHOPS_INIT);
   const [expandedSession, setExpandedSession] = useState<string | null>(null);
@@ -640,7 +638,7 @@ export default function MentorshipPage() {
   const avgProgress = Math.round(MENTEES.reduce((a, m) => a + m.progress, 0) / MENTEES.length);
   const registeredCount = workshops.filter((w) => w.registered).length;
 
-  const tabs: { key: Tab; label: string; icon: React.ElementType }[] = [
+  const tabs: { key: Tab; label: string; icon: any }[] = [
     { key: 'mentees', label: 'Student Mentees', icon: Users },
     { key: 'workshops', label: 'Workshops & Lectures', icon: Mic },
     { key: 'history', label: 'Session History', icon: Clock },
@@ -728,12 +726,11 @@ export default function MentorshipPage() {
             {tabs.map((tab) => (
               <button
                 key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-extrabold transition-all ${
-                  activeTab === tab.key
-                    ? 'bg-gradient-to-r from-[#4F46E5] to-[#7C3AED] text-white shadow-inner'
-                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'
-                }`}
+                onClick={() => setActiveTab(String(tab.key))}
+                className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-extrabold transition-all ${activeTab === tab.key
+                  ? 'bg-gradient-to-r from-[#4F46E5] to-[#7C3AED] text-white shadow-inner'
+                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'
+                  }`}
               >
                 <tab.icon className="w-4 h-4" />
                 {tab.label}
