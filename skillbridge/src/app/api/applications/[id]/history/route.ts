@@ -51,7 +51,7 @@ export async function GET(
 
     if (
       application.student_id !== user.id &&
-      application.opportunities?.posted_by !== user.id
+      application.opportunities?.[0]?.posted_by !== user.id
     ) {
       return NextResponse.json(
         { error: 'You do not have permission to view this application history' },

@@ -35,7 +35,7 @@ export async function GET(
     // Check permissions
     if (
       application.student_id !== user.id &&
-      application.opportunities?.posted_by !== user.id
+      application.opportunity?.posted_by !== user.id
     ) {
       return NextResponse.json(
         { error: 'You do not have permission to view this application' },

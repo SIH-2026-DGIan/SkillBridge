@@ -12,7 +12,7 @@ export async function middleware(request: NextRequest) {
   const hasSupabase = supabaseUrl && supabaseUrl !== 'your_supabase_project_url';
 
   // Public routes — always accessible
-  const publicRoutes = ['/', '/login', '/signup', '/api'];
+  const publicRoutes = ['/', '/login', '/signup', '/api', '/auth/callback'];
   const isPublic = publicRoutes.some(
     (route) => pathname === route || pathname.startsWith(route + '/')
   );
@@ -60,8 +60,13 @@ export async function middleware(request: NextRequest) {
     const { createServerClient } = await import('@supabase/ssr');
     const response = NextResponse.next();
 
+    const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+    const validSupabaseUrl = rawUrl.startsWith('http://') || rawUrl.startsWith('https://')
+      ? rawUrl
+      : `https://${rawUrl}.supabase.co`;
+
     const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      validSupabaseUrl,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {

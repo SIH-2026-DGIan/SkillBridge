@@ -12,7 +12,7 @@ type AppStatus = 'applied' | 'under_review' | 'shortlisted' | 'interview' | 'acc
 const PIPELINE: AppStatus[] = ['applied', 'under_review', 'shortlisted', 'interview', 'accepted'];
 
 export default function ApplicationsPage() {
-  const [applications, setApplications] = useState<(Application & { opportunity?: any; company?: string; title?: string })[]>([]);
+  const [applications, setApplications] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<AppStatus | 'all'>('all');
@@ -24,7 +24,7 @@ export default function ApplicationsPage() {
         setError(null);
 
         const response = await fetch('/api/applications');
-        
+
         if (!response.ok) {
           // Fallback to demo data if API fails
           const demoApps = DEMO_APPLICATIONS.map((app) => ({
@@ -60,7 +60,7 @@ export default function ApplicationsPage() {
   const counts: Record<string, number> = {
     applied: 0, under_review: 0, shortlisted: 0, interview: 0, accepted: 0, rejected: 0
   };
-  
+
   for (const app of applications) {
     counts[app.status] = (counts[app.status] || 0) + 1;
   }
@@ -70,7 +70,7 @@ export default function ApplicationsPage() {
   return (
     <div className="w-full relative pb-16">
       <div className="max-w-[1100px] mx-auto w-full flex flex-col gap-8 px-4 sm:px-6 py-6 md:py-8">
-        
+
         {/* Header & Metrics */}
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
           <div className="flex flex-col max-w-2xl">
@@ -79,7 +79,7 @@ export default function ApplicationsPage() {
               Track your applications from submission to outcome.
             </p>
           </div>
-          
+
           <div className="flex bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden shrink-0">
             {['applied', 'under_review', 'shortlisted', 'interview', 'accepted'].map((stat, idx) => (
               <div key={stat} className={`px-4 py-3 flex flex-col justify-center ${idx !== 4 ? 'border-r border-slate-100' : ''}`}>
@@ -112,9 +112,8 @@ export default function ApplicationsPage() {
               <button
                 key={s}
                 onClick={() => setFilter(s as AppStatus | 'all')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-md border transition-colors ${
-                  filter === s ? 'bg-slate-900 border-slate-900 text-white' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                }`}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-md border transition-colors ${filter === s ? 'bg-slate-900 border-slate-900 text-white' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                  }`}
               >
                 {s === 'all' ? `All (${applications.length})` : `${formatStatus(s)} (${counts[s] || 0})`}
               </button>
@@ -162,14 +161,13 @@ export default function ApplicationsPage() {
                           <div className="text-sm text-slate-600">{formatDate(app.applied_at)}</div>
                         </td>
                         <td className="px-5 py-4">
-                          <span className={`inline-block px-2.5 py-1 text-[10px] font-bold rounded border uppercase tracking-wider ${
-                            app.status === 'accepted' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                            app.status === 'rejected' ? 'bg-red-50 text-red-700 border-red-200' :
-                            app.status === 'interview' ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                            app.status === 'shortlisted' ? 'bg-purple-50 text-purple-700 border-purple-200' :
-                            app.status === 'under_review' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                            'bg-slate-100 text-slate-700 border-slate-200'
-                          }`}>
+                          <span className={`inline-block px-2.5 py-1 text-[10px] font-bold rounded border uppercase tracking-wider ${app.status === 'accepted' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                              app.status === 'rejected' ? 'bg-red-50 text-red-700 border-red-200' :
+                                app.status === 'interview' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                                  app.status === 'shortlisted' ? 'bg-purple-50 text-purple-700 border-purple-200' :
+                                    app.status === 'under_review' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                      'bg-slate-100 text-slate-700 border-slate-200'
+                            }`}>
                             {formatStatus(app.status)}
                           </span>
                         </td>

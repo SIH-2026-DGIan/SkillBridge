@@ -1,7 +1,14 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+function normalizeSupabaseUrl(url?: string): string | undefined {
+  if (!url) return undefined;
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  return `https://${url}.supabase.co`;
+}
+
+const RAW_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_URL = normalizeSupabaseUrl(RAW_SUPABASE_URL);
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 /** Returns true only when Supabase is actually configured (not a placeholder). */
