@@ -3,16 +3,14 @@
 import { useState, useEffect, useMemo } from 'react';
 import {
   getSession,
-  getStudentSkills,
   getStudentResume,
-  getStudentApplications,
   type UserSession,
   type ParsedResume,
 } from '@/lib/user-session';
 import { ROLE_REQUIRED_SKILLS, SKILL_MAP } from '@/lib/skills-taxonomy';
-import { DEMO_OPPORTUNITIES } from '@/lib/demo-data';
-import { calculateMatch } from '@/lib/ai/matching-engine';
+import { calculateMatch, OpportunityProfile } from '@/lib/ai/matching-engine';
 import { getInterviewHistory } from '@/app/actions/interview.actions';
+import { fetchActiveOpportunities } from '@/backend/services/opportunities.service';
 
 import { JourneyTracker, type JourneyStage } from '@/frontend/components/student/dashboard/JourneyTracker';
 import { CareerHero } from '@/frontend/components/student/dashboard/CareerHero';
@@ -23,39 +21,79 @@ import { SkillIntelligence } from '@/frontend/components/student/dashboard/Skill
 import { RecommendedActions } from '@/frontend/components/student/dashboard/RecommendedActions';
 import { AICareerCoachCard } from '@/frontend/components/student/dashboard/AICareerCoachCard';
 import { RecentActivityCard, type ActivityEvent } from '@/frontend/components/student/dashboard/RecentActivityCard';
+import { Loader2 } from 'lucide-react';
 
 export default function StudentDashboard() {
   const [user, setUser] = useState<UserSession | null>(null);
   const [skills, setSkills] = useState<Record<string, number>>({});
   const [resume, setResume] = useState<ParsedResume | null>(null);
   const [lastInterview, setLastInterview] = useState<any>(undefined);
+  const [applications, setApplications] = useState<any[]>([]);
+  const [opportunities, setOpportunities] = useState<OpportunityProfile[]>([]);
+  
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
     setUser(getSession());
-    setSkills(getStudentSkills());
     setResume(getStudentResume());
+    
+    // Fetch real data from backend
+    const fetchDashboardData = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        const [skillsRes, appsRes, oppsData] = await Promise.all([
+          fetch('/api/user/skills'),
+          fetch('/api/applications'),
+          fetchActiveOpportunities()
+        ]);
+        
+        if (!skillsRes.ok) throw new Error('Failed to fetch skills');
+        if (!appsRes.ok) throw new Error('Failed to fetch applications');
 
-    getInterviewHistory().then((history) => {
-      if (history && history.length > 0) {
-        setLastInterview(history[0]);
+        const skillsData = await skillsRes.json();
+        const appsData = await appsRes.json();
+
+        // Convert skills array to Record map
+        const skillsMap: Record<string, number> = {};
+        if (Array.isArray(skillsData)) {
+          skillsData.forEach(s => {
+            skillsMap[s.skill_id] = s.proficiency;
+          });
+        }
+        setSkills(skillsMap);
+        setApplications(Array.isArray(appsData) ? appsData : []);
+        setOpportunities(oppsData || []);
+
+        const history = await getInterviewHistory();
+        if (history && history.length > 0) {
+          setLastInterview(history[0]);
+        }
+      } catch (err: any) {
+        console.error('Error fetching dashboard data:', err);
+        setError(err.message || 'Failed to load dashboard data');
+      } finally {
+        setIsLoading(false);
       }
-    });
+    };
+
+    fetchDashboardData();
 
     const sync = () => {
       setUser(getSession());
-      setSkills(getStudentSkills());
       setResume(getStudentResume());
+      fetchDashboardData();
     };
 
     window.addEventListener('sb_session_updated', sync);
-    window.addEventListener('sb_skills_updated', sync);
     window.addEventListener('sb_resume_updated', sync);
 
     return () => {
       window.removeEventListener('sb_session_updated', sync);
-      window.removeEventListener('sb_skills_updated', sync);
       window.removeEventListener('sb_resume_updated', sync);
     };
   }, []);
@@ -99,15 +137,14 @@ export default function StudentDashboard() {
 
   const recommendedOpps = useMemo(() => {
     if (Object.keys(skills).length === 0 || !targetRole) return [];
-    return DEMO_OPPORTUNITIES
+    return opportunities
       .map((opp) => ({
         opp,
         match: calculateMatch(dynamicUserProfile, opp),
       }))
       .sort((a, b) => b.match.score - a.match.score);
-  }, [dynamicUserProfile, skills, targetRole]);
+  }, [dynamicUserProfile, skills, targetRole, opportunities]);
 
-  const applications = getStudentApplications();
   const skillsCount = Object.keys(skills).length;
   const isAssessed = Boolean(user?.isAssessed);
 
@@ -323,7 +360,35 @@ export default function StudentDashboard() {
     return list.slice(0, 3);
   }, [nextAction, skillGaps, recommendedOpps, targetRole]);
 
-  if (!isMounted || !user) return null;
+  if (!isMounted) return null;
+  
+  if (isLoading) {
+    return (
+      <div className="flex flex-col min-h-screen items-center justify-center bg-[#FAFAF8]">
+        <Loader2 className="h-10 w-10 text-blue-600 animate-spin mb-4" />
+        <p className="text-slate-600 font-medium">Loading your dashboard...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col min-h-screen items-center justify-center bg-[#FAFAF8] px-4 text-center">
+        <div className="bg-red-50 text-red-600 px-6 py-4 rounded-xl border border-red-100 max-w-md w-full">
+          <h2 className="font-bold mb-2">Error Loading Dashboard</h2>
+          <p className="text-sm">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
+  if (!user) return null;
 
   return (
     <div className="flex flex-col min-h-full bg-[#FAFAF8] pb-14 selection:bg-blue-100 selection:text-blue-900">
