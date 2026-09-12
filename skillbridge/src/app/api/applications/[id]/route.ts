@@ -132,3 +132,67 @@ if (!rateLimit.allowed) {
     );
   }
 }
+
+/**
+ * DELETE /api/applications/[id]
+ * Withdraw an application (student only)
+ */
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const supabase = await createClient();
+
+    // Get current user
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    // Verify user is a student
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('user_id', user.id)
+      .single();
+
+    if (profile?.role !== 'student') {
+      return NextResponse.json(
+        { error: 'Only students can withdraw applications' },
+        { status: 403 }
+      );
+    }
+
+    // Rate limit application withdrawals
+    const rateLimit = checkRateLimit(
+      `application-withdraw:${user.id}`,
+      RATE_LIMITS.general
+    );
+
+    if (!rateLimit.allowed) {
+      return rateLimitResponse(
+        rateLimit,
+        'Application withdrawal limit exceeded. Please try again later.'
+      );
+    }
+
+    await ApplicationService.withdrawApplication(id, user.id);
+
+    return NextResponse.json({ success: true, message: 'Application withdrawn successfully' });
+  } catch (error: any) {
+    console.error('Error withdrawing application:', error);
+    return NextResponse.json(
+      { error: error.message || 'Failed to withdraw application' },
+      { status: 400 }
+    );
+  }
+}
