@@ -272,4 +272,40 @@ export class ApplicationService {
     if (error) throw error;
     return data || [];
   }
+
+  /**
+   * Withdraw an application (student only)
+   */
+  static async withdrawApplication(
+    applicationId: string,
+    studentId: string
+  ): Promise<void> {
+    const supabase = await createServerClient();
+
+    // Verify application belongs to student and can be withdrawn
+    const { data: app, error: appError } = await supabase
+      .from('applications')
+      .select('student_id, status')
+      .eq('id', applicationId)
+      .single();
+
+    if (appError || !app) throw new Error('Application not found');
+
+    if (app.student_id !== studentId) {
+      throw new Error('You do not have permission to withdraw this application');
+    }
+
+    // Only allow withdrawing if it's still 'applied' or 'under_review' (optional logic, but let's just allow it for 'applied' status)
+    if (app.status === 'rejected' || app.status === 'accepted') {
+      throw new Error('Cannot withdraw an application that has already been accepted or rejected');
+    }
+
+    const { error } = await supabase
+      .from('applications')
+      .delete()
+      .eq('id', applicationId)
+      .eq('student_id', studentId);
+
+    if (error) throw error;
+  }
 }
