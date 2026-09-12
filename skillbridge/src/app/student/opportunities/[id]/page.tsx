@@ -53,11 +53,27 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
     setApplying(true);
 
     try {
-      await new Promise((r) => setTimeout(r, 800));
+      const response = await fetch('/api/applications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          opportunityId: id,
+          matchScore: match?.score || 0,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to submit application');
+      }
+
       toast.success('Application submitted successfully!');
       setApplied(true);
-    } catch {
-      toast.error('Failed to submit application. Please try again.');
+    } catch (error) {
+      console.error('Error applying:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to submit application. Please try again.');
     } finally {
       setApplying(false);
     }
