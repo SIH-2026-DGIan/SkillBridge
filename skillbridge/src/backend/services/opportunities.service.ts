@@ -172,3 +172,34 @@ export async function updateOpportunity(
     success: true,
   };
 }
+
+export async function fetchActiveOpportunities() {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from("opportunities")
+    .select(`
+      id, title, company, type, category, status, location, work_mode, duration, stipend, deadline,
+      opportunity_skills (
+        skill_id,
+        required_level,
+        skills (
+          id,
+          name
+        )
+      )
+    `)
+    .eq("status", "active")
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+
+  // Transform the response to match the expected OpportunityProfile structure
+  return data.map((opp: any) => ({
+    ...opp,
+    requiredSkills: opp.opportunity_skills?.map((os: any) => ({
+      skillId: os.skill_id,
+      requiredLevel: os.required_level,
+    })) || [],
+  }));
+}
