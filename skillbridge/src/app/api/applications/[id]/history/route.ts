@@ -6,7 +6,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { ApplicationService } from '@/backend/services/application.service';
-
+import {
+  checkRateLimit,
+  rateLimitResponse,
+  RATE_LIMITS,
+} from '@/lib/rate-limit';
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -26,7 +30,18 @@ export async function GET(
         { status: 401 }
       );
     }
+// Rate limit application history requests per authenticated user
+const rateLimit = checkRateLimit(
+  `application-history:${user.id}`,
+  RATE_LIMITS.general
+);
 
+if (!rateLimit.allowed) {
+  return rateLimitResponse(
+    rateLimit,
+    'Application history request limit exceeded. Please try again later.'
+  );
+}
     // Check permissions - user must be the student or the industry contact for the opportunity
     const { data: application } = await supabase
       .from('applications')
