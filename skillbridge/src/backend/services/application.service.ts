@@ -137,13 +137,36 @@ export class ApplicationService {
 
     if (error) throw error;
 
-    return (data || []).map((app: any) => ({
-      ...app,
-      student: app.profiles,
-      opportunity: app.opportunities,
-      studentName: app.profiles?.name,
-      studentEmail: app.profiles?.email,
-    }));
+    // Fetch skills for these students
+    const studentIds = (data || []).map((app: any) => app.student_id);
+    let skillsData: any[] = [];
+    if (studentIds.length > 0) {
+      const { data: skills } = await supabase
+        .from('user_skills')
+        .select('user_id, skill_id, proficiency')
+        .in('user_id', studentIds);
+      if (skills) skillsData = skills;
+    }
+
+    return (data || []).map((app: any) => {
+      // Group skills for this specific student
+      const studentSkills = skillsData.filter((s: any) => s.user_id === app.student_id);
+      const skillsMap: Record<string, number> = {};
+      studentSkills.forEach((s: any) => {
+        skillsMap[s.skill_id] = s.proficiency;
+      });
+
+      return {
+        ...app,
+        student: {
+          ...app.profiles,
+          skills: skillsMap,
+        },
+        opportunity: app.opportunities,
+        studentName: app.profiles?.name,
+        studentEmail: app.profiles?.email,
+      };
+    });
   }
 
   /**
