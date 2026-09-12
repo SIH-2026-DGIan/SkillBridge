@@ -1,6 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
-
+import {
+  checkRateLimit,
+  rateLimitResponse,
+  RATE_LIMITS,
+} from '@/lib/rate-limit';
 export async function GET(request: NextRequest) {
+  const clientId =
+    request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown';
+
+  const rateLimit = checkRateLimit(
+    `institution-dashboard:${clientId}`,
+    RATE_LIMITS.general
+  );
+
+  if (!rateLimit.allowed) {
+    return rateLimitResponse(
+      rateLimit,
+      'Dashboard request limit exceeded. Please try again later.'
+    );
+  }
+
   try {
     const searchParams = request.nextUrl.searchParams;
     const collegeParam = searchParams.get('college') || searchParams.get('institution') || '';

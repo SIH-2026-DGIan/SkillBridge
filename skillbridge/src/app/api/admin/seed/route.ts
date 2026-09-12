@@ -1,8 +1,25 @@
 import { NextResponse } from 'next/server';
 import { DEMO_COMPANIES, DEMO_OPPORTUNITIES, DEMO_LEARNING_RESOURCES } from '@/lib/demo-data';
 import { SKILLS } from '@/lib/skills-taxonomy';
+import {
+  checkRateLimit,
+  rateLimitResponse,
+  RATE_LIMITS,
+} from '@/lib/rate-limit';
 
 export async function POST(request: Request) {
+  const rateLimit = checkRateLimit(
+    'admin-seed',
+    RATE_LIMITS.auth
+  );
+
+  if (!rateLimit.allowed) {
+    return rateLimitResponse(
+      rateLimit,
+      'Admin seed request limit exceeded. Please try again later.'
+    );
+  }
+
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const hasSupabase = supabaseUrl && supabaseUrl !== 'your_supabase_project_url';

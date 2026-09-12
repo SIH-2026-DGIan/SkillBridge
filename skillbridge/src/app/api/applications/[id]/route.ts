@@ -9,7 +9,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { ApplicationService } from '@/backend/services/application.service';
-
+import {
+  checkRateLimit,
+  rateLimitResponse,
+  RATE_LIMITS,
+} from '@/lib/rate-limit';
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -90,7 +94,18 @@ export async function PUT(
         { status: 403 }
       );
     }
+// Rate limit application status updates per authenticated industry user
+const rateLimit = checkRateLimit(
+  `application-status:${user.id}`,
+  RATE_LIMITS.general
+);
 
+if (!rateLimit.allowed) {
+  return rateLimitResponse(
+    rateLimit,
+    'Application status update limit exceeded. Please try again later.'
+  );
+}
     const body = await req.json();
     const { status, rejectionReason } = body;
 
