@@ -217,6 +217,7 @@ function VerifyContent() {
     router.push(dashboardMap[role] ?? '/student/dashboard');
   }, 900);
 }, 1200);
+  };
 
   const resend = () => {
     setTimeLeft(45);

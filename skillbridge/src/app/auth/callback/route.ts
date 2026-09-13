@@ -19,12 +19,14 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const code = url.searchParams.get('code');
   const requestedRole = url.searchParams.get('role');
+  const next = url.searchParams.get('next');
 
   if (!code) {
     return NextResponse.redirect(new URL('/login?error=oauth_failed', url.origin));
   }
 
   const cookieStore = await cookies();
+  const cookiesToApply: { name: string; value: string; options: any }[] = [];
 
   const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
   const supabaseUrl = rawUrl.startsWith('http://') || rawUrl.startsWith('https://')
@@ -42,6 +44,7 @@ export async function GET(request: Request) {
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) => {
             cookieStore.set(name, value, options);
+            cookiesToApply.push({ name, value, options });
           });
         },
       },
@@ -79,7 +82,17 @@ export async function GET(request: Request) {
     role = existingProfile.role;
   } else if (isValidRole(requestedRole)) {
     role = requestedRole;
+  } else if (user.user_metadata?.role && isValidRole(user.user_metadata.role)) {
+    role = user.user_metadata.role;
+  } else {
+    role = 'student';
   }
+
+  const name =
+    user.user_metadata?.full_name ||
+    user.user_metadata?.name ||
+    user.email?.split('@')[0] ||
+    'SkillBridge User';
 
   /*
    * Existing Google user:
@@ -89,12 +102,6 @@ export async function GET(request: Request) {
    * use the role selected on the signup page.
    */
   if (!existingProfile && role) {
-    const name =
-      user.user_metadata?.full_name ||
-      user.user_metadata?.name ||
-      user.email?.split('@')[0] ||
-      'SkillBridge User';
-
     const { error: profileError } = await supabase.from('profiles').insert({
       user_id: user.id,
       role,
@@ -108,17 +115,24 @@ export async function GET(request: Request) {
     }
   }
 
-  if (!role) {
-    return NextResponse.redirect(
-      new URL('/role?type=signup', url.origin)
-    );
+  // Synchronize role in user auth metadata if not yet present
+  if (role && user.user_metadata?.role !== role) {
+    try {
+      await supabase.auth.updateUser({
+        data: { role, full_name: name },
+      });
+    } catch (e) {
+      console.warn('Could not update user metadata role:', e);
+    }
   }
 
   /*
-   * Google already verifies the user's email,
-   * so we skip the normal email verification page.
+   * Calculate intended destination:
+   * If `next` was provided and is safe (internal relative path),
+   * map generic `/dashboard` to the role-specific dashboard,
+   * or redirect directly to the specific `next` target.
    */
-  const destination =
+  const roleDefaultDashboard =
     role === 'student'
       ? '/student/dashboard'
       : role === 'industry'
@@ -127,13 +141,35 @@ export async function GET(request: Request) {
           ? '/institution/dashboard'
           : '/academician/dashboard';
 
+  let destination = roleDefaultDashboard;
+  if (next && next.startsWith('/') && !next.startsWith('//')) {
+    if (next === '/dashboard') {
+      destination = roleDefaultDashboard;
+    } else {
+      destination = next;
+    }
+  }
+
   const response = NextResponse.redirect(
     new URL(destination, url.origin)
   );
 
-  // Remove old demo/local auth cookie so it cannot override
-  // the real Supabase authenticated session.
-  response.cookies.delete('sb-demo-session');
+  // Ensure cookies set during exchangeCodeForSession are explicitly attached to redirect response
+  cookiesToApply.forEach(({ name: cName, value, options }) => {
+    response.cookies.set(cName, value, options);
+  });
+
+  // Synchronize demo session cookie so frontend getSession() & middleware have immediate access
+  response.cookies.set(
+    'sb-demo-session',
+    JSON.stringify({
+      id: user.id,
+      name,
+      email: user.email || '',
+      role,
+    }),
+    { path: '/', maxAge: 86400, sameSite: 'lax' }
+  );
 
   return response;
 }
