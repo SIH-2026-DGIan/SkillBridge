@@ -1354,15 +1354,31 @@ function OnboardingContent() {
         });
       }
 
-      // Upsert to profiles table in Supabase
+      // Send profile to backend /api/profile endpoint (Issue #15)
       try {
-        const { error } = await supabase.from('profiles').upsert(profilePayload, { onConflict: 'user_id' });
-        if (error) {
-          const { id: _, ...fallbackPayload } = profilePayload;
-          await supabase.from('profiles').upsert(fallbackPayload, { onConflict: 'user_id' });
+        const apiRes = await fetch('/api/profile', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            role: internalRole,
+            ...profilePayload,
+          }),
+        });
+        if (!apiRes.ok) {
+          const apiErr = await apiRes.json().catch(() => ({}));
+          console.warn('Backend /api/profile returned status:', apiRes.status, apiErr);
         }
-      } catch (dbErr) {
-        console.warn('Database upsert warning (stored in local session):', dbErr);
+      } catch (apiNetErr) {
+        console.warn('Could not reach /api/profile directly, falling back to client upsert:', apiNetErr);
+        try {
+          const { error } = await supabase.from('profiles').upsert(profilePayload, { onConflict: 'user_id' });
+          if (error) {
+            const { id: _, ...fallbackPayload } = profilePayload;
+            await supabase.from('profiles').upsert(fallbackPayload, { onConflict: 'user_id' });
+          }
+        } catch (dbErr) {
+          console.warn('Database upsert warning (stored in local session):', dbErr);
+        }
       }
 
       toast.success('Profile completed successfully! Opening dashboard…');

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import LangSelector, { useLang } from '@/components/LangSelector';
-import { setSession, getSession } from '@/lib/user-session';
+import { setSession, getSession, type UserRole } from '@/lib/user-session';
 
 interface FieldErrors {
   identifier?: string;
@@ -78,7 +78,7 @@ export default function LoginPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // ── Email / Mobile Auth submit ──────────────────────────────────────────────
+  // ── Real Email / Password Supabase Auth Submit ─────────────────────────
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
 
@@ -86,33 +86,65 @@ export default function LoginPage() {
 
     setLoading(true);
 
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      const { createClient } = await import('@/lib/supabase/client');
+      const supabase = createClient();
 
-      const id = identifier.toLowerCase();
-      const isEmail = id.includes('@');
-
-      setSession({
-        email: isEmail ? id : '',
-        phone: !isEmail ? id : '',
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: identifier.trim(),
+        password,
       });
 
-      if (id.includes('industry')) {
-        router.push('/industry/dashboard');
-      } else if (id.includes('faculty')) {
-        router.push('/academician/dashboard');
-      } else if (id.includes('institution')) {
-        router.push('/institution/dashboard');
-      } else {
-        const session = getSession();
-
-        if (!session.isProfileComplete) {
-          router.push('/student/onboarding');
-        } else {
-          router.push('/student/dashboard');
-        }
+      if (error) {
+        showToast(error.message || 'Invalid email or password.');
+        setErrors((prev) => ({ ...prev, password: error.message }));
+        setLoading(false);
+        return;
       }
-    }, 1200);
+
+      if (data?.user) {
+        const user = data.user;
+        let role = user.user_metadata?.role as UserRole | undefined;
+
+        // Fetch user profile from database to determine true role
+        try {
+          const { data: prof } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('user_id', user.id)
+            .single();
+          if (prof?.role) {
+            role = prof.role as UserRole;
+          }
+        } catch {
+          // fallback to metadata role
+        }
+
+        const resolvedRole = role || 'student';
+
+        // Update local session
+        setSession({
+          id: user.id,
+          email: user.email || identifier.trim(),
+          name: user.user_metadata?.full_name || user.user_metadata?.name || '',
+          role: resolvedRole,
+        });
+
+        const dashboardMap: Record<string, string> = {
+          student: '/student/dashboard',
+          industry: '/industry/dashboard',
+          institution: '/institution/dashboard',
+          academician: '/academician/dashboard',
+        };
+
+        router.push(dashboardMap[resolvedRole] || '/student/dashboard');
+      }
+    } catch (err: any) {
+      console.error('Sign-in exception:', err);
+      showToast('An unexpected error occurred during sign in.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   // ── Google OAuth ─────────────────────────────────────────────────────────────

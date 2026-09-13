@@ -56,10 +56,6 @@ export default function StudentDashboard() {
       console.warn('Could not auto-fetch Supabase profile in dashboard:', e);
     });
 
-    getInterviewHistory().then((history) => {
-      if (history && history.length > 0) {
-        setLastInterview(history[0]);
-    
     // Fetch real data from backend
     const fetchDashboardData = async () => {
       try {

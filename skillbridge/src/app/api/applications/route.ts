@@ -97,47 +97,7 @@ export async function GET(req: NextRequest) {
       error: userError,
     } = await supabase.auth.getUser();
 
-    // If no Supabase user, check for demo session cookie
     if (userError || !user) {
-      const demoCookie = req.cookies.get('sb-demo-session');
-
-      if (demoCookie?.value) {
-        try {
-          const session = JSON.parse(
-            decodeURIComponent(demoCookie.value)
-          );
-
-          const role = session.role;
-          const sessionId = session.id || 'demo-user-id';
-
-          if (role === 'industry') {
-            try {
-              const applications =
-                await ApplicationService.getIndustryApplications(
-                  sessionId
-                );
-
-              return NextResponse.json(applications || []);
-            } catch {
-              return NextResponse.json([]);
-            }
-          } else if (role === 'student') {
-            try {
-              const applications =
-                await ApplicationService.getStudentApplications(
-                  sessionId
-                );
-
-              return NextResponse.json(applications || []);
-            } catch {
-              return NextResponse.json([]);
-            }
-          }
-        } catch {
-          return NextResponse.json([]);
-        }
-      }
-
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
