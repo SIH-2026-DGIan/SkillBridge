@@ -45,6 +45,11 @@ export const RATE_LIMITS = {
     windowMs: getEnvNumber('RATE_LIMIT_AUTH_WINDOW_MS', 15 * 60_000),
     maxRequests: getEnvNumber('RATE_LIMIT_AUTH_MAX_REQUESTS', 10),
   },
+
+  api: {
+    windowMs: getEnvNumber('RATE_LIMIT_WINDOW_MS', 60_000),
+    maxRequests: getEnvNumber('RATE_LIMIT_MAX_REQUESTS', 100),
+  },
 };
 
 export function getClientIdentifier(request: Request): string {
