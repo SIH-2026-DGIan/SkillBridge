@@ -9,37 +9,35 @@ export async function createInterviewSession(targetRole: string, interviewType: 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const isDemoMode = process.env.NEXT_PUBLIC_SUPABASE_URL === 'https://your-project.supabase.co';
-
-  if (!user && !isDemoMode) {
-    throw new Error('Unauthorized');
+  if (!user) {
+    throw new Error('Unauthorized: Authentication session required to start an interview.');
   }
 
   const sessionId = Math.random().toString(36).substring(2, 15);
-  let interviewId = 'demo-interview-' + sessionId;
-  let token = 'mock-demo-token';
 
-  if (!isDemoMode) {
-    const { data, error } = await supabase
-      .from('interviews')
-      .insert({
-        user_id: user!.id,
-        target_role: targetRole,
-        interview_type: interviewType,
-        session_id: sessionId,
-        status: 'in_progress'
-      })
-      .select('id')
-      .single();
+  const { data, error } = await supabase
+    .from('interviews')
+    .insert({
+      user_id: user.id,
+      target_role: targetRole,
+      interview_type: interviewType,
+      session_id: sessionId,
+      status: 'in_progress'
+    })
+    .select('id')
+    .single();
 
-    if (error) {
-      console.error('Error creating interview:', error);
-      throw new Error('Failed to create interview session');
-    }
-    
-    interviewId = data.id;
-    const { data: sessionData } = await supabase.auth.getSession();
-    token = sessionData.session?.access_token || token;
+  if (error) {
+    console.error('Error creating interview:', error);
+    throw new Error('Failed to create interview session');
+  }
+  
+  const interviewId = data.id;
+  const { data: sessionData } = await supabase.auth.getSession();
+  const token = sessionData.session?.access_token || '';
+
+  if (!token) {
+    throw new Error('Could not obtain authenticated token for WebSocket session.');
   }
   
   return { 
@@ -58,31 +56,11 @@ export async function finalizeInterview(
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const isDemoMode = process.env.NEXT_PUBLIC_SUPABASE_URL === 'https://your-project.supabase.co';
-
-  if (!user && !isDemoMode) {
+  if (!user) {
     throw new Error('Unauthorized');
   }
 
   let evaluation = null;
-  
-  if (isDemoMode) {
-    if (status === 'completed' && messages.length > 0) {
-      try {
-        const transcript = messages.map((msg, idx) => ({ 
-          id: `msg-${idx}`,
-          sender: msg.speaker as 'user' | 'ai', 
-          text: msg.content,
-          timestamp: new Date()
-        }));
-        evaluation = await evaluateInterview(transcript, config);
-      } catch (err) {
-        console.error('Error generating evaluation:', err);
-      }
-    }
-    revalidatePath('/student/interview');
-    return { success: true, evaluation };
-  }
 
   // Calculate duration (approximate for MVP based on created_at and now)
   const { data: interview } = await supabase

@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { CheckCircle, Clock, XCircle, ArrowRight, Briefcase, ChevronRight, Loader } from 'lucide-react';
-import { DEMO_APPLICATIONS, DEMO_OPPORTUNITIES } from '@/lib/demo-data';
 import { formatDate } from '@/lib/utils';
 import type { Application } from '@/database/types';
 
@@ -26,27 +25,16 @@ export default function ApplicationsPage() {
         const response = await fetch('/api/applications');
 
         if (!response.ok) {
-          // Fallback to demo data if API fails
-          const demoApps = DEMO_APPLICATIONS.map((app) => ({
-            ...app,
-            status: app.status as AppStatus,
-            opportunity: DEMO_OPPORTUNITIES.find((o) => o.id === app.opportunityId),
-          }));
-          setApplications(demoApps);
+          setApplications([]);
           return;
         }
 
-        const data = await response.json();
-        setApplications(data);
+        const json = await response.json();
+        const list = Array.isArray(json) ? json : json.data || [];
+        setApplications(list);
       } catch (err) {
         console.error('Failed to fetch applications:', err);
-        // Fallback to demo data on error
-        const demoApps = DEMO_APPLICATIONS.map((app) => ({
-          ...app,
-          status: app.status as AppStatus,
-          opportunity: DEMO_OPPORTUNITIES.find((o) => o.id === app.opportunityId),
-        }));
-        setApplications(demoApps);
+        setApplications([]);
       } finally {
         setIsLoading(false);
       }

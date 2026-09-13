@@ -12,12 +12,18 @@ export class GeminiLiveClient {
 
   connect() {
     const config = interviewStore.getConfig();
-    const token = config?.token || 'mock_token';
-    const interviewId = config?.interviewId || 'mock_id';
+    const token = config?.token;
+    const interviewId = config?.interviewId;
+
+    if (!token) {
+      const err = new Error("Authentication token missing. Please sign in to start the interview.");
+      if (this.onError) this.onError(err);
+      return;
+    }
 
     // The proxy runs on the configured URL (defaults to localhost:8080 during development)
     const baseUrl = process.env.NEXT_PUBLIC_GEMINI_WS_URL || 'ws://localhost:8080';
-    const wsUrl = `${baseUrl}?token=${encodeURIComponent(token)}&interviewId=${encodeURIComponent(interviewId)}`;
+    const wsUrl = `${baseUrl}?token=${encodeURIComponent(token)}&interviewId=${encodeURIComponent(interviewId || '')}`;
     
     try {
       this.ws = new WebSocket(wsUrl);
@@ -36,8 +42,12 @@ export class GeminiLiveClient {
         if (this.onError) this.onError(new Error("WebSocket Error"));
       };
 
-      this.ws.onclose = () => {
-        console.log("Disconnected from Gemini Live API");
+      this.ws.onclose = (event) => {
+        console.log("Disconnected from Gemini Live API, code:", event.code, event.reason);
+        if (event.code === 4401) {
+          const authErr = new Error("Authentication failed (4401): Invalid or expired interview session. Please sign in again.");
+          if (this.onError) this.onError(authErr);
+        }
         if (this.onDisconnect) this.onDisconnect();
       };
     } catch (err) {

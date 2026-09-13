@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node dist/server.js",
     "dev": "ts-node-dev src/server.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "test": "ts-node --transpile-only tests/auth.test.ts"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
