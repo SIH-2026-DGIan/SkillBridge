@@ -70,13 +70,38 @@ export async function GET(request: Request) {
     );
   }
 
-  const { data: existingProfile } = await supabase
+  // 1. Check if profile already exists in profiles (or users) table
+  let { data: existingProfile } = await supabase
     .from('profiles')
     .select('*')
     .eq('user_id', user.id)
     .maybeSingle();
 
-  let role: UserRole | null = null;
+  if (!existingProfile) {
+    const { data: profileById } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .maybeSingle();
+    existingProfile = profileById;
+  }
+
+  if (!existingProfile) {
+    try {
+      const { data: userRow } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
+      if (userRow) {
+        existingProfile = userRow;
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  let role: UserRole = 'student';
 
   if (existingProfile?.role && isValidRole(existingProfile.role)) {
     role = existingProfile.role;
@@ -84,42 +109,89 @@ export async function GET(request: Request) {
     role = requestedRole;
   } else if (user.user_metadata?.role && isValidRole(user.user_metadata.role)) {
     role = user.user_metadata.role;
-  } else {
-    role = 'student';
   }
 
-  const name =
+  const fullName =
     user.user_metadata?.full_name ||
     user.user_metadata?.name ||
     user.email?.split('@')[0] ||
     'SkillBridge User';
 
-  /*
-   * Existing Google user:
-   * use the role already stored in profiles.
-   *
-   * New Google user:
-   * use the role selected on the signup page.
-   */
-  if (!existingProfile && role) {
-    const { error: profileError } = await supabase.from('profiles').insert({
+  const avatarUrl =
+    user.user_metadata?.avatar_url ||
+    user.user_metadata?.picture ||
+    null;
+
+  const now = new Date().toISOString();
+
+  if (existingProfile) {
+    // Existing user: Do not overwrite customized fields, update last_login_at / updated_at
+    try {
+      await supabase
+        .from('profiles')
+        .update({
+          last_login_at: now,
+          updated_at: now,
+        })
+        .eq('user_id', user.id);
+    } catch {
+      try {
+        await supabase
+          .from('profiles')
+          .update({
+            updated_at: now,
+          })
+          .eq('user_id', user.id);
+      } catch (e) {
+        console.warn('Could not update profile last_login_at:', e);
+      }
+    }
+  } else {
+    // New user: Auto User Profile Creation with all required metadata
+    const profilePayload: Record<string, any> = {
+      id: user.id,
       user_id: user.id,
-      role,
-      name,
       email: user.email || '',
-      avatar_url: user.user_metadata?.avatar_url || null,
-    });
+      name: fullName,
+      avatar_url: avatarUrl,
+      role,
+      created_at: now,
+      updated_at: now,
+      last_login_at: now,
+    };
+
+    let { error: profileError } = await supabase
+      .from('profiles')
+      .insert(profilePayload);
 
     if (profileError) {
-      console.error('Google profile creation error:', profileError);
+      console.warn('Initial profile insert error, retrying with standard schema:', profileError.message);
+      // Fallback: without last_login_at / id if schema requires default uuid or lacks last_login_at
+      const fallbackPayload = {
+        user_id: user.id,
+        email: user.email || '',
+        name: fullName,
+        avatar_url: avatarUrl,
+        role,
+        created_at: now,
+        updated_at: now,
+      };
+
+      const { error: fallbackError } = await supabase
+        .from('profiles')
+        .insert(fallbackPayload);
+
+      if (fallbackError) {
+        console.error('Failed to create profile in profiles table:', fallbackError.message);
+      }
     }
   }
 
-  // Synchronize role in user auth metadata if not yet present
-  if (role && user.user_metadata?.role !== role) {
+  // Synchronize role and name in user auth metadata
+  if (user.user_metadata?.role !== role || !user.user_metadata?.full_name) {
     try {
       await supabase.auth.updateUser({
-        data: { role, full_name: name },
+        data: { role, full_name: fullName },
       });
     } catch (e) {
       console.warn('Could not update user metadata role:', e);
@@ -164,7 +236,7 @@ export async function GET(request: Request) {
     'sb-demo-session',
     JSON.stringify({
       id: user.id,
-      name,
+      name: fullName,
       email: user.email || '',
       role,
     }),

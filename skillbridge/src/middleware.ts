@@ -12,7 +12,7 @@ export async function middleware(request: NextRequest) {
   const hasSupabase = supabaseUrl && supabaseUrl !== 'your_supabase_project_url';
 
   // Public routes — always accessible
-  const publicRoutes = ['/', '/login', '/signup', '/api', '/auth/callback'];
+  const publicRoutes = ['/', '/login', '/signup', '/verify', '/role', '/dashboard', '/api', '/auth/callback', '/onboarding'];
   const isPublic = publicRoutes.some(
     (route) => pathname === route || pathname.startsWith(route + '/')
   );

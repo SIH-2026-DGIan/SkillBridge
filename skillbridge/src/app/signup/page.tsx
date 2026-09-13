@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -185,6 +185,13 @@ function SignupContent() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState<string | null>(null);
+
+  const step = searchParams.get('step');
+  useEffect(() => {
+    if (step === '4') {
+      router.replace(`/onboarding?role=${role}`);
+    }
+  }, [step, role, router]);
 
   // touched flags
   const [t_name, setTname] = useState(false);

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { GetStartedButton } from "@/components/GetStartedButton";
 
 export default function LandingHeader() {
   return (
@@ -43,12 +44,10 @@ export default function LandingHeader() {
 
         {/* Auth Actions */}
         <div className="flex items-center gap-6 z-10">
-          <Link href="/login" target="_blank" rel="noopener noreferrer" className="hidden sm:inline-block text-[14px] font-semibold hover:text-[#2563EB] transition-colors">
+          <Link href="/login" className="hidden sm:inline-block text-[14px] font-semibold hover:text-[#2563EB] transition-colors">
             Sign In
           </Link>
-          <Link href="/role" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-white px-6 py-2.5 rounded-lg bg-[#2563EB] hover:bg-[#1d4ed8] transition-all">
-            Get Started <span className="material-symbols-outlined text-base leading-none">arrow_forward</span>
-          </Link>
+          <GetStartedButton variant="navbar" />
         </div>
       </div>
     </header>
