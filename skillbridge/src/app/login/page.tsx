@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import LangSelector, { useLang } from '@/components/LangSelector';
 import { setSession, getSession, type UserRole } from '@/lib/user-session';
+import InteractiveAvatars from '@/components/auth/InteractiveAvatars';
 
 interface FieldErrors {
   identifier?: string;
@@ -21,6 +22,7 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [lang, setLang] = useLang();
+  const [focusField, setFocusField] = useState<'email' | 'password' | null>(null);
 
   const [errors, setErrors] = useState<FieldErrors>({});
 
@@ -414,7 +416,7 @@ export default function LoginPage() {
         .sb-subheading {
           font-size: 15px;
           color: #475569;
-          margin: 0 0 32px 0;
+          margin: 0 0 16px 0;
           line-height: 1.6;
         }
 
@@ -960,6 +962,13 @@ export default function LoginPage() {
               {t.subheading}
             </p>
 
+            {/* ── INTERACTIVE AVATAR MASCOT BAR ───────────────────────────── */}
+            <InteractiveAvatars
+              focusField={focusField}
+              emailLength={identifier.length}
+              showPassword={showPassword}
+            />
+
             {/* ── AUTH CARD ─────────────────────────────────────────────────── */}
             <div className="sb-card">
 
@@ -1019,6 +1028,8 @@ export default function LoginPage() {
                       className={`sb-input${
                         errors.identifier ? ' has-error' : ''
                       }`}
+                      onFocus={() => setFocusField('email')}
+                      onBlur={() => setFocusField(null)}
                       aria-describedby={
                         errors.identifier
                           ? 'identifier-error'
@@ -1096,6 +1107,8 @@ export default function LoginPage() {
                       className={`sb-input${
                         errors.password ? ' has-error' : ''
                       }`}
+                      onFocus={() => setFocusField('password')}
+                      onBlur={() => setFocusField(null)}
                       aria-describedby={
                         errors.password
                           ? 'password-error'
