@@ -199,22 +199,20 @@ function VerifyContent() {
     const session = getSession();
     const role = session?.role || 'student';
 
-    // Industry recruiters must complete company onboarding first
-    if (role === 'industry' && !session.isProfileComplete) {
-      router.push('/industry/onboarding');
+    // Step 04: If profile is not complete, redirect to onboarding
+    if (!session.isProfileComplete) {
+      router.push(`/onboarding?role=${role}`);
       return;
     }
 
     const dashboardMap: Record<string, string> = {
-      student: '/student/dashboard',
-      industry: '/industry/dashboard',
-      academician: '/academician/dashboard',
-
-      // Institution must complete details before the dashboard
-      institution: '/institution/details',
+      student: '/dashboard/student',
+      industry: '/dashboard/recruiter',
+      academician: '/dashboard/faculty',
+      institution: '/dashboard/tpo',
     };
 
-    router.push(dashboardMap[role] ?? '/student/dashboard');
+    router.push(dashboardMap[role] ?? `/dashboard/${role}`);
   }, 900);
 }, 1200);
   };

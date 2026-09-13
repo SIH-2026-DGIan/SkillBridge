@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans, Newsreader, Caveat } from 'next/font/google';
 import './globals.css';
 import { Toaster } from 'sonner';
+import { AuthProvider } from '@/components/AuthProvider';
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -62,15 +63,17 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-sans antialiased bg-surface text-on-surface min-h-screen" suppressHydrationWarning>
-        {children}
-        <Toaster
-          position="top-right"
-          richColors
-          closeButton
-          toastOptions={{
-            style: { borderRadius: '1rem', border: '1px solid rgba(226, 232, 240, 0.8)' },
-          }}
-        />
+        <AuthProvider>
+          {children}
+          <Toaster
+            position="top-right"
+            richColors
+            closeButton
+            toastOptions={{
+              style: { borderRadius: '1rem', border: '1px solid rgba(226, 232, 240, 0.8)' },
+            }}
+          />
+        </AuthProvider>
       </body>
     </html>
   );

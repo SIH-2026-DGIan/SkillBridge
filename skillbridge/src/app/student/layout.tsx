@@ -41,14 +41,20 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
   const applications = getStudentApplications();
   const activeAppsCount = applications.filter(a => (a.status as string) !== 'accepted' && (a.status as string) !== 'rejected').length;
 
+  const isOnboarding = pathname === '/student/onboarding';
+
+  // Strict Onboarding Guard (executed as side effect, not during render)
+  useEffect(() => {
+    if (isMounted && user && !user.isProfileComplete && !isOnboarding) {
+      router.replace('/student/onboarding');
+    }
+  }, [isMounted, user, isOnboarding, router]);
+
   if (!isMounted || !user) {
     return null; // Prevent hydration mismatch
   }
 
-  // Strict Onboarding Guard
-  const isOnboarding = pathname === '/student/onboarding';
   if (!user.isProfileComplete && !isOnboarding) {
-    router.push('/student/onboarding');
     return null;
   }
 

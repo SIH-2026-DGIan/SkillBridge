@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import HeroVideo from "@/frontend/components/ui/HeroVideo";
 import LandingHeader from "@/frontend/components/ui/LandingHeader";
+import { GetStartedButton } from "@/components/GetStartedButton";
 
 export default function HomePage() {
   return (
@@ -29,9 +30,7 @@ export default function HomePage() {
                   </p>
                   <div className="mb-12">
                     <div className="flex flex-wrap items-center gap-4 mb-3">
-                      <Link href="/role" className="inline-flex items-center gap-2.5 text-white text-[15px] font-medium px-7 py-3.5 rounded-lg bg-[#2563EB] hover:bg-[#1d4ed8] transition-all">
-                        Get Started <span className="material-symbols-outlined text-base">arrow_forward</span>
-                      </Link>
+                      <GetStartedButton variant="hero" />
                       <a href="#how-it-works" className="inline-flex items-center gap-2 bg-white text-[#111827] text-[15px] font-medium px-7 py-3.5 rounded-lg border border-[#111827] hover:bg-gray-50 transition-all shadow-sm">
                         See How It Works <span className="material-symbols-outlined text-base">arrow_forward</span>
                       </a>
@@ -264,9 +263,7 @@ export default function HomePage() {
                 <h2 className="font-serif text-[40px] md:text-[50px] font-bold text-white tracking-tight mb-4 leading-tight">Build Skills That Create Real Opportunities.</h2>
                 <p className="text-[17px] text-[#9CA3AF] max-w-2xl mx-auto mb-10 leading-relaxed">Whether you are learning, hiring, teaching, or stewarding institutional governance, SkillBridge connects the national talent ecosystem with unyielding rigor.</p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                  <Link href="/login" className="inline-flex items-center gap-2 text-white text-[15px] font-semibold px-8 py-3.5 rounded-lg bg-[#2563EB] hover:bg-[#1d4ed8] transition-all">
-                    Get Started Now <span className="material-symbols-outlined text-base">arrow_forward</span>
-                  </Link>
+                  <GetStartedButton variant="cta" />
                 </div>
               </div>
             </div>

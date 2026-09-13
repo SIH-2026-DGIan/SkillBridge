@@ -10,6 +10,8 @@ import {
 import { ROLE_REQUIRED_SKILLS, SKILL_MAP } from '@/lib/skills-taxonomy';
 import { calculateMatch, OpportunityProfile } from '@/lib/ai/matching-engine';
 import { getInterviewHistory } from '@/app/actions/interview.actions';
+import { createClient } from '@/lib/supabase/client';
+import { fetchUserProfile } from '@/lib/supabase/profile';
 import { fetchActiveOpportunities } from '@/backend/services/opportunities.service';
 
 import { JourneyTracker, type JourneyStage } from '@/frontend/components/student/dashboard/JourneyTracker';
@@ -39,6 +41,24 @@ export default function StudentDashboard() {
     setIsMounted(true);
     setUser(getSession());
     setResume(getStudentResume());
+
+    // Hydrate latest profile directly from Supabase session
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user: authUser } }) => {
+      if (authUser) {
+        fetchUserProfile(authUser.id).then((profile) => {
+          if (profile) {
+            setUser(getSession());
+          }
+        });
+      }
+    }).catch((e) => {
+      console.warn('Could not auto-fetch Supabase profile in dashboard:', e);
+    });
+
+    getInterviewHistory().then((history) => {
+      if (history && history.length > 0) {
+        setLastInterview(history[0]);
     
     // Fetch real data from backend
     const fetchDashboardData = async () => {

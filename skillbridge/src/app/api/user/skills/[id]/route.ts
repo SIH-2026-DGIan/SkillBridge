@@ -9,7 +9,7 @@ import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit
  */
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createClient();
@@ -37,7 +37,8 @@ export async function PUT(
     }
 
     // Pass user.id to ensure users can only update their own skills
-    const updatedSkill = await SkillService.updateUserSkill(user.id, params.id, proficiency);
+    const { id } = await params;
+    const updatedSkill = await SkillService.updateUserSkill(user.id, id, proficiency);
     return NextResponse.json(updatedSkill);
   } catch (error: any) {
     console.error('Error updating user skill:', error);
@@ -54,7 +55,7 @@ export async function PUT(
  */
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createClient();
@@ -65,7 +66,8 @@ export async function DELETE(
     }
 
     // Pass user.id to ensure users can only delete their own skills
-    await SkillService.removeUserSkill(user.id, params.id);
+    const { id } = await params;
+    await SkillService.removeUserSkill(user.id, id);
     
     return NextResponse.json({ success: true, message: 'Skill removed successfully' });
   } catch (error: any) {
