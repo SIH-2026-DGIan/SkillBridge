@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, isSupabaseConfigured } from '@/lib/supabase/server';
 import { SkillService } from '@/backend/services/skill.service';
 import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit';
 
@@ -9,6 +9,10 @@ import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit
  */
 export async function GET(req: NextRequest) {
   try {
+    if (!isSupabaseConfigured()) {
+      return NextResponse.json([]);
+    }
+
     const supabase = await createClient();
     const { data: { user }, error: userError } = await supabase.auth.getUser();
 
@@ -41,7 +45,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Rate limiting for adding skills
-    const rateLimit = checkRateLimit(`add_skill:${user.id}`, RATE_LIMITS.api);
+    const rateLimit = checkRateLimit(`add_skill:${user.id}`, RATE_LIMITS.general);
     if (!rateLimit.allowed) {
       return rateLimitResponse(rateLimit, 'Too many requests. Please try again later.');
     }

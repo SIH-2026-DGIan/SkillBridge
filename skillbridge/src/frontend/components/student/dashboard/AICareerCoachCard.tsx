@@ -1,8 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Sparkles, Video, ArrowRight, FileCheck, Search, Activity, Bot } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { ArrowRight, FileCheck, Search, Video, Bot } from 'lucide-react';
 
 interface InterviewHistory {
   id: string;
@@ -25,100 +24,94 @@ export function AICareerCoachCard({
   gapsCount,
   hasResume,
 }: AICareerCoachCardProps) {
-  const suggestions = [
+  const chips = [
     {
-      title: 'Improve my resume',
-      description: hasResume ? 'Fine-tune bullet points for ATS matching' : 'Upload resume to extract skills',
+      label: 'Improve my Resume',
       href: '/student/profile',
       icon: FileCheck,
-      badge: hasResume ? 'Resume uploaded' : 'Pending',
+      note: hasResume ? 'Optimise for ATS' : 'Upload resume first',
     },
     {
-      title: 'Find my skill gaps',
-      description: gapsCount > 0 ? `${gapsCount} gaps identified for ${targetRole || 'your role'}` : 'Run skill diagnostic test',
+      label: 'Find my Skill Gaps',
       href: '/student/skill-gaps',
       icon: Search,
-      badge: gapsCount > 0 ? `${gapsCount} gaps` : 'Optimized',
+      note:
+        gapsCount > 0
+          ? `${gapsCount} gap${gapsCount !== 1 ? 's' : ''} detected for ${targetRole || 'your role'}`
+          : 'Run skill diagnostic',
     },
     {
-      title: 'Prepare for interviews',
-      description: lastInterview ? `Last score: ${lastInterview.score}% on ${lastInterview.role}` : 'Practice real-time voice interview with Gemini Live',
+      label: 'Prepare for Interviews',
       href: '/student/interview',
       icon: Video,
-      badge: lastInterview ? `${lastInterview.score}%` : 'Practice now',
+      note: lastInterview
+        ? `Last score: ${lastInterview.score}% — ${lastInterview.role}`
+        : 'Practice voice mock interview',
     },
   ];
 
   return (
-    <div className="bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-900 rounded-2xl p-5 sm:p-6 text-white shadow-sm relative overflow-hidden flex flex-col justify-between h-full">
-      {/* Subtle AI Glow */}
-      <div className="absolute top-0 right-0 -mt-10 -mr-10 w-48 h-48 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-purple-500/10 rounded-full blur-2xl pointer-events-none" />
+    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm flex flex-col overflow-hidden">
+      {/* Subtle indigo accent strip */}
+      <div className="h-1 w-full bg-indigo-500" aria-hidden="true" />
 
-      <div className="relative z-10">
+      <div className="p-5 sm:p-6 flex flex-col gap-4">
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-indigo-800/60">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-300">
+            <div
+              className="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600"
+              aria-hidden="true"
+            >
               <Bot className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-black text-white tracking-tight flex items-center gap-2">
-                AI Career Coach
-                <span className="text-[10px] font-extrabold uppercase tracking-wider bg-indigo-500/30 text-indigo-200 px-2 py-0.5 rounded border border-indigo-400/20">
-                  Gemini Live
-                </span>
-              </h3>
-              <p className="text-[11px] text-indigo-200/80 font-medium">Your personal placement assistant</p>
+              <h3 className="text-sm font-bold text-slate-900 tracking-tight">AI Career Coach</h3>
+              <p className="text-[11px] text-slate-500 font-medium">
+                Your personalised placement assistant
+              </p>
             </div>
           </div>
         </div>
 
-        {/* 3 Actionable Suggestions */}
-        <div className="py-4 space-y-2.5">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-indigo-300/70">
-            Actionable AI Assistance
-          </div>
-
-          {suggestions.map((item) => (
+        {/* Action chips */}
+        <div className="flex flex-col gap-2" role="list" aria-label="AI Career Coach actions">
+          {chips.map((chip) => (
             <Link
-              key={item.title}
-              href={item.href}
-              className="flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all group"
+              key={chip.label}
+              href={chip.href}
+              className="flex items-center justify-between gap-3 p-3 rounded-xl border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/40 transition-all group focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+              role="listitem"
             >
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-7 h-7 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-300 shrink-0">
-                  <item.icon className="w-3.5 h-3.5" />
+                <div
+                  className="w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-indigo-100 flex items-center justify-center text-slate-500 group-hover:text-indigo-600 transition-colors shrink-0"
+                  aria-hidden="true"
+                >
+                  <chip.icon className="w-3.5 h-3.5" />
                 </div>
                 <div className="min-w-0">
-                  <div className="text-xs font-bold text-white group-hover:text-indigo-200 transition-colors truncate">
-                    {item.title}
+                  <div className="text-xs font-bold text-slate-800 group-hover:text-indigo-800 transition-colors">
+                    {chip.label}
                   </div>
-                  <div className="text-[11px] text-indigo-200/70 truncate">
-                    {item.description}
-                  </div>
+                  <div className="text-[11px] text-slate-400 truncate">{chip.note}</div>
                 </div>
               </div>
-
-              <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-white/10 text-indigo-200 border border-white/10">
-                  {item.badge}
-                </span>
-                <ArrowRight className="w-3.5 h-3.5 text-indigo-300 group-hover:translate-x-0.5 transition-transform" />
-              </div>
+              <ArrowRight
+                className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-500 group-hover:translate-x-0.5 transition-all shrink-0"
+                aria-hidden="true"
+              />
             </Link>
           ))}
         </div>
-      </div>
 
-      {/* Primary CTA */}
-      <div className="relative z-10 pt-3 border-t border-indigo-800/60">
+        {/* Primary CTA */}
         <Link
           href="/student/interview"
-          className="inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md transition-all group"
+          className="inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
         >
-          <span>Ask AI Career Coach</span>
-          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+          Ask AI Career Coach
+          <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
         </Link>
       </div>
     </div>

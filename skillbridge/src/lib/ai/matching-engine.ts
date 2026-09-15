@@ -14,6 +14,8 @@ export interface OpportunityProfile {
   company: string;
   type: 'internship' | 'job' | 'live_project';
   category?: string;
+  location?: string;
+  workMode?: string;
   requiredSkills: { skillId: string; requiredLevel: number }[];
   eligibility?: {
     minCgpa?: number;

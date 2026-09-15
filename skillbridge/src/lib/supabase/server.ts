@@ -16,8 +16,11 @@ export function isSupabaseConfigured(): boolean {
   return (
     !!SUPABASE_URL &&
     SUPABASE_URL !== 'your_supabase_project_url' &&
+    !SUPABASE_URL.includes('your-project.supabase.co') &&
+    !SUPABASE_URL.includes('placeholder.supabase.co') &&
     !!SUPABASE_ANON_KEY &&
-    SUPABASE_ANON_KEY !== 'your_supabase_anon_key'
+    SUPABASE_ANON_KEY !== 'your_supabase_anon_key' &&
+    SUPABASE_ANON_KEY !== 'placeholder'
   );
 }
 

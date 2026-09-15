@@ -1,7 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import { Sparkles, CheckCircle2, TrendingUp, ArrowRight, ShieldCheck, Target, Compass } from 'lucide-react';
+import {
+  Sparkles,
+  CheckCircle2,
+  TrendingUp,
+  ArrowRight,
+  Compass,
+  AlertTriangle,
+  BookOpen,
+} from 'lucide-react';
 import { SKILL_MAP } from '@/lib/skills-taxonomy';
 import { cn } from '@/lib/utils';
 
@@ -20,6 +28,28 @@ interface SkillIntelligenceProps {
   targetRole?: string;
 }
 
+function PriorityLabel({ gap }: { gap: number }) {
+  if (gap >= 40) {
+    return (
+      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-red-50 text-red-600 border border-red-200/60 uppercase tracking-wide">
+        High Priority
+      </span>
+    );
+  }
+  if (gap >= 20) {
+    return (
+      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200/60 uppercase tracking-wide">
+        Medium Priority
+      </span>
+    );
+  }
+  return (
+    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-600 border border-blue-200/60 uppercase tracking-wide">
+      Low Priority
+    </span>
+  );
+}
+
 export function SkillIntelligence({
   skills,
   skillGaps,
@@ -29,183 +59,192 @@ export function SkillIntelligence({
   const skillEntries = Object.entries(skills);
   const topStrengths = [...skillEntries].sort(([, a], [, b]) => b - a).slice(0, 4);
   const topGaps = skillGaps.slice(0, 4);
-
   const hasData = isAssessed || skillEntries.length > 0;
 
-  // Recommended Next Step based on actual backend results
-  const recommendedStep = !hasData
-    ? {
-        action: 'Take Skill Assessment',
-        reason: 'Validate core competencies and establish verified benchmarks.',
-        href: '/student/assessment',
-      }
-    : topGaps.length > 0
-    ? {
-        action: `Bridge gap in ${topGaps[0].name}`,
-        reason: `Your profile is ${topGaps[0].gap}% below the industry benchmark for ${targetRole || 'your target role'}.`,
-        href: '/student/learning',
-      }
-    : {
-        action: 'Explore Matched Roles',
-        reason: `All target competencies for ${targetRole || 'your target role'} are fulfilled. Submit your applications.`,
-        href: '/student/opportunities',
-      };
-
   return (
-    <div className="bg-white rounded-2xl p-6 sm:p-7 shadow-sm flex flex-col justify-between h-full">
-      <div>
+    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm flex flex-col h-full overflow-hidden">
+      {/* Accent top bar */}
+      <div
+        className={cn('h-1 w-full', hasData ? 'bg-indigo-500' : 'bg-slate-200')}
+        aria-hidden="true"
+      />
+
+      <div className="p-6 sm:p-7 flex flex-col flex-1">
         {/* Card Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+        <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
+          <div className="flex items-center gap-2.5">
+            <div
+              className="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center"
+              aria-hidden="true"
+            >
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-sm font-black text-slate-900 tracking-tight flex items-center gap-2">
-                AI Skill Intelligence
-              </h2>
+              <h2 className="text-sm font-bold text-slate-900 tracking-tight">Skill Intelligence</h2>
               <p className="text-[11px] text-slate-500 font-medium">
-                Real-time gap detection & role alignment for {targetRole || 'selected role'}
+                Gap detection for{' '}
+                <span className="font-semibold text-slate-600">{targetRole || 'your target role'}</span>
               </p>
             </div>
           </div>
-          {hasData && (
+          {hasData && skillEntries.length > 0 && (
             <Link
               href="/student/skills"
-              className="text-xs font-bold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1"
+              className="text-xs font-bold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              aria-label={`View all ${skillEntries.length} skills`}
             >
-              <span>View All ({skillEntries.length})</span>
-              <ArrowRight className="w-3 h-3" />
+              All ({skillEntries.length})
+              <ArrowRight className="w-3 h-3" aria-hidden="true" />
             </Link>
           )}
         </div>
 
-        {/* Content Body */}
+        {/* ── NO DATA: Assessment pending ──────────────────────────── */}
         {!hasData ? (
-          <div className="py-12 px-4 text-center space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center mx-auto text-indigo-600">
+          <div className="flex-1 flex flex-col items-center justify-center text-center py-8 px-4 space-y-3">
+            <div
+              className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-500 mx-auto"
+              aria-hidden="true"
+            >
               <Compass className="w-6 h-6" />
             </div>
-            <h3 className="text-sm font-bold text-slate-900">
-              Skill Intelligence Pending
-            </h3>
-            <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
-              Complete your skill assessment to unlock AI-powered skill analysis.
+            <h3 className="text-sm font-bold text-slate-900">Skills Not Yet Assessed</h3>
+            <p className="text-xs text-slate-500 max-w-xs leading-relaxed">
+              Complete your skill assessment to identify your highest-impact gaps and get
+              personalized learning recommendations.
             </p>
-            <div className="pt-2">
-              <Link
-                href="/student/assessment"
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-colors shadow-xs"
-              >
-                <span>Check Your Skills</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
+            <Link
+              href="/student/assessment"
+              className="mt-1 inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-colors shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+            >
+              Start Assessment
+              <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+            </Link>
           </div>
         ) : (
-          <div className="py-4 space-y-5">
-            {/* 1. Your Strengths */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                  Your Strengths
-                </span>
-                <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
-                  {topStrengths.length} Verified
-                </span>
-              </div>
-
-              {topStrengths.length === 0 ? (
-                <p className="text-xs text-slate-400 italic py-1">No verified skills recorded yet.</p>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div className="flex flex-col gap-5 flex-1">
+            {/* ── STRENGTHS ──────────────────────────────────────────── */}
+            {topStrengths.length > 0 && (
+              <div>
+                <div className="flex items-center justify-between mb-2.5">
+                  <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" aria-hidden="true" />
+                    Your Strengths
+                  </span>
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/60">
+                    {topStrengths.length} verified
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
                   {topStrengths.map(([skillId, score]) => {
-                    const skillName = SKILL_MAP[skillId]?.name || skillId;
+                    const skillName = SKILL_MAP[skillId]?.name || skillId.replace(/_/g, ' ');
                     return (
                       <div
                         key={skillId}
-                        className="p-2.5 rounded-xl bg-slate-50/70 flex items-center justify-between"
+                        className="p-2.5 rounded-lg bg-emerald-50/50 border border-emerald-100/80 flex items-center justify-between gap-1"
                       >
-                        <div className="min-w-0 pr-2">
-                          <span className="text-xs font-bold text-slate-800 truncate block">
-                            {skillName}
-                          </span>
-                          <span className="text-[10px] text-slate-400 font-medium">
-                            Demonstrated proficiency
-                          </span>
-                        </div>
-                        <span className="text-xs font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded shrink-0">
+                        <span className="text-xs font-semibold text-slate-700 truncate" title={skillName}>
+                          {skillName}
+                        </span>
+                        <span className="text-xs font-black text-emerald-600 shrink-0 tabular-nums">
                           {score}%
                         </span>
                       </div>
                     );
                   })}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
-            {/* 2. Skills to Improve */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
+            {/* ── SKILL GAPS ────────────────────────────────────────── */}
+            <div className="flex-1">
+              <div className="flex items-center justify-between mb-2.5">
                 <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                  <TrendingUp className="w-3.5 h-3.5 text-amber-600" />
-                  Skills to Improve
+                  <TrendingUp className="w-3.5 h-3.5 text-amber-500" aria-hidden="true" />
+                  Skill Gaps
                 </span>
-                <span className="text-[10px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded">
-                  {topGaps.length} Target Gaps
-                </span>
+                {topGaps.length > 0 && (
+                  <Link
+                    href="/student/skill-gaps"
+                    className="text-[10px] font-bold text-amber-700 hover:text-amber-800 bg-amber-50 hover:bg-amber-100 px-2 py-0.5 rounded border border-amber-200/60 transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-amber-400"
+                  >
+                    {topGaps.length} gaps →
+                  </Link>
+                )}
               </div>
 
               {topGaps.length === 0 ? (
-                <div className="p-3 rounded-xl bg-emerald-50/60 text-xs text-emerald-800 font-medium flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>All core benchmarks for {targetRole || 'your target role'} are satisfied!</span>
+                <div
+                  className="p-3 rounded-xl bg-emerald-50/70 border border-emerald-100 text-xs text-emerald-800 font-medium flex items-center gap-2"
+                  role="status"
+                >
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" aria-hidden="true" />
+                  <span>All benchmarks for {targetRole || 'your target role'} are met!</span>
                 </div>
               ) : (
-                <div className="space-y-2">
-                  {topGaps.map((gap) => (
-                    <div key={gap.skillId} className="space-y-1">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="font-bold text-slate-800">{gap.name}</span>
-                        <span className="font-bold text-amber-600 text-[11px]">
-                          Gap: {gap.gap}%
-                        </span>
+                <div className="space-y-4">
+                  {topGaps.map((gap) => {
+                    const current = gap.current ?? 0;
+                    const required = gap.required ?? Math.min(100, current + gap.gap);
+                    const currentPct = Math.min(100, current);
+                    const requiredPct = Math.min(100, required);
+
+                    return (
+                      <div key={gap.skillId} className="space-y-1.5">
+                        {/* Label row */}
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-slate-800">{gap.name}</span>
+                          <PriorityLabel gap={gap.gap} />
+                        </div>
+
+                        {/* Current level bar */}
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between text-[11px]">
+                            <span className="text-slate-500 font-medium">Current</span>
+                            <span className="text-slate-700 font-bold tabular-nums">{currentPct}%</span>
+                          </div>
+                          <div
+                            className="relative w-full h-2 bg-slate-100 rounded-full overflow-visible"
+                            role="progressbar"
+                            aria-valuenow={currentPct}
+                            aria-valuemin={0}
+                            aria-valuemax={100}
+                            aria-label={`${gap.name} current level: ${currentPct}%`}
+                          >
+                            {/* Current fill */}
+                            <div
+                              className="absolute left-0 top-0 h-full rounded-full bg-amber-400 transition-all duration-700"
+                              style={{ width: `${currentPct}%` }}
+                            />
+                            {/* Required marker */}
+                            <div
+                              className="absolute top-1/2 -translate-y-1/2 w-0.5 h-4 bg-blue-600 rounded-full"
+                              style={{ left: `${requiredPct}%` }}
+                              title={`Required: ${requiredPct}%`}
+                              aria-label={`Required level: ${requiredPct}%`}
+                            />
+                          </div>
+                          <div className="flex items-center justify-between text-[11px]">
+                            <span className="text-slate-400">Required</span>
+                            <span className="text-blue-600 font-bold tabular-nums">{requiredPct}%</span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                        <div
-                          className="h-full rounded-full bg-amber-400 transition-all duration-500"
-                          style={{ width: `${Math.min(100, gap.gap)}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
+
+                  {/* Learning path CTA */}
+                  <Link
+                    href="/student/learning"
+                    className="inline-flex items-center gap-1.5 mt-1 text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                    aria-label="View personalized learning path to close skill gaps"
+                  >
+                    <BookOpen className="w-3.5 h-3.5" aria-hidden="true" />
+                    View Learning Path
+                    <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+                  </Link>
                 </div>
               )}
-            </div>
-
-            {/* 3. Recommended Next Step */}
-            <div className="pt-2">
-              <div className="p-3.5 rounded-xl bg-gradient-to-r from-blue-50/80 to-indigo-50/60 border border-blue-100/80 flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 block mb-0.5">
-                    Recommended Next Step
-                  </span>
-                  <p className="text-xs font-bold text-slate-900 truncate">
-                    {recommendedStep.action}
-                  </p>
-                  <p className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
-                    {recommendedStep.reason}
-                  </p>
-                </div>
-                <Link
-                  href={recommendedStep.href}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-colors shrink-0 shadow-xs"
-                >
-                  <span>Go</span>
-                  <ArrowRight className="w-3 h-3" />
-                </Link>
-              </div>
             </div>
           </div>
         )}

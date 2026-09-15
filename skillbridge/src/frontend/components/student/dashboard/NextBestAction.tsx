@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, Sparkles, Compass } from 'lucide-react';
+import { ArrowRight, Zap } from 'lucide-react';
 
 export interface NextActionData {
   title: string;
@@ -14,49 +14,68 @@ export interface NextActionData {
 export function NextBestAction({ action, userName }: { action: NextActionData; userName: string }) {
   return (
     <div className="flex flex-col h-full">
+      {/* Section label */}
       <div className="flex items-center gap-2 mb-3">
-        <h2 className="text-sm font-black uppercase tracking-widest text-slate-900">
+        <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500">
           Next Best Action
         </h2>
-        <div className="flex-1 h-px bg-slate-200"></div>
+        <div className="flex-1 h-px bg-slate-200" aria-hidden="true" />
       </div>
 
-      <div className="relative flex-1 rounded-2xl bg-[#0F172A] text-white p-6 sm:p-8 shadow-lg border border-slate-800 overflow-hidden group flex flex-col justify-center">
-        {/* Subtle grid background */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:14px_24px] opacity-20"></div>
-        
-        {/* Glowing orb */}
-        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-64 h-64 bg-blue-600/30 rounded-full blur-3xl pointer-events-none transition-opacity group-hover:opacity-60" />
+      {/* Card */}
+      <div className="relative flex-1 rounded-2xl bg-white border border-blue-200 shadow-sm overflow-hidden flex flex-col">
+        {/* Blue accent top bar */}
+        <div className="h-1 w-full bg-blue-600 shrink-0" aria-hidden="true" />
 
-        <div className="relative z-10 flex flex-col h-full justify-between">
-          <div>
-            <div className="inline-flex items-center gap-1.5 mb-4">
-              <Sparkles className="w-4 h-4 text-blue-400" />
-              <span className="text-[11px] font-bold text-blue-400 uppercase tracking-wider">AI Recommended</span>
-            </div>
-
-            <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-white mb-3 leading-tight">
-              {action.title}
-            </h3>
-
-            <p className="text-slate-300 text-sm sm:text-base leading-relaxed mb-6 max-w-lg font-medium">
-              {action.description}
-            </p>
+        <div className="flex flex-col flex-1 p-6 sm:p-8">
+          {/* Step badge */}
+          <div className="flex items-center gap-2.5 mb-5">
+            <span
+              className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-blue-600 text-white font-mono font-bold text-xs shadow-sm"
+              aria-label="Step 01"
+            >
+              01
+            </span>
+            <span className="text-[11px] font-bold text-blue-600 uppercase tracking-wider">
+              Priority Action
+            </span>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mt-auto">
+          {/* Title */}
+          <h3 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 mb-3 leading-tight">
+            {action.title}
+          </h3>
+
+          {/* Description */}
+          <p className="text-slate-600 text-sm sm:text-[15px] leading-relaxed mb-5 max-w-lg">
+            {action.description}
+          </p>
+
+          {/* Impact callout */}
+          {action.impactReason && (
+            <div className="flex items-start gap-2 p-3 rounded-xl bg-blue-50 border border-blue-100 mb-6">
+              <Zap className="w-3.5 h-3.5 text-blue-500 shrink-0 mt-0.5" aria-hidden="true" />
+              <p className="text-xs text-blue-700 font-medium leading-relaxed">
+                <span className="font-bold">Why this matters: </span>
+                {action.impactReason}
+              </p>
+            </div>
+          )}
+
+          {/* CTAs */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-auto">
             <Link
               href={action.ctaHref}
-              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-black transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_20px_rgba(37,99,235,0.4)] hover:shadow-[0_0_25px_rgba(37,99,235,0.6)]"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-sm font-bold transition-all shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
             >
-              <span>{action.ctaText}</span>
-              <ArrowRight className="w-4 h-4" />
+              {action.ctaText}
+              <ArrowRight className="w-4 h-4" aria-hidden="true" />
             </Link>
-            
+
             {action.secondaryCtaText && action.secondaryCtaHref && (
               <Link
                 href={action.secondaryCtaHref}
-                className="inline-flex items-center justify-center px-5 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-sm font-bold border border-slate-700 transition-colors text-center"
+                className="inline-flex items-center justify-center px-5 py-3 rounded-xl border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300 hover:bg-slate-50 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
               >
                 {action.secondaryCtaText}
               </Link>
