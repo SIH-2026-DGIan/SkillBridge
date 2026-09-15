@@ -19,7 +19,9 @@ import {
   LayoutGrid,
   LogOut,
   X,
-  Video
+  Video,
+  GraduationCap,
+  AlertTriangle,
 } from 'lucide-react';
 import type { UserSession } from '@/lib/user-session';
 
@@ -67,18 +69,26 @@ export function StudentSidebar({ user, gapsCount, activeAppsCount, onClose }: St
     {
       group: 'CAREER JOURNEY',
       items: [
-        { href: '/student/profile', label: 'Profile', icon: User },
-        { href: '/student/assessment', label: 'Skills', icon: Target, badge: gapsCount > 0 ? gapsCount : null, badgeStyle: 'amber' },
-        { href: '/student/portfolio?tab=projects', label: 'Projects', icon: LayoutGrid },
-        { href: '/student/portfolio?tab=certifications', label: 'Certifications', icon: Award },
-        { href: '/student/opportunities', label: 'Opportunities', icon: Briefcase },
-        { href: '/student/interview', label: 'Mock Interviews', icon: Video },
+        { href: '/student/profile',                     label: 'Profile',         icon: User },
+        { href: '/student/assessment',                  label: 'Skills',          icon: Target,        badge: gapsCount > 0 ? gapsCount : null, badgeStyle: 'amber' },
+        { href: '/student/resume',                      label: 'Resume',          icon: FileText },
+        { href: '/student/portfolio?tab=projects',      label: 'Projects',        icon: LayoutGrid },
+        { href: '/student/portfolio?tab=certifications',label: 'Certifications',  icon: Award },
+        { href: '/student/skill-gaps',                  label: 'Skill Gaps',      icon: AlertTriangle, badge: gapsCount > 0 ? gapsCount : null, badgeStyle: 'amber' },
+        { href: '/student/opportunities',               label: 'Opportunities',   icon: Briefcase },
+      ],
+    },
+    {
+      group: 'DEVELOPMENT',
+      items: [
+        { href: '/student/learning',  label: 'Learning',        icon: BookOpen },
+        { href: '/student/interview', label: 'AI Interview',    icon: Video },
       ],
     },
     {
       group: 'APPLICATIONS',
       items: [
-        { href: '/student/applications', label: 'My Applications', icon: FileText, badge: activeAppsCount > 0 ? activeAppsCount : null, badgeStyle: 'slate' },
+        { href: '/student/applications', label: 'My Applications', icon: Bookmark, badge: activeAppsCount > 0 ? activeAppsCount : null, badgeStyle: 'slate' },
       ],
     },
   ];

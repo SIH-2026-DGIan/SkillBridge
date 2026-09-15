@@ -20,7 +20,7 @@ export async function PUT(
     }
 
     // Rate limiting for updates
-    const rateLimit = checkRateLimit(`update_skill:${user.id}`, RATE_LIMITS.api);
+    const rateLimit = checkRateLimit(`update_skill:${user.id}`, RATE_LIMITS.general);
     if (!rateLimit.allowed) {
       return rateLimitResponse(rateLimit, 'Too many requests. Please try again later.');
     }

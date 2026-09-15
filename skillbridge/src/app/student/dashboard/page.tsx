@@ -4,26 +4,35 @@ import { useState, useEffect, useMemo } from 'react';
 import {
   getSession,
   getStudentResume,
+  getStudentSkills,
+  getStudentApplications,
   type UserSession,
   type ParsedResume,
 } from '@/lib/user-session';
 import { ROLE_REQUIRED_SKILLS, SKILL_MAP } from '@/lib/skills-taxonomy';
 import { calculateMatch, OpportunityProfile } from '@/lib/ai/matching-engine';
 import { getInterviewHistory } from '@/app/actions/interview.actions';
-import { createClient } from '@/lib/supabase/client';
+import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 import { fetchUserProfile } from '@/lib/supabase/profile';
 import { fetchActiveOpportunities } from '@/backend/services/opportunities.service';
+import { DEMO_STUDENT_SKILLS, DEMO_OPPORTUNITIES } from '@/lib/demo-data';
 
 import { JourneyTracker, type JourneyStage } from '@/frontend/components/student/dashboard/JourneyTracker';
-import { CareerHero } from '@/frontend/components/student/dashboard/CareerHero';
-import { DashboardStats } from '@/frontend/components/student/dashboard/DashboardStats';
 import { NextBestAction, type NextActionData } from '@/frontend/components/student/dashboard/NextBestAction';
 import { CareerReadinessCard } from '@/frontend/components/student/dashboard/CareerReadinessCard';
 import { SkillIntelligence } from '@/frontend/components/student/dashboard/SkillIntelligence';
 import { RecommendedActions } from '@/frontend/components/student/dashboard/RecommendedActions';
 import { AICareerCoachCard } from '@/frontend/components/student/dashboard/AICareerCoachCard';
-import { RecentActivityCard, type ActivityEvent } from '@/frontend/components/student/dashboard/RecentActivityCard';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ArrowRight, MapPin, ExternalLink } from 'lucide-react';
+import Link from 'next/link';
+
+/** Returns "Good morning", "Good afternoon", or "Good evening" based on local time */
+function getTimeGreeting(): string {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  return 'Good evening';
+}
 
 export default function StudentDashboard() {
   const [user, setUser] = useState<UserSession | null>(null);
@@ -42,56 +51,89 @@ export default function StudentDashboard() {
     setUser(getSession());
     setResume(getStudentResume());
 
-    // Hydrate latest profile directly from Supabase session
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user: authUser } }) => {
-      if (authUser) {
-        fetchUserProfile(authUser.id).then((profile) => {
-          if (profile) {
-            setUser(getSession());
-          }
-        });
-      }
-    }).catch((e) => {
-      console.warn('Could not auto-fetch Supabase profile in dashboard:', e);
-    });
+    // Hydrate latest profile directly from Supabase session if configured
+    if (isSupabaseConfigured()) {
+      const supabase = createClient();
+      supabase.auth.getUser().then(({ data: { user: authUser } }) => {
+        if (authUser) {
+          fetchUserProfile(authUser.id).then((profile) => {
+            if (profile) {
+              setUser(getSession());
+            }
+          });
+        }
+      }).catch((e) => {
+        console.warn('Could not auto-fetch Supabase profile in dashboard:', e);
+      });
+    }
 
-    // Fetch real data from backend
+    // Fetch real data from backend with resilient offline/demo fallback
     const fetchDashboardData = async () => {
       try {
         setIsLoading(true);
         setError(null);
         
-        const [skillsRes, appsRes, oppsData] = await Promise.all([
-          fetch('/api/user/skills'),
-          fetch('/api/applications'),
-          fetchActiveOpportunities()
-        ]);
-        
-        if (!skillsRes.ok) throw new Error('Failed to fetch skills');
-        if (!appsRes.ok) throw new Error('Failed to fetch applications');
+        // 1. Fetch skills with graceful fallback
+        let skillsMap: Record<string, number> = {};
+        try {
+          const skillsRes = await fetch('/api/user/skills');
+          if (skillsRes.ok) {
+            const skillsData = await skillsRes.json();
+            if (Array.isArray(skillsData) && skillsData.length > 0) {
+              skillsData.forEach((s: any) => {
+                if (s.skill_id) skillsMap[s.skill_id] = s.proficiency;
+              });
+            }
+          }
+        } catch {
+          // Ignore API error and fall back
+        }
 
-        const skillsData = await skillsRes.json();
-        const appsData = await appsRes.json();
-
-        // Convert skills array to Record map
-        const skillsMap: Record<string, number> = {};
-        if (Array.isArray(skillsData)) {
-          skillsData.forEach(s => {
-            skillsMap[s.skill_id] = s.proficiency;
-          });
+        if (Object.keys(skillsMap).length === 0) {
+          const localSkills = getStudentSkills();
+          skillsMap = Object.keys(localSkills).length > 0 ? localSkills : DEMO_STUDENT_SKILLS;
         }
         setSkills(skillsMap);
-        setApplications(Array.isArray(appsData) ? appsData : []);
-        setOpportunities(oppsData || []);
 
-        const history = await getInterviewHistory();
-        if (history && history.length > 0) {
-          setLastInterview(history[0]);
+        // 2. Fetch applications with graceful fallback
+        let appsList: any[] = [];
+        try {
+          const appsRes = await fetch('/api/applications');
+          if (appsRes.ok) {
+            const appsData = await appsRes.json();
+            if (Array.isArray(appsData)) {
+              appsList = appsData;
+            }
+          }
+        } catch {
+          // Ignore API error and fall back
+        }
+        if (appsList.length === 0) {
+          appsList = getStudentApplications();
+        }
+        setApplications(appsList);
+
+        // 3. Fetch opportunities with graceful fallback
+        try {
+          const oppsData = await fetchActiveOpportunities();
+          setOpportunities(oppsData && oppsData.length > 0 ? oppsData : (DEMO_OPPORTUNITIES as any));
+        } catch {
+          setOpportunities(DEMO_OPPORTUNITIES as any);
+        }
+
+        // 4. Fetch interview history
+        try {
+          const history = await getInterviewHistory();
+          if (history && history.length > 0) {
+            setLastInterview(history[0]);
+          }
+        } catch {
+          // Ignore interview history error
         }
       } catch (err: any) {
-        console.error('Error fetching dashboard data:', err);
-        setError(err.message || 'Failed to load dashboard data');
+        console.warn('Non-fatal error in dashboard initialization, using demo fallback:', err);
+        setSkills((prev) => (Object.keys(prev).length > 0 ? prev : DEMO_STUDENT_SKILLS));
+        setOpportunities((prev) => (prev.length > 0 ? prev : (DEMO_OPPORTUNITIES as any)));
       } finally {
         setIsLoading(false);
       }
@@ -408,53 +450,153 @@ export default function StudentDashboard() {
 
   return (
     <div className="flex flex-col min-h-full bg-[#FAFAF8] pb-14 selection:bg-blue-100 selection:text-blue-900">
-      {/* SECTION 6: Horizontal Career Journey Tracker */}
+      {/* Journey Tracker */}
       <JourneyTracker stages={journeyStages} />
 
-      <main className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-[1600px] mx-auto space-y-10">
-        
-        {/* Simple Clean Greeting */}
-        <div className="flex flex-col gap-1">
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            Good morning, {user.name?.split(' ')[0] || 'Candidate'}
-          </h1>
-          <p className="text-slate-500 text-sm font-medium">
-            {user.targetRole || 'Select a target role'} • {user.academicYear || user.graduationYear ? `Class of ${user.graduationYear}` : 'Student'}
-          </p>
+      <main className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-[1600px] mx-auto space-y-8">
+
+        {/* ── GREETING + PROFILE COMPLETION ───────────────────────── */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
+              {getTimeGreeting()}
+            </p>
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              {user.name?.split(' ')[0] || 'Candidate'}
+            </h1>
+            <p className="text-slate-500 text-sm font-medium mt-0.5">
+              {user.targetRole || 'Select a target role'}
+              {(user.graduationYear) ? ` · Class of ${user.graduationYear}` : ''}
+            </p>
+          </div>
+
+          {/* Profile completion chip */}
+          {profileCompletion < 100 && (
+            <Link
+              href="/student/profile"
+              className="flex items-center gap-3 bg-white border border-slate-200 rounded-xl px-4 py-2.5 shadow-sm hover:border-blue-300 hover:shadow-md transition-all group min-w-[200px] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              aria-label={`Profile ${profileCompletion}% complete — click to complete your profile`}
+            >
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Profile</span>
+                  <span className="text-[11px] font-bold text-slate-700 tabular-nums">{profileCompletion}%</span>
+                </div>
+                <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden" role="progressbar" aria-valuenow={profileCompletion} aria-valuemin={0} aria-valuemax={100}>
+                  <div
+                    className="h-full rounded-full bg-blue-600 transition-all duration-700"
+                    style={{ width: `${profileCompletion}%` }}
+                  />
+                </div>
+              </div>
+              <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all shrink-0" aria-hidden="true" />
+            </Link>
+          )}
         </div>
 
-        {/* WHERE AM I & NEXT ACTION GRID */}
+        {/* ── MAIN GRID: Readiness + Next Action ──────────────────── */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch">
-          {/* SECTION 5: Career Readiness — The Hero Metric (5 cols) */}
+          {/* Career Readiness — 5 cols */}
           <div className="lg:col-span-5 flex flex-col h-full">
-            <div className="flex items-center gap-2 mb-3">
-              <h2 className="text-sm font-black uppercase tracking-widest text-slate-900">
-                Career Readiness
-              </h2>
-              <div className="flex-1 h-px bg-slate-200"></div>
-            </div>
             <CareerReadinessCard
               overallScore={overallReadiness}
               isAssessed={isAssessed}
               dimensions={readinessDimensions}
               aiInsight={aiInsight}
               targetRole={targetRole}
+              gapsCount={skillGaps.length}
+              lastAssessedDate={user?.assessmentDate}
             />
           </div>
 
-          {/* Next Best Action Card (7 cols) */}
+          {/* Next Best Action — 7 cols */}
           <div className="lg:col-span-7 flex flex-col h-full">
             <NextBestAction action={nextAction} userName={user.name || 'Candidate'} />
           </div>
         </div>
 
-        {/* Lower Row: Recommended Actions, AI Insight & Skill Gap */}
+        {/* ── LOWER ROW: Action Queue + Skill Intelligence + AI Coach ── */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch">
-          <div className="lg:col-span-7 flex flex-col h-full">
+          <div className="lg:col-span-7 flex flex-col h-full gap-6">
             <RecommendedActions actions={recommendedActionsList} />
+
+            {/* ── MATCHED OPPORTUNITIES STRIP ───────────────────── */}
+            {recommendedOpps.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500">
+                    Matched Opportunities
+                  </h2>
+                  <div className="flex-1 h-px bg-slate-200" aria-hidden="true" />
+                  <Link
+                    href="/student/opportunities"
+                    className="text-xs font-bold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                  >
+                    View all
+                    <ArrowRight className="w-3 h-3" aria-hidden="true" />
+                  </Link>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  {recommendedOpps.slice(0, 3).map(({ opp, match }) => {
+                    const matchPct = Math.round(match.score * 100);
+                    const matchColor = matchPct >= 85 ? 'text-emerald-600 bg-emerald-50 border-emerald-200' : matchPct >= 70 ? 'text-blue-600 bg-blue-50 border-blue-200' : 'text-amber-600 bg-amber-50 border-amber-200';
+                    const matchedSkillIds = match.matchedSkills?.slice(0, 3) || [];
+                    return (
+                      <div
+                        key={opp.id}
+                        className="bg-white border border-slate-200/80 rounded-xl px-4 py-3 flex items-center justify-between gap-3 shadow-sm hover:shadow-md hover:border-slate-300 transition-all group"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-sm font-bold text-slate-900 truncate">{opp.title}</span>
+                            <span className={`shrink-0 text-[11px] font-bold px-2 py-0.5 rounded-full border ${matchColor}`}>
+                              {matchPct}% match
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2.5 text-[11px] text-slate-500 flex-wrap">
+                            {opp.company && <span className="font-semibold text-slate-700">{opp.company}</span>}
+                            {opp.location && (
+                              <span className="flex items-center gap-1 text-slate-400">
+                                <MapPin className="w-3 h-3 text-slate-400" aria-hidden="true" />
+                                {opp.location}
+                              </span>
+                            )}
+                            {opp.type && <span className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-medium capitalize">{opp.type.replace('_', ' ')}</span>}
+                          </div>
+                          {matchedSkillIds.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1.5">
+                              {matchedSkillIds.map((id: string) => (
+                                <span key={id} className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-medium">
+                                  ✓ {SKILL_MAP[id]?.name || id.replace(/_/g, ' ')}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <Link
+                          href={`/student/opportunities`}
+                          className="shrink-0 inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-blue-600 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                          aria-label={`View ${opp.title} opportunity`}
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
+                        </Link>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Assessment-state-aware copy */}
+                <p className="text-[11px] text-slate-400 mt-2 font-medium">
+                  {isAssessed
+                    ? `${recommendedOpps.length} opportunities match your assessed skills.`
+                    : `${recommendedOpps.length} opportunities align with your profile.`}
+                </p>
+              </div>
+            )}
           </div>
 
-          <div className="lg:col-span-5 flex flex-col h-full gap-6">
+          <div className="lg:col-span-5 flex flex-col h-full gap-5">
             <AICareerCoachCard
               lastInterview={lastInterview}
               targetRole={targetRole}

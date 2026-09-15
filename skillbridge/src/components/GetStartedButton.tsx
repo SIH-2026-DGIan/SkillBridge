@@ -2,8 +2,6 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/components/AuthProvider';
-import { getSession } from '@/lib/user-session';
 
 interface GetStartedButtonProps {
   className?: string;
@@ -13,37 +11,10 @@ interface GetStartedButtonProps {
 
 export function GetStartedButton({ className, variant = 'hero', children }: GetStartedButtonProps) {
   const router = useRouter();
-  const { user, profile, loading } = useAuth();
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
-
-    const session = getSession();
-    const hasActiveSession = Boolean(user || (session?.id && session.email));
-
-    // 1. Unauthenticated users -> Navigate to role selection or signup (NOT onboarding)
-    if (!hasActiveSession) {
-      router.push('/signup?role=student');
-      return;
-    }
-
-    // 2. Authenticated users
-    const isComplete = Boolean(
-      session?.isProfileComplete ||
-      profile?.college ||
-      profile?.company ||
-      profile?.institution
-    );
-
-    const role = profile?.role || session?.role || 'student';
-
-    if (!isComplete) {
-      // Incomplete profile -> Step 04 Onboarding
-      router.push(`/onboarding?role=${role}`);
-    } else {
-      // Complete profile -> Role dashboard
-      router.push(`/dashboard/${role}`);
-    }
+    router.push('/role');
   };
 
   if (variant === 'navbar') {

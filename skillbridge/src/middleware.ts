@@ -6,7 +6,10 @@ export async function middleware(request: NextRequest) {
 
   // Check for Supabase session
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const hasSupabase = supabaseUrl && supabaseUrl !== 'your_supabase_project_url';
+  const isRealSupabase =
+    Boolean(supabaseUrl) &&
+    supabaseUrl !== 'your_supabase_project_url' &&
+    !supabaseUrl?.includes('your-project.supabase.co');
 
   // Public routes — always accessible
   const publicRoutes = ['/', '/login', '/signup', '/verify', '/role', '/dashboard', '/api', '/auth/callback', '/onboarding'];
@@ -23,8 +26,21 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Demo session verification (supports local & SIH demo auth)
+  const demoCookie = request.cookies.get('sb-demo-session')?.value;
+  if (demoCookie) {
+    try {
+      const parsed = JSON.parse(decodeURIComponent(demoCookie));
+      if (parsed?.id || parsed?.role) {
+        return NextResponse.next();
+      }
+    } catch {
+      // Invalid demo cookie, proceed to check Supabase
+    }
+  }
+
   // Real Supabase session verification
-  if (hasSupabase) {
+  if (isRealSupabase) {
     const { createServerClient } = await import('@supabase/ssr');
     const response = NextResponse.next();
 
@@ -59,7 +75,7 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // No Supabase session configured — redirect to login
+  // No active session found — redirect to login
   return NextResponse.redirect(new URL('/login', request.url));
 }
 

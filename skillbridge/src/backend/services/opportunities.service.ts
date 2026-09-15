@@ -1,4 +1,5 @@
-import { createClient } from "@/lib/supabase/client";
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import { DEMO_OPPORTUNITIES } from "@/lib/demo-data";
 
 export interface OpportunitySkillInput {
   skill_id: string;
@@ -174,32 +175,52 @@ export async function updateOpportunity(
 }
 
 export async function fetchActiveOpportunities() {
-  const supabase = createClient();
+  if (!isSupabaseConfigured()) {
+    return DEMO_OPPORTUNITIES.map((opp: any) => ({
+      ...opp,
+      requiredSkills: opp.requiredSkills || [],
+    }));
+  }
 
-  const { data, error } = await supabase
-    .from("opportunities")
-    .select(`
-      id, title, company, type, category, status, location, work_mode, duration, stipend, deadline,
-      opportunity_skills (
-        skill_id,
-        required_level,
-        skills (
-          id,
-          name
+  try {
+    const supabase = createClient();
+
+    const { data, error } = await supabase
+      .from("opportunities")
+      .select(`
+        id, title, company, type, category, status, location, work_mode, duration, stipend, deadline,
+        opportunity_skills (
+          skill_id,
+          required_level,
+          skills (
+            id,
+            name
+          )
         )
-      )
-    `)
-    .eq("status", "active")
-    .order("created_at", { ascending: false });
+      `)
+      .eq("status", "active")
+      .order("created_at", { ascending: false });
 
-  if (error) throw error;
+    if (error || !data || data.length === 0) {
+      return DEMO_OPPORTUNITIES.map((opp: any) => ({
+        ...opp,
+        requiredSkills: opp.requiredSkills || [],
+      }));
+    }
 
-  // Transform the response to match the expected OpportunityProfile structure
-  return data.map((opp: any) => ({
-    ...opp,
-    requiredSkills: opp.opportunity_skills?.map((os: any) => ({
-      skillId: os.skill_id,
-      requiredLevel: os.required_level,
-    })) || [],
-  }));
+    // Transform the response to match the expected OpportunityProfile structure
+    return data.map((opp: any) => ({
+      ...opp,
+      requiredSkills: opp.opportunity_skills?.map((os: any) => ({
+        skillId: os.skill_id,
+        requiredLevel: os.required_level,
+      })) || [],
+    }));
+  } catch (err) {
+    console.warn("fetchActiveOpportunities failed, falling back to demo opportunities:", err);
+    return DEMO_OPPORTUNITIES.map((opp: any) => ({
+      ...opp,
+      requiredSkills: opp.requiredSkills || [],
+    }));
+  }
 }
